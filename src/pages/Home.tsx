@@ -109,19 +109,13 @@ const Home = () => {
             Upgrade your organization's intelligence.
           </h2>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              onClick={() => navigate("/scan")}
-              className="button-primary min-w-[280px]"
-            >
-              Start the Intelligence Scan →
-            </Button>
-          </div>
-          <button
-            onClick={() => navigate("/pricing")}
-            className="mt-6 text-foreground hover:text-muted-foreground transition-colors text-lg"
+          <Button
+            onClick={() => navigate("/scan")}
+            className="button-primary min-w-[280px]"
           >
-            Contact Sales →
-          </button>
+            Start the Intelligence Scan →
+          </Button>
+        </div>
         </div>
       </section>
 

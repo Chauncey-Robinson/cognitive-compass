@@ -98,16 +98,6 @@ const Pricing = () => {
             ))}
           </div>
 
-          {/* Enterprise */}
-          <div className="glass-card p-12 rounded-3xl text-center">
-            <h3 className="text-3xl font-semibold mb-4">Enterprise</h3>
-            <p className="text-muted-foreground text-lg mb-8">
-              For teams of 50+
-            </p>
-            <Button className="button-primary">
-              Contact Sales
-            </Button>
-          </div>
         </div>
       </section>
     </div>
