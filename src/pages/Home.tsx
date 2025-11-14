@@ -34,20 +34,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="py-16 px-6 border-y border-border/50">
-        <div className="mx-auto max-w-7xl">
-          <p className="text-center text-sm text-muted-foreground mb-8 tracking-wide uppercase">
-            Trusted by executives at
-          </p>
-          <div className="flex items-center justify-center gap-12 flex-wrap opacity-40">
-            <span className="text-2xl font-semibold">Oracle</span>
-            <span className="text-2xl font-semibold">JPMorgan</span>
-            <span className="text-2xl font-semibold">PwC</span>
-            <span className="text-2xl font-semibold">Mastercard</span>
-          </div>
-        </div>
-      </section>
 
       {/* How It Works */}
       <section className="py-32 px-6">
