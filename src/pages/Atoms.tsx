@@ -107,6 +107,27 @@ const atomsData = [
     description: "How to measure and validate AI performance",
     duration: "20s",
     category: "Advanced"
+  },
+  {
+    id: 16,
+    title: "Build Personal Assistant",
+    description: "Create a personalized AI assistant tailored to your workflow",
+    duration: "20s",
+    category: "Application"
+  },
+  {
+    id: 17,
+    title: "Create Role-Specific Tool",
+    description: "Develop AI tools designed for specific roles in your organization",
+    duration: "20s",
+    category: "Application"
+  },
+  {
+    id: 18,
+    title: "Rewrite SOP",
+    description: "Transform traditional SOPs into AI-enhanced workflows",
+    duration: "20s",
+    category: "Practical"
   }
 ];
 

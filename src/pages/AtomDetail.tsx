@@ -17,6 +17,21 @@ const atomContent: Record<string, { title: string; content: string; keyTakeaway:
     title: "Context Windows Explained",
     content: "A context window is the maximum amount of text an AI can 'see' at once — typically measured in tokens (roughly 4 characters per token). If you exceed this limit, the model forgets earlier parts of the conversation. Current models range from 4,000 to 200,000+ tokens. This is why long documents sometimes lose coherence: the model literally can't remember what it read 50 pages ago.",
     keyTakeaway: "AI has limited working memory — it can't remember everything you tell it."
+  },
+  "16": {
+    title: "Build Personal Assistant",
+    content: "Learn how to create a personalized AI assistant tailored to your specific needs and workflow. This atom guides you through understanding your requirements, selecting the right tools, and configuring an assistant that amplifies your productivity.",
+    keyTakeaway: "Personal AI assistants can be customized to match your unique working style."
+  },
+  "17": {
+    title: "Create Role-Specific Tool",
+    content: "Discover how to develop AI tools designed for specific roles within your organization. From sales automation to HR workflows, learn the principles of building focused solutions that address particular job functions effectively.",
+    keyTakeaway: "Role-specific AI tools deliver higher ROI than generic solutions."
+  },
+  "18": {
+    title: "Rewrite SOP",
+    content: "Master the art of transforming traditional Standard Operating Procedures into AI-enhanced workflows. Learn how to identify automation opportunities, redesign processes for AI integration, and maintain compliance while increasing efficiency.",
+    keyTakeaway: "Modern SOPs should be designed with AI capabilities in mind."
   }
 };
 
