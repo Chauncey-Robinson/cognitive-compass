@@ -1,7 +1,7 @@
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Brain, Zap, LineChart, MessageSquare, Play } from "lucide-react";
+import { Brain, Zap, LineChart, MessageSquare } from "lucide-react";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -19,18 +19,12 @@ const Home = () => {
           <p className="text-2xl md:text-3xl text-muted-foreground mb-12 font-light tracking-tight">
             The intelligence layer for modern organizations.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              onClick={() => navigate("/scan")}
-              className="button-primary min-w-[240px]"
-            >
-              Start the Intelligence Scan →
-            </Button>
-            <button className="inline-flex items-center gap-2 text-foreground hover:text-muted-foreground transition-colors">
-              <Play className="h-5 w-5" />
-              <span className="text-lg">Watch 2-min demo</span>
-            </button>
-          </div>
+          <Button
+            onClick={() => navigate("/scan")}
+            className="button-primary min-w-[240px]"
+          >
+            Start the Intelligence Scan →
+          </Button>
         </div>
       </section>
 
@@ -38,32 +32,38 @@ const Home = () => {
       {/* How It Works */}
       <section className="py-32 px-6">
         <div className="mx-auto max-w-7xl">
+          <div className="text-center mb-20">
+            <h2 className="text-display mb-4">How Oxford Intelligence Works</h2>
+            <p className="text-xl text-muted-foreground font-light">
+              Think better. Build smarter. Watch the change compound.
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
             <div className="text-center fade-in-up">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-foreground/5 mb-6">
                 <MessageSquare className="h-7 w-7" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Meet Your Tutor</h3>
+              <h3 className="text-2xl font-semibold mb-3">Think with Your Tutor</h3>
               <p className="text-muted-foreground leading-relaxed">
-                AI Socratic guide that upgrades thinking.
+                Socratic conversations that sharpen reasoning and deepen your understanding of AI.
               </p>
             </div>
             <div className="text-center fade-in-up" style={{ animationDelay: "0.1s" }}>
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-foreground/5 mb-6">
                 <Zap className="h-7 w-7" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Enter the Lab</h3>
+              <h3 className="text-2xl font-semibold mb-3">Build in the Lab</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Hands-on simulations and workflow redesigns.
+                Hands-on simulations and guided sprints using your real workflows and documents.
               </p>
             </div>
             <div className="text-center fade-in-up" style={{ animationDelay: "0.2s" }}>
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-foreground/5 mb-6">
                 <LineChart className="h-7 w-7" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Watch Yourself Evolve</h3>
+              <h3 className="text-2xl font-semibold mb-3">Track Your Evolution</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Intelligence score, skill velocity, decision tracking.
+                A live dashboard for your Intelligence Score, skill velocity, and workflow gains.
               </p>
             </div>
           </div>
