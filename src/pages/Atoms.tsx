@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Clock } from "lucide-react";
+import { BuildPersonalAssistantAtom, CreateRoleSpecificToolAtom, RewriteSOPAtom } from "@/components/atoms";
 
 const atomsData = [
   {
@@ -154,9 +155,20 @@ const Atoms = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {atomsData.map((atom) => (
-            <AtomCard key={atom.id} atom={atom} />
-          ))}
+          {atomsData.map((atom) => {
+            // Render interactive components for new atoms
+            if (atom.id === 16) {
+              return <BuildPersonalAssistantAtom key={atom.id} title={atom.title} description={atom.description} duration={atom.duration} />;
+            }
+            if (atom.id === 17) {
+              return <CreateRoleSpecificToolAtom key={atom.id} title={atom.title} description={atom.description} duration={atom.duration} />;
+            }
+            if (atom.id === 18) {
+              return <RewriteSOPAtom key={atom.id} title={atom.title} description={atom.description} duration={atom.duration} />;
+            }
+            // Render navigation cards for existing atoms
+            return <AtomCard key={atom.id} atom={atom} />;
+          })}
         </div>
       </div>
     </div>
