@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Brain } from "lucide-react";
 
 const Navigation = () => {
   const navigate = useNavigate();
@@ -37,7 +38,9 @@ const Navigation = () => {
             onClick={() => navigate("/")}
             className="flex items-center gap-2 group"
           >
-            <div className="w-8 h-8 rounded-full border-2 border-foreground/20 group-hover:border-foreground/40 transition-colors" />
+            <div className="w-8 h-8 rounded-full border-2 border-foreground/20 group-hover:border-foreground/40 transition-colors flex items-center justify-center">
+              <Brain className="w-4 h-4" />
+            </div>
             <span className="text-lg font-semibold tracking-tight">
               Oxford Intelligence
             </span>
