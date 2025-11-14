@@ -2,6 +2,14 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Brain, Zap, LineChart, MessageSquare } from "lucide-react";
+import heroIllustration from "@/assets/hero-intelligence-layer.png";
+import tutorIllustration from "@/assets/tutor-thinking.png";
+import labIllustration from "@/assets/lab-building.png";
+import evolutionIllustration from "@/assets/evolution-tracking.png";
+import scanBg from "@/assets/intelligence-scan-bg.png";
+import atomsBg from "@/assets/atoms-orbit.png";
+import sprintsBg from "@/assets/sprints-workflow.png";
+import executiveBg from "@/assets/executive-decision.png";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -11,8 +19,15 @@ const Home = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-24 px-6">
-        <div className="mx-auto max-w-5xl text-center">
+      <section className="pt-32 pb-24 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] pointer-events-none animate-fade-in">
+          <img 
+            src={heroIllustration} 
+            alt="" 
+            className="w-full max-w-5xl object-contain"
+          />
+        </div>
+        <div className="mx-auto max-w-5xl text-center relative z-10">
           <h1 className="text-hero mb-6 hero-fade-in">
             Oxford Intelligence
           </h1>
@@ -40,6 +55,9 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
             <div className="text-center card-fade-up">
+              <div className="mb-4 flex justify-center animate-fade-in">
+                <img src={tutorIllustration} alt="" className="w-20 h-20 opacity-[0.08] object-contain" />
+              </div>
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-foreground/5 mb-6 icon-bounce">
                 <MessageSquare className="h-7 w-7" />
               </div>
@@ -49,6 +67,9 @@ const Home = () => {
               </p>
             </div>
             <div className="text-center card-fade-up-1">
+              <div className="mb-4 flex justify-center animate-fade-in">
+                <img src={labIllustration} alt="" className="w-20 h-20 opacity-[0.08] object-contain" />
+              </div>
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-foreground/5 mb-6 icon-rotate">
                 <Zap className="h-7 w-7" />
               </div>
@@ -58,6 +79,9 @@ const Home = () => {
               </p>
             </div>
             <div className="text-center card-fade-up-2">
+              <div className="mb-4 flex justify-center animate-fade-in">
+                <img src={evolutionIllustration} alt="" className="w-20 h-20 opacity-[0.08] object-contain" />
+              </div>
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-foreground/5 mb-6 icon-shimmer">
                 <LineChart className="h-7 w-7" />
               </div>
@@ -80,6 +104,7 @@ const Home = () => {
                 title="Intelligence Scan"
                 description="20-minute diagnostic assessing reasoning, workflow maturity, and AI readiness."
                 onClick={() => navigate("/intelligence-scan")}
+                bgImage={scanBg}
               />
             </div>
             <div className="card-fade-up-1">
@@ -88,6 +113,7 @@ const Home = () => {
                 title="Cognitive Atoms"
                 description="15-second lessons on embeddings, attention, and model mechanics."
                 onClick={() => navigate("/atoms")}
+                bgImage={atomsBg}
               />
             </div>
             <div className="card-fade-up-2">
@@ -96,6 +122,7 @@ const Home = () => {
                 title="Applied Sprints"
                 description="Hands-on tasks to automate reports, build assistants, redesign workflows."
                 onClick={() => navigate("/sprints")}
+                bgImage={sprintsBg}
               />
             </div>
             <div className="card-fade-up">
@@ -104,6 +131,7 @@ const Home = () => {
                 title="Executive Mode"
                 description="Judgment frameworks, governance, and strategic AI transformation."
                 onClick={() => navigate("/executive")}
+                bgImage={executiveBg}
               />
             </div>
           </div>
@@ -150,22 +178,31 @@ const FeatureCard = ({
   title,
   description,
   onClick,
+  bgImage,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
   onClick: () => void;
+  bgImage?: string;
 }) => {
   return (
     <button
       onClick={onClick}
-      className="glass-card p-10 rounded-3xl text-left card-hover group"
+      className="glass-card p-10 rounded-3xl text-left card-hover group relative overflow-hidden"
     >
-      <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-foreground/5 mb-6 group-hover:bg-foreground/10 transition-all duration-300 icon-bounce">
-        {icon}
+      {bgImage && (
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none animate-fade-in">
+          <img src={bgImage} alt="" className="w-full h-full object-contain" />
+        </div>
+      )}
+      <div className="relative z-10">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-foreground/5 mb-6 group-hover:bg-foreground/10 transition-all duration-300 icon-bounce">
+          {icon}
+        </div>
+        <h3 className="text-2xl font-semibold mb-3">{title}</h3>
+        <p className="text-muted-foreground leading-relaxed">{description}</p>
       </div>
-      <h3 className="text-2xl font-semibold mb-3">{title}</h3>
-      <p className="text-muted-foreground leading-relaxed">{description}</p>
     </button>
   );
 };
