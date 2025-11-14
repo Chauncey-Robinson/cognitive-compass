@@ -160,7 +160,9 @@ const Home = () => {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full border-2 border-foreground/20" />
+              <div className="w-8 h-8 rounded-full border-2 border-foreground/20 flex items-center justify-center">
+                <Brain className="w-4 h-4" />
+              </div>
               <span className="text-sm font-semibold">Oxford Intelligence</span>
             </div>
             <p className="text-sm text-muted-foreground">
