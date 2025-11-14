@@ -32,7 +32,7 @@ const Home = () => {
             Oxford Intelligence
           </h1>
           <p className="text-2xl md:text-3xl text-muted-foreground mb-12 font-light tracking-tight hero-fade-in-delayed">
-            The intelligence layer for modern organizations.
+            Smarter decisions for everyone.
           </p>
           <Button
             onClick={() => navigate("/scan")}
