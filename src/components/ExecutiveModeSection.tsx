@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Scale, Shield, Users, Target, TrendingUp, DollarSign, ArrowRight } from "lucide-react";
 
@@ -49,7 +49,18 @@ const features = [
 
 const ExecutiveModeSection = () => {
   const [selectedFeatureId, setSelectedFeatureId] = useState(features[0].id);
+  const [isVisible, setIsVisible] = useState(false);
+  const [detailKey, setDetailKey] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  useEffect(() => {
+    // Trigger crossfade animation when selection changes
+    setDetailKey(prev => prev + 1);
+  }, [selectedFeatureId]);
 
   const selectedFeature = features.find(f => f.id === selectedFeatureId) || features[0];
   const Icon = selectedFeature.icon;
@@ -58,7 +69,7 @@ const ExecutiveModeSection = () => {
     <div className="mx-auto max-w-7xl">
       {/* Feature Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {features.map((feature) => {
+        {features.map((feature, index) => {
           const FeatureIcon = feature.icon;
           const isSelected = feature.id === selectedFeatureId;
           
@@ -69,6 +80,11 @@ const ExecutiveModeSection = () => {
               className={`glass-card p-8 rounded-2xl text-left transition-all hover:shadow-lg ${
                 isSelected ? 'ring-2 ring-primary bg-primary/5' : ''
               }`}
+              style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+                transition: `opacity 500ms ease-out ${index * 200}ms, transform 500ms ease-out ${index * 200}ms, box-shadow 300ms ease, background-color 300ms ease`,
+              }}
             >
               <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-6 transition-colors ${
                 isSelected ? 'bg-primary/20' : 'bg-foreground/5'
@@ -84,9 +100,15 @@ const ExecutiveModeSection = () => {
         })}
       </div>
 
-      {/* Detail Panel */}
+      {/* Detail Panel with Crossfade */}
       <div className="mx-auto max-w-3xl">
-        <div className="glass-card p-8 md:p-10 rounded-2xl border border-border/50">
+        <div 
+          key={detailKey}
+          className="glass-card p-8 md:p-10 rounded-2xl border border-border/50"
+          style={{
+            animation: 'fadeIn 400ms ease-out',
+          }}
+        >
           <div className="flex items-start gap-4 mb-6">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 flex-shrink-0">
               <Icon className="h-6 w-6 text-primary" />
@@ -110,6 +132,19 @@ const ExecutiveModeSection = () => {
           </button>
         </div>
       </div>
+
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };

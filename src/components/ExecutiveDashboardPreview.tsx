@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, Target, Users } from "lucide-react";
@@ -5,26 +6,91 @@ import { TrendingUp, Target, Users } from "lucide-react";
 const metrics = [
   {
     label: "Intelligence Velocity",
-    value: "+47%",
+    value: 47,
+    suffix: "%",
+    prefix: "+",
     icon: TrendingUp,
   },
   {
     label: "Automation Score",
-    value: "82/100",
+    value: 82,
+    suffix: "/100",
+    prefix: "",
     icon: Target,
   },
   {
     label: "Team Readiness",
-    value: "76%",
+    value: 76,
+    suffix: "%",
+    prefix: "",
     icon: Users,
   },
 ];
 
+const useCountUp = (end: number, duration: number = 800, isVisible: boolean) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    let startTime: number;
+    let animationFrame: number;
+
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      
+      // Easing function for smooth animation
+      const easeOutQuad = (t: number) => t * (2 - t);
+      const currentCount = Math.floor(easeOutQuad(progress) * end);
+      
+      setCount(currentCount);
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [end, duration, isVisible]);
+
+  return count;
+};
+
 const ExecutiveDashboardPreview = () => {
   const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <div className="glass-card p-8 rounded-3xl">
+    <div ref={containerRef} className="glass-card p-8 rounded-3xl">
       <h2 className="text-2xl font-semibold mb-6">CEO Dashboard</h2>
       
       <div className="bg-gradient-to-br from-foreground/5 to-foreground/10 rounded-2xl p-8">
@@ -33,6 +99,8 @@ const ExecutiveDashboardPreview = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {metrics.map((metric) => {
             const Icon = metric.icon;
+            const animatedValue = useCountUp(metric.value, 800, isVisible);
+            
             return (
               <div
                 key={metric.label}
@@ -46,7 +114,9 @@ const ExecutiveDashboardPreview = () => {
                     {metric.label}
                   </p>
                 </div>
-                <p className="text-3xl font-bold">{metric.value}</p>
+                <p className="text-3xl font-bold">
+                  {metric.prefix}{animatedValue}{metric.suffix}
+                </p>
               </div>
             );
           })}
