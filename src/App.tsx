@@ -47,6 +47,10 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/atoms/:id" element={<AtomDetail />} />
             <Route path="/sprints/:id" element={<SprintDetail />} />
+            <Route path="/report-sprint" element={<SprintDetail />} />
+            <Route path="/workflow-sprint" element={<SprintDetail />} />
+            <Route path="/assistant-sprint" element={<SprintDetail />} />
+            <Route path="/role-tool-sprint" element={<SprintDetail />} />
             <Route path="/tutor" element={<Tutor />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
