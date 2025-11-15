@@ -6,10 +6,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface SampleInput {
+interface NewsItem {
   url: string;
   title: string;
   summary: string;
+  type: 'research' | 'news' | 'report' | 'other';
 }
 
 interface AIResponse {
@@ -19,23 +20,77 @@ interface AIResponse {
   leaderAction: string;
 }
 
-async function generateExecutiveBrief() {
-  // Sample inputs - in the future this can be replaced with RSS feeds or APIs
-  const sampleInputs: SampleInput[] = [
-    {
-      url: 'https://example.com/mit-ai-paper',
-      title: 'Smaller AI Models with Better Data',
-      summary: 'MIT researchers show that smaller models trained on higher-quality data can match or beat larger models, changing the cost-benefit tradeoff of scaling.'
-    },
-    {
-      url: 'https://example.com/openai-multimodal',
-      title: 'New Multimodal Assistant Capabilities',
-      summary: 'OpenAI releases a model that can process text, images, audio, and video together, enabling more natural assistant-like behavior.'
-    }
+// Fetch and parse RSS feeds from AI news sources
+async function fetchAINews(): Promise<NewsItem[]> {
+  const rssSources = [
+    'https://openai.com/blog/rss.xml',
+    'https://blog.google/technology/ai/rss',
+    'https://www.anthropic.com/news/rss',
   ];
 
-  // Pick the first item as today's main story
-  const main = sampleInputs[0];
+  const newsItems: NewsItem[] = [];
+
+  for (const rssUrl of rssSources) {
+    try {
+      const response = await fetch(rssUrl);
+      if (!response.ok) continue;
+
+      const xmlText = await response.text();
+      
+      // Simple RSS parsing - extract items
+      const itemMatches = xmlText.matchAll(/<item>([\s\S]*?)<\/item>/g);
+      
+      for (const match of itemMatches) {
+        const itemXml = match[1];
+        
+        const titleMatch = itemXml.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>|<title>(.*?)<\/title>/);
+        const linkMatch = itemXml.match(/<link>(.*?)<\/link>/);
+        const descMatch = itemXml.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>|<description>(.*?)<\/description>/);
+        
+        if (titleMatch && linkMatch) {
+          const title = (titleMatch[1] || titleMatch[2] || '').trim();
+          const url = linkMatch[1].trim();
+          const description = (descMatch?.[1] || descMatch?.[2] || '').trim()
+            .replace(/<[^>]*>/g, '') // Remove HTML tags
+            .substring(0, 500); // Limit length
+          
+          if (title && url) {
+            newsItems.push({
+              url,
+              title,
+              summary: description || title,
+              type: rssUrl.includes('openai') || rssUrl.includes('anthropic') ? 'news' : 'research'
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error fetching RSS from ${rssUrl}:`, error);
+    }
+  }
+
+  return newsItems;
+}
+
+async function generateExecutiveBrief() {
+  // Fetch real AI news from RSS feeds
+  console.log('Fetching AI news from RSS feeds...');
+  const newsItems = await fetchAINews();
+  
+  // If no news found, use fallback
+  if (newsItems.length === 0) {
+    console.log('No news found from RSS feeds, using fallback');
+    newsItems.push({
+      url: 'https://openai.com',
+      title: 'AI Industry Update',
+      summary: 'The AI industry continues to evolve with new developments in large language models, safety research, and practical applications across various sectors.',
+      type: 'news'
+    });
+  }
+
+  // Pick the most recent item as today's main story
+  const main = newsItems[0];
+  console.log(`Selected story: ${main.title}`);
 
   // Call AI to generate the brief
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -99,13 +154,13 @@ No jargon. No buzzwords.`
 
   return {
     date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
-    sourceUrl: main.url,
-    sourceTitle: main.title,
-    sourceType: 'research',
-    whatHappened: parsed.whatHappened,
-    explainLikeIm10: parsed.explainLikeIm10,
-    whyItMatters: parsed.whyItMatters,
-    leaderAction: parsed.leaderAction,
+    source_url: main.url,
+    source_title: main.title,
+    source_type: main.type,
+    what_happened: parsed.whatHappened,
+    explain_like_im_10: parsed.explainLikeIm10,
+    why_it_matters: parsed.whyItMatters,
+    leader_action: parsed.leaderAction,
   };
 }
 
