@@ -10,7 +10,20 @@ export const useTextToSpeech = () => {
   useEffect(() => {
     if (!isAvailable) {
       console.warn('Speech Synthesis API is not available in this browser.');
+      return;
     }
+
+    // Load voices (some browsers require this)
+    const loadVoices = () => {
+      window.speechSynthesis.getVoices();
+    };
+
+    loadVoices();
+    window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+
+    return () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+    };
   }, [isAvailable]);
 
   const speak = useCallback((text: string) => {
@@ -25,7 +38,24 @@ export const useTextToSpeech = () => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
-    utterance.lang = 'en-US';
+    utterance.lang = 'en-GB'; // Set to British English
+
+    // Get available voices and select a UK male voice
+    const voices = window.speechSynthesis.getVoices();
+    const ukMaleVoice = voices.find(voice => 
+      voice.lang.includes('en-GB') && 
+      (voice.name.toLowerCase().includes('male') || 
+       voice.name.toLowerCase().includes('daniel') ||
+       voice.name.toLowerCase().includes('arthur') ||
+       voice.name.toLowerCase().includes('george'))
+    );
+    
+    // If no specific UK male voice found, try any UK voice
+    const ukVoice = ukMaleVoice || voices.find(voice => voice.lang.includes('en-GB'));
+    
+    if (ukVoice) {
+      utterance.voice = ukVoice;
+    }
 
     utterance.onstart = () => {
       setIsSpeaking(true);
