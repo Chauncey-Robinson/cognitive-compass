@@ -51,6 +51,7 @@ const App = () => (
             <Route path="/workflow-sprint" element={<SprintDetail />} />
             <Route path="/assistant-sprint" element={<SprintDetail />} />
             <Route path="/role-tool-sprint" element={<SprintDetail />} />
+            <Route path="/sop-sprint" element={<SprintDetail />} />
             <Route path="/tutor" element={<Tutor />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -50,6 +50,11 @@ const sprintInstructions: Record<string, { title: string; instructions: string; 
     title: "Create a Role-Specific Tool",
     instructions: "Describe the specific role and repetitive task that needs automation. The AI will help you design a custom tool.",
     sampleInput: "Sales team needs a tool to automatically generate personalized follow-up emails based on client interaction notes and deal stage."
+  },
+  "sop-sprint": {
+    title: "Rewrite an SOP",
+    instructions: "Paste your current Standard Operating Procedure below. The AI will analyze it and suggest an AI-enhanced version with automation opportunities, clearer steps, and improved efficiency.",
+    sampleInput: "Customer Onboarding SOP: 1. Receive signed contract 2. Manually create account in system 3. Send welcome email with login 4. Schedule kickoff call 5. Assign account manager 6. Create project folder 7. Send training materials. Takes 2-3 days."
   }
 };
 
@@ -91,6 +96,8 @@ const SprintDetail = () => {
       mockOutput = "**Workflow Analysis & Recommendations**\n\n**Current State Issues:**\n• 2-3 day turnaround time\n• Multiple manual handoffs\n• Email-based coordination (prone to delays)\n• Sequential approval process\n\n**AI-Enhanced Workflow:**\n1. Customer submits form → Auto-validation & data extraction (AI)\n2. Automated routing based on form type (Rules engine)\n3. Parallel review: Manager + Accounting team notified simultaneously\n4. Smart approval: Auto-approve standard requests, flag exceptions only\n5. Instant confirmation sent via automated email\n\n**Expected Improvements:**\n• Turnaround: 2-3 days → 2-4 hours\n• Manual steps reduced: 5 → 1\n• Error rate decreased by 60%";
     } else if (sprintId === "role-tool-sprint") {
       mockOutput = "**Sales Follow-Up Tool Design**\n\n**Tool Name:** Smart Follow-Up Generator\n\n**Input Fields:**\n• Client name & company\n• Last interaction date\n• Deal stage (Prospecting, Demo, Negotiation, Closing)\n• Key discussion points\n• Next steps agreed upon\n\n**Output:**\nPersonalized email with:\n• Contextual greeting\n• Reference to previous conversation\n• Value proposition aligned with deal stage\n• Clear call-to-action\n• Professional sign-off\n\n**Sample Output:**\n'Hi [Name], Following up on our demo last Tuesday where we discussed your team's reporting challenges. Based on your feedback about the quarterly review process, I think our automated dashboard feature would save your team 10+ hours per month. Would you be available for a 15-minute call this Thursday to walk through a custom setup for your team?'";
+    } else if (sprintId === "sop-sprint") {
+      mockOutput = "**AI-Enhanced Customer Onboarding SOP**\n\n**Process Overview:**\nReduce onboarding time from 2-3 days to 2-4 hours through strategic automation.\n\n**Revised Workflow:**\n\n**Step 1: Contract Received (Automated)**\n• AI extracts key data from signed contract (company name, contact info, plan type)\n• System auto-creates account with appropriate permissions\n• Triggers welcome sequence\n\n**Step 2: Instant Welcome (Automated)**\n• Personalized email sent immediately with:\n  - Login credentials (auto-generated)\n  - Quick start guide tailored to plan type\n  - Calendar link for kickoff call\n• Account manager auto-assigned based on region/industry\n\n**Step 3: Kickoff Scheduling (Semi-Automated)**\n• AI suggests optimal meeting times based on team calendars\n• Customer selects time via booking link\n• Meeting auto-added to all calendars with agenda\n\n**Step 4: Resource Provisioning (Automated)**\n• Project folder structure auto-created in cloud storage\n• Training materials delivered via email drip sequence\n• Access permissions configured automatically\n\n**Step 5: Human Touchpoint (Manual)**\n• Account manager reviews account setup\n• Conducts kickoff call\n• Notes any custom requirements\n\n**Efficiency Gains:**\n• Time: 2-3 days → 2-4 hours\n• Manual steps: 7 → 2\n• Customer satisfaction: Improved due to instant response\n• Error rate: Reduced by 70% (no manual data entry)";
     }
     
     setOutput(mockOutput);
