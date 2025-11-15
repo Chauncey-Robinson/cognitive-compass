@@ -26,6 +26,10 @@ const atomIcons: Record<number, string> = {
   8: fineTuningIcon,
   9: tokensIcon,
   10: temperatureIcon,
+  11: compressionIcon,
+  12: predictionIcon,
+  13: modelsIcon,
+  14: tokensIcon,
   15: evaluationIcon,
 };
 
