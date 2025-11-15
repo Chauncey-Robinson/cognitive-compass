@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Brain, Zap, Target, Users, ArrowRight, CheckCircle } from "lucide-react";
 import ExecutiveDashboardPreview from "@/components/ExecutiveDashboardPreview";
+import ExecutiveBriefSection from "@/components/ExecutiveBriefSection";
 import PageTransition from "@/components/PageTransition";
 import ListenButton from "@/components/ListenButton";
 
@@ -126,6 +127,8 @@ const Home = () => {
           </div>
         </section>
 
+        {/* Executive Brief Section */}
+        <ExecutiveBriefSection />
 
         {/* Module Cards */}
         <section className="py-32 px-6">
