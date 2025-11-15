@@ -9,59 +9,35 @@ import ListenButton from "@/components/ListenButton";
 const Home = () => {
   const navigate = useNavigate();
 
-  const steps = [
-    {
-      number: "01",
-      title: "Scan your skills",
-      description: "Take a 20-minute AI checkup: reasoning, workflows, readiness.",
-      link: "/scan"
-    },
-    {
-      number: "02",
-      title: "Learn tiny skills",
-      description: "15-second lessons that explain AI simply.",
-      link: "/atoms"
-    },
-    {
-      number: "03",
-      title: "Apply it",
-      description: "Automate tasks, redesign workflows, and build assistants.",
-      link: "/sprints"
-    }
-  ];
 
   const modules = [
     {
       icon: Brain,
       title: "Intelligence Scan",
-      tagline: "Check your AI readiness.",
-      description: "A 20-minute diagnostic that shows strengths, gaps, and your AI maturity score.",
+      description: "A fast checkup that shows your AI level and what to do next.",
       link: "/intelligence-scan",
-      audio: "Check your AI readiness. A 20-minute diagnostic that shows strengths, gaps, and your AI maturity score."
+      audio: "A fast checkup that shows your AI level and what to do next."
     },
     {
       icon: Zap,
       title: "Cognitive Atoms",
-      tagline: "Tiny lessons that make AI make sense.",
-      description: "Short, fun, clear micro-lessons on how models work, how they think, and how to use them.",
+      description: "15-second lessons that explain how AI thinks and works.",
       link: "/atoms",
-      audio: "Tiny lessons that make AI make sense. Short, fun, clear micro-lessons on how models work, how they think, and how to use them."
+      audio: "15-second lessons that explain how AI thinks and works."
     },
     {
       icon: Target,
       title: "Applied Sprints",
-      tagline: "Hands-on skills you can use today.",
-      description: "Step-by-step guides to automate reports, build assistants, redesign workflows, and save hours weekly.",
+      description: "Step-by-step guides to automate reports and redesign workflows.",
       link: "/sprints",
-      audio: "Hands-on skills you can use today. Step-by-step guides to automate reports, build assistants, redesign workflows, and save hours weekly."
+      audio: "Step-by-step guides to automate reports and redesign workflows."
     },
     {
       icon: Users,
       title: "Executive Mode",
-      tagline: "Strategy, governance, and transformation.",
-      description: "Strategy, governance, risk, culture, and AI planning—all explained simply.",
+      description: "Clear explanations of strategy, risk, and planning.",
       link: "/executive",
-      audio: "Strategy, governance, and transformation. Strategy, governance, risk, culture, and AI planning—all explained simply."
+      audio: "Clear explanations of strategy, risk, and planning."
     }
   ];
 
@@ -76,69 +52,73 @@ const Home = () => {
             <h1 className="text-6xl md:text-8xl font-bold mb-8 animate-fade-in tracking-tight leading-tight">
               Lead smarter with AI.
             </h1>
-            <p className="text-xl md:text-3xl text-muted-foreground mb-16 font-light animate-fade-in max-w-3xl mx-auto leading-relaxed" style={{ animationDelay: '100ms' }}>
-              Simple tools that help leaders think clearer and move faster.
+            <p className="text-xl md:text-3xl text-muted-foreground mb-12 font-light animate-fade-in max-w-3xl mx-auto leading-relaxed" style={{ animationDelay: '100ms' }}>
+              Simple tools. Fast lessons. Real results.
             </p>
             <Button
               onClick={() => navigate("/intelligence-scan")}
               size="lg"
-              className="button-primary animate-fade-in text-lg px-10 py-7 h-auto rounded-full"
+              className="button-primary animate-fade-in text-lg px-10 py-7 h-auto rounded-full mb-6"
               style={{ animationDelay: '200ms' }}
             >
               Start Your Intelligence Scan
             </Button>
+            <p className="text-sm text-muted-foreground animate-fade-in font-light" style={{ animationDelay: '300ms' }}>
+              For busy people who want AI to feel easy—not confusing.
+            </p>
           </div>
         </section>
 
-        {/* Benefits Section */}
+        {/* How It Works Section */}
         <section className="py-32 px-6 bg-muted/10">
-          <div className="mx-auto max-w-6xl text-center">
-            <h2 className="text-4xl md:text-5xl font-semibold mb-20 leading-tight">
-              Everything you need to use AI with confidence.
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl mx-auto">
-              <div className="flex items-center justify-center gap-4 text-xl font-light">
-                <CheckCircle className="h-7 w-7 text-primary flex-shrink-0" />
-                <span>Learn fast</span>
-              </div>
-              <div className="flex items-center justify-center gap-4 text-xl font-light">
-                <CheckCircle className="h-7 w-7 text-primary flex-shrink-0" />
-                <span>Decide better</span>
-              </div>
-              <div className="flex items-center justify-center gap-4 text-xl font-light">
-                <CheckCircle className="h-7 w-7 text-primary flex-shrink-0" />
-                <span>Help your team move quicker</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Three-Step Journey */}
-        <section className="py-32 px-6">
           <div className="mx-auto max-w-7xl">
+            <h2 className="text-4xl md:text-5xl font-semibold mb-20 text-center leading-tight">
+              How it works
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
-              {steps.map((step, index) => (
-                <div
-                  key={step.number}
-                  className="glass-card p-10 rounded-3xl animate-fade-in hover:shadow-lg transition-shadow"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="text-6xl font-bold text-primary/15 mb-6">
-                    {step.number}
-                  </div>
-                  <h3 className="text-2xl font-semibold mb-4 leading-tight">{step.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed text-base">
-                    {step.description}
-                  </p>
+              <div
+                className="glass-card p-10 rounded-3xl animate-fade-in hover:shadow-lg transition-all"
+                style={{ animationDelay: '0ms' }}
+              >
+                <div className="text-6xl font-bold text-primary/15 mb-6">
+                  01
                 </div>
-              ))}
+                <h3 className="text-2xl font-semibold mb-4 leading-tight">Check your skills</h3>
+                <p className="text-muted-foreground leading-relaxed text-base">
+                  Take a quick 20-minute AI checkup. See your strengths, weak spots, and what to learn next.
+                </p>
+              </div>
+              <div
+                className="glass-card p-10 rounded-3xl animate-fade-in hover:shadow-lg transition-all"
+                style={{ animationDelay: '100ms' }}
+              >
+                <div className="text-6xl font-bold text-primary/15 mb-6">
+                  02
+                </div>
+                <h3 className="text-2xl font-semibold mb-4 leading-tight">Learn tiny lessons</h3>
+                <p className="text-muted-foreground leading-relaxed text-base">
+                  Watch 15-second micro-lessons that explain AI in plain English.
+                </p>
+              </div>
+              <div
+                className="glass-card p-10 rounded-3xl animate-fade-in hover:shadow-lg transition-all"
+                style={{ animationDelay: '200ms' }}
+              >
+                <div className="text-6xl font-bold text-primary/15 mb-6">
+                  03
+                </div>
+                <h3 className="text-2xl font-semibold mb-4 leading-tight">Use it at work</h3>
+                <p className="text-muted-foreground leading-relaxed text-base">
+                  Follow step-by-step guides to automate tasks and fix workflows.
+                </p>
+              </div>
             </div>
             <div className="text-center">
               <Button
                 onClick={() => navigate("/about")}
                 variant="outline"
                 size="lg"
-                className="text-base px-8 py-6 h-auto"
+                className="text-base px-8 py-6 h-auto rounded-full"
               >
                 See how it works
               </Button>
@@ -146,8 +126,9 @@ const Home = () => {
           </div>
         </section>
 
+
         {/* Module Cards */}
-        <section className="py-32 px-6 bg-muted/10">
+        <section className="py-32 px-6">
           <div className="mx-auto max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {modules.map((module, index) => {
@@ -157,19 +138,18 @@ const Home = () => {
                     key={module.title}
                     onClick={() => navigate(module.link)}
                     className="glass-card p-10 rounded-3xl text-left transition-all hover:shadow-xl hover:scale-[1.02] group animate-fade-in relative"
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    style={{ animationDelay: `${index * 150}ms` }}
                   >
-                    <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-start justify-between mb-8">
                       <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
                         <Icon className="h-8 w-8 text-primary" />
                       </div>
                       <div onClick={(e) => e.stopPropagation()}>
-                        <ListenButton text={module.audio} />
+                        <ListenButton text={module.audio} label="Listen" />
                       </div>
                     </div>
-                    <p className="text-sm font-medium text-primary mb-2">{module.tagline}</p>
-                    <h3 className="text-2xl font-semibold mb-4">{module.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed mb-6">
+                    <h3 className="text-3xl font-semibold mb-4 leading-tight">{module.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-lg mb-8">
                       {module.description}
                     </p>
                     <div className="flex items-center gap-2 text-primary font-medium">
