@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Brain, Zap, LineChart, MessageSquare } from "lucide-react";
+import ListenButton from "@/components/ListenButton";
 import heroIllustration from "@/assets/hero-intelligence-layer.png";
 import tutorIllustration from "@/assets/tutor-thinking.png";
 import labIllustration from "@/assets/lab-building.png";
@@ -194,16 +195,22 @@ const FeatureCard = ({
       className="glass-card p-10 rounded-3xl text-left group relative overflow-hidden"
     >
       {bgImage && (
-        <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none animate-fade-in">
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none">
           <img src={bgImage} alt="" className="w-full h-full object-contain" />
         </div>
       )}
       <div className="relative z-10">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-foreground/5 mb-6 group-hover:bg-foreground/10 transition-all duration-300 icon-bounce">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-foreground/5 mb-6 group-hover:bg-foreground/10 transition-all duration-300">
           {icon}
         </div>
         <h3 className="text-2xl font-semibold mb-3">{title}</h3>
-        <p className="text-muted-foreground leading-relaxed">{description}</p>
+        <p className="text-muted-foreground leading-relaxed mb-4">{description}</p>
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="flex justify-start"
+        >
+          <ListenButton text={description} />
+        </div>
       </div>
     </button>
   );
