@@ -10,6 +10,7 @@ import CognitiveAtoms from "./pages/CognitiveAtoms";
 import AppliedSprints from "./pages/AppliedSprints";
 import Executive from "./pages/Executive";
 import ExecutiveDetail from "./pages/ExecutiveDetail";
+import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import Signup from "./pages/Signup";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/sprints" element={<AppliedSprints />} />
             <Route path="/executive" element={<Executive />} />
             <Route path="/executive/:id" element={<ExecutiveDetail />} />
+            <Route path="/executive/dashboard" element={<ExecutiveDashboard />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/about" element={<About />} />
             <Route path="/signup" element={<Signup />} />
