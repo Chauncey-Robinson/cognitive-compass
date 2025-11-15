@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import ListenButton from "@/components/ListenButton";
 
 const sprintInstructions: Record<string, { title: string; instructions: string; sampleInput: string }> = {
   "1": {
@@ -74,6 +75,8 @@ const SprintDetail = () => {
     return <div>Sprint not found</div>;
   }
 
+  const lessonText = sprint.instructions;
+
   const handleProcess = async () => {
     setIsProcessing(true);
     
@@ -119,6 +122,9 @@ const SprintDetail = () => {
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-3">{sprint.title}</h1>
+          <div className="mb-4 w-full md:w-auto">
+            <ListenButton text={lessonText} />
+          </div>
           <p className="text-muted-foreground">{sprint.instructions}</p>
         </div>
 

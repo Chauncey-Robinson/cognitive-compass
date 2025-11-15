@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle } from "lucide-react";
+import ListenButton from "@/components/ListenButton";
 import modelsIcon from "@/assets/atoms/models-icon.png";
 import tokensIcon from "@/assets/atoms/tokens-icon.png";
 import contextWindowsIcon from "@/assets/atoms/context-windows-icon.png";
@@ -134,6 +135,8 @@ const AtomDetail = () => {
     return <div>Atom not found</div>;
   }
 
+  const lessonText = atom.content;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-6 py-12">
@@ -160,7 +163,10 @@ const AtomDetail = () => {
             <h1 className="text-3xl font-bold text-card-foreground mb-4">
               {atom.title}
             </h1>
-            <div className="h-1 w-20 bg-primary rounded-full" />
+            <div className="h-1 w-20 bg-primary rounded-full mb-4" />
+            <div className="w-full md:w-auto">
+              <ListenButton text={lessonText} />
+            </div>
           </div>
 
           <div className="prose prose-lg max-w-none mb-8">
