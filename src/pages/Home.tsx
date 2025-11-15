@@ -6,10 +6,10 @@ import heroIllustration from "@/assets/hero-intelligence-layer.png";
 import tutorIllustration from "@/assets/tutor-thinking.png";
 import labIllustration from "@/assets/lab-building.png";
 import evolutionIllustration from "@/assets/evolution-tracking.png";
-import scanBg from "@/assets/intelligence-scan-bg.png";
-import atomsBg from "@/assets/atoms-orbit.png";
-import sprintsBg from "@/assets/sprints-workflow.png";
-import executiveBg from "@/assets/executive-decision.png";
+import scanBg from "@/assets/intelligence-scan-illustration.png";
+import atomsBg from "@/assets/cognitive-atoms-illustration.png";
+import sprintsBg from "@/assets/applied-sprints-illustration.png";
+import executiveBg from "@/assets/executive-mode-illustration.png";
 
 const Home = () => {
   const navigate = useNavigate();
