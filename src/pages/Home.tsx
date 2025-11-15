@@ -102,7 +102,7 @@ const Home = () => {
               <FeatureCard
                 icon={<Brain className="h-8 w-8" />}
                 title="Intelligence Scan"
-                description="20-minute diagnostic assessing reasoning, workflow maturity, and AI readiness."
+                description="A quick checkup for how you think and work. Find out where you're strong, where you get stuck, and how ready you are to use AI in everyday tasks or leadership decisions."
                 onClick={() => navigate("/intelligence-scan")}
                 bgImage={scanBg}
               />
@@ -111,7 +111,7 @@ const Home = () => {
               <FeatureCard
                 icon={<Zap className="h-8 w-8" />}
                 title="Cognitive Atoms"
-                description="15-second lessons on embeddings, attention, and model mechanics."
+                description="Tiny lessons that make AI easy to understand. Fifteen-second explanations of how AI remembers, reasons, and predicts — in plain language anyone can follow."
                 onClick={() => navigate("/atoms")}
                 bgImage={atomsBg}
               />
@@ -120,7 +120,7 @@ const Home = () => {
               <FeatureCard
                 icon={<LineChart className="h-8 w-8" />}
                 title="Applied Sprints"
-                description="Hands-on tasks to automate reports, build assistants, redesign workflows."
+                description="Do something real, fast. Ten-minute hands-on tasks where you automate a report, fix a workflow, build a small assistant, or clean up an SOP."
                 onClick={() => navigate("/sprints")}
                 bgImage={sprintsBg}
               />
@@ -129,7 +129,7 @@ const Home = () => {
               <FeatureCard
                 icon={<MessageSquare className="h-8 w-8" />}
                 title="Executive Mode"
-                description="Judgment frameworks, governance, and strategic AI transformation."
+                description="A strategy layer for leaders. Decision playbooks, risk framing, governance templates, and transformation guidance built for busy executives."
                 onClick={() => navigate("/executive")}
                 bgImage={executiveBg}
               />
