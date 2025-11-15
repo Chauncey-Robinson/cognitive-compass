@@ -2,6 +2,32 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Clock } from "lucide-react";
 import { BuildPersonalAssistantAtom, CreateRoleSpecificToolAtom, RewriteSOPAtom } from "@/components/atoms";
+import modelsIcon from "@/assets/atoms/models-icon.png";
+import tokensIcon from "@/assets/atoms/tokens-icon.png";
+import contextWindowsIcon from "@/assets/atoms/context-windows-icon.png";
+import embeddingsIcon from "@/assets/atoms/embeddings-icon.png";
+import biasIcon from "@/assets/atoms/bias-icon.png";
+import attentionIcon from "@/assets/atoms/attention-icon.png";
+import evaluationIcon from "@/assets/atoms/evaluation-icon.png";
+import compressionIcon from "@/assets/atoms/compression-icon.png";
+import predictionIcon from "@/assets/atoms/prediction-icon.png";
+import fineTuningIcon from "@/assets/atoms/fine-tuning-icon.png";
+import temperatureIcon from "@/assets/atoms/temperature-icon.png";
+import hallucinationIcon from "@/assets/atoms/hallucination-icon.png";
+
+const atomIcons: Record<number, string> = {
+  1: modelsIcon,
+  2: embeddingsIcon,
+  3: contextWindowsIcon,
+  4: hallucinationIcon,
+  5: biasIcon,
+  6: attentionIcon,
+  7: predictionIcon,
+  8: fineTuningIcon,
+  9: tokensIcon,
+  10: temperatureIcon,
+  15: evaluationIcon,
+};
 
 const atomsData = [
   {
@@ -180,6 +206,15 @@ const AtomCard = ({ atom }: { atom: typeof atomsData[0] }) => {
 
   return (
     <div className="bg-card rounded-xl border border-border p-6 hover:shadow-lg transition-all cursor-pointer group">
+      {atomIcons[atom.id] && (
+        <div className="mb-4 flex justify-center">
+          <img 
+            src={atomIcons[atom.id]} 
+            alt="" 
+            className="w-12 h-12 object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+          />
+        </div>
+      )}
       <div className="flex items-start justify-between mb-3">
         <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
           {atom.category}

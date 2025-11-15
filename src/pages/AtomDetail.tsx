@@ -1,6 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle } from "lucide-react";
+import modelsIcon from "@/assets/atoms/models-icon.png";
+import tokensIcon from "@/assets/atoms/tokens-icon.png";
+import contextWindowsIcon from "@/assets/atoms/context-windows-icon.png";
+import embeddingsIcon from "@/assets/atoms/embeddings-icon.png";
+import biasIcon from "@/assets/atoms/bias-icon.png";
+import attentionIcon from "@/assets/atoms/attention-icon.png";
+import evaluationIcon from "@/assets/atoms/evaluation-icon.png";
+import compressionIcon from "@/assets/atoms/compression-icon.png";
+import predictionIcon from "@/assets/atoms/prediction-icon.png";
+import fineTuningIcon from "@/assets/atoms/fine-tuning-icon.png";
+import temperatureIcon from "@/assets/atoms/temperature-icon.png";
+import hallucinationIcon from "@/assets/atoms/hallucination-icon.png";
+
+const atomIcons: Record<string, string> = {
+  "1": modelsIcon,
+  "2": embeddingsIcon,
+  "3": contextWindowsIcon,
+  "4": hallucinationIcon,
+  "5": biasIcon,
+  "6": attentionIcon,
+  "7": predictionIcon,
+  "8": fineTuningIcon,
+  "9": tokensIcon,
+  "10": temperatureIcon,
+  "15": evaluationIcon,
+};
 
 const atomContent: Record<string, { title: string; content: string; keyTakeaway: string }> = {
   "1": {
@@ -57,6 +83,15 @@ const AtomDetail = () => {
         </Button>
 
         <div className="bg-card rounded-2xl border border-border p-8 shadow-lg">
+          {atomIcons[id] && (
+            <div className="mb-6 flex justify-center">
+              <img 
+                src={atomIcons[id]} 
+                alt="" 
+                className="w-20 h-20 object-contain opacity-90"
+              />
+            </div>
+          )}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-card-foreground mb-4">
               {atom.title}
