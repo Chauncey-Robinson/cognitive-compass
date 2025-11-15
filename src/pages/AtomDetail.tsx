@@ -25,6 +25,10 @@ const atomIcons: Record<string, string> = {
   "8": fineTuningIcon,
   "9": tokensIcon,
   "10": temperatureIcon,
+  "11": compressionIcon,
+  "12": predictionIcon,
+  "13": modelsIcon,
+  "14": tokensIcon,
   "15": evaluationIcon,
 };
 
@@ -43,6 +47,66 @@ const atomContent: Record<string, { title: string; content: string; keyTakeaway:
     title: "Context Windows Explained",
     content: "A context window is the maximum amount of text an AI can 'see' at once — typically measured in tokens (roughly 4 characters per token). If you exceed this limit, the model forgets earlier parts of the conversation. Current models range from 4,000 to 200,000+ tokens. This is why long documents sometimes lose coherence: the model literally can't remember what it read 50 pages ago.",
     keyTakeaway: "AI has limited working memory — it can't remember everything you tell it."
+  },
+  "4": {
+    title: "Hallucinations & Limitations",
+    content: "AI hallucinations occur when models generate plausible-sounding but incorrect or fabricated information. This happens because models predict what words should come next based on patterns, not facts. They don't know when they don't know something. Always verify critical information, especially dates, statistics, and technical details. Hallucinations are more common when models are asked about obscure topics or recent events outside their training data.",
+    keyTakeaway: "AI confidently generates false information — always verify critical facts."
+  },
+  "5": {
+    title: "Bias in AI Systems",
+    content: "AI models learn biases present in their training data. If historical data reflects societal biases around gender, race, or culture, the model will reproduce and sometimes amplify those biases. This affects hiring tools, loan applications, content moderation, and more. Understanding this limitation is crucial for responsible AI deployment. Mitigation requires diverse training data, careful evaluation, and human oversight in high-stakes decisions.",
+    keyTakeaway: "AI inherits and amplifies biases from its training data."
+  },
+  "6": {
+    title: "Attention Mechanism",
+    content: "The attention mechanism is the breakthrough that powers modern AI. It lets models focus on relevant parts of the input when generating each word. For example, when translating 'The cat sat on the mat' to French, the model pays attention to 'cat' when deciding the gender of pronouns. This selective focus enables models to handle long sequences and maintain context better than older approaches.",
+    keyTakeaway: "Attention lets AI focus on what matters, enabling context understanding."
+  },
+  "7": {
+    title: "Prediction & Uncertainty",
+    content: "AI models don't just predict the next word — they estimate probabilities for thousands of possibilities. Each prediction comes with a confidence score. Higher uncertainty often signals the model is guessing. Some systems expose these probabilities, letting you gauge reliability. Understanding prediction uncertainty helps you know when to trust AI outputs and when to seek human verification.",
+    keyTakeaway: "AI predictions come with confidence scores — higher uncertainty means less trust."
+  },
+  "8": {
+    title: "Fine-tuning vs Prompting",
+    content: "Fine-tuning means retraining a model on specific data to specialize its behavior — expensive but powerful. Prompting means giving the model instructions in natural language — cheap and flexible but less consistent. For most business tasks, smart prompting is enough. Fine-tuning makes sense for highly specialized domains, regulated industries, or when you need maximum consistency across thousands of similar tasks.",
+    keyTakeaway: "Prompting is fast and cheap; fine-tuning is powerful but expensive."
+  },
+  "9": {
+    title: "Token Economics",
+    content: "AI pricing is based on tokens, not words. A token is roughly 4 characters or ¾ of a word in English. Both input (what you send) and output (what the model generates) count. Longer prompts and responses cost more. This is why concise prompts and limiting output length matter for cost control. Understanding token economics helps you optimize AI spending without sacrificing quality.",
+    keyTakeaway: "AI costs are measured in tokens — shorter prompts save money."
+  },
+  "10": {
+    title: "Temperature & Sampling",
+    content: "Temperature controls AI creativity and randomness. Low temperature (0.0-0.3) makes outputs focused and deterministic — good for factual tasks. High temperature (0.7-1.0) increases variety and creativity — good for brainstorming. At temperature 0, the model always picks the most likely next word. At 1.0, it samples from the full probability distribution. Adjusting temperature is one of the simplest ways to tune AI behavior.",
+    keyTakeaway: "Temperature controls creativity: low for facts, high for ideas."
+  },
+  "11": {
+    title: "RAG Systems",
+    content: "Retrieval-Augmented Generation (RAG) combines AI models with external knowledge sources. Instead of relying solely on training data, RAG systems first search a database or documents for relevant information, then use that context to generate responses. This dramatically reduces hallucinations and keeps information current. RAG is the standard approach for building AI systems that need accurate, up-to-date, or company-specific knowledge.",
+    keyTakeaway: "RAG combines search with generation for accurate, current responses."
+  },
+  "12": {
+    title: "Chain of Thought",
+    content: "Chain of Thought prompting asks AI to show its reasoning steps before giving an answer. Instead of jumping to conclusions, the model thinks through the problem step-by-step. This dramatically improves performance on complex reasoning, math, and logic tasks. Simply adding 'Let's think step by step' to your prompt can boost accuracy by 20-50% on difficult problems.",
+    keyTakeaway: "Asking AI to show its work improves reasoning and accuracy."
+  },
+  "13": {
+    title: "Model Size Trade-offs",
+    content: "Larger models are smarter but slower and more expensive. Small models (7B parameters) are fast and cheap but struggle with complex tasks. Large models (70B+ parameters) handle nuance and reasoning but cost 10-50x more per token. The best practice: use small models for simple, high-volume tasks (classification, extraction) and large models for complex reasoning and writing. Match model size to task difficulty.",
+    keyTakeaway: "Bigger isn't always better — match model size to task complexity."
+  },
+  "14": {
+    title: "Zero-shot vs Few-shot",
+    content: "Zero-shot means asking AI to perform a task with no examples — just instructions. Few-shot means giving 2-5 examples before asking. Few-shot dramatically improves consistency and accuracy for specialized tasks. For example, if extracting data from invoices, showing the model 3 examples of correct extractions yields better results than detailed instructions alone. Few-shot learning is your best tool for improving output quality without fine-tuning.",
+    keyTakeaway: "Showing examples (few-shot) beats instructions alone (zero-shot)."
+  },
+  "15": {
+    title: "AI Evaluation Methods",
+    content: "Evaluating AI is harder than it seems. For factual tasks, you can compare outputs to ground truth. For creative tasks, human evaluation is often necessary. Common metrics include accuracy, precision, recall, and F1 score. For text generation, BLEU and ROUGE measure similarity to reference texts. The best evaluation combines automated metrics with regular human review. Always test on data the model hasn't seen during training.",
+    keyTakeaway: "AI evaluation requires both automated metrics and human judgment."
   },
   "16": {
     title: "Build Personal Assistant",
