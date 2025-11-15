@@ -14,7 +14,7 @@ const Executive = () => {
       <section className="pt-32 pb-24 px-6">
         <div className="mx-auto max-w-5xl text-center mb-16">
           <h1 className="text-hero mb-6">
-            The AI fluency operating system<br />for leaders.
+            The AI fluency system<br />for leaders.
           </h1>
           <p className="text-2xl md:text-3xl text-muted-foreground mb-12 font-light">
             Strategic intelligence for executives.
