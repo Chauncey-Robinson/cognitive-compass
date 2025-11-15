@@ -71,18 +71,18 @@ const Home = () => {
         <Navigation />
 
         {/* Hero Section */}
-        <section className="pt-32 pb-20 px-6">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in tracking-tight">
+        <section className="pt-40 pb-32 px-6">
+          <div className="mx-auto max-w-5xl text-center">
+            <h1 className="text-6xl md:text-8xl font-bold mb-8 animate-fade-in tracking-tight leading-tight">
               Lead smarter with AI.
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 font-light animate-fade-in max-w-2xl mx-auto" style={{ animationDelay: '100ms' }}>
+            <p className="text-xl md:text-3xl text-muted-foreground mb-16 font-light animate-fade-in max-w-3xl mx-auto leading-relaxed" style={{ animationDelay: '100ms' }}>
               Simple tools that help leaders think clearer and move faster.
             </p>
             <Button
               onClick={() => navigate("/intelligence-scan")}
               size="lg"
-              className="button-primary animate-fade-in text-base px-8 py-6 h-auto"
+              className="button-primary animate-fade-in text-lg px-10 py-7 h-auto rounded-full"
               style={{ animationDelay: '200ms' }}
             >
               Start Your Intelligence Scan
@@ -91,22 +91,22 @@ const Home = () => {
         </section>
 
         {/* Benefits Section */}
-        <section className="py-20 px-6">
-          <div className="mx-auto max-w-5xl text-center">
-            <h2 className="text-3xl md:text-4xl font-semibold mb-16">
+        <section className="py-32 px-6 bg-muted/10">
+          <div className="mx-auto max-w-6xl text-center">
+            <h2 className="text-4xl md:text-5xl font-semibold mb-20 leading-tight">
               Everything you need to use AI with confidence.
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="flex items-center justify-center gap-3 text-lg">
-                <CheckCircle className="h-6 w-6 text-primary flex-shrink-0" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl mx-auto">
+              <div className="flex items-center justify-center gap-4 text-xl font-light">
+                <CheckCircle className="h-7 w-7 text-primary flex-shrink-0" />
                 <span>Learn fast</span>
               </div>
-              <div className="flex items-center justify-center gap-3 text-lg">
-                <CheckCircle className="h-6 w-6 text-primary flex-shrink-0" />
+              <div className="flex items-center justify-center gap-4 text-xl font-light">
+                <CheckCircle className="h-7 w-7 text-primary flex-shrink-0" />
                 <span>Decide better</span>
               </div>
-              <div className="flex items-center justify-center gap-3 text-lg">
-                <CheckCircle className="h-6 w-6 text-primary flex-shrink-0" />
+              <div className="flex items-center justify-center gap-4 text-xl font-light">
+                <CheckCircle className="h-7 w-7 text-primary flex-shrink-0" />
                 <span>Help your team move quicker</span>
               </div>
             </div>
@@ -114,20 +114,20 @@ const Home = () => {
         </section>
 
         {/* Three-Step Journey */}
-        <section className="py-24 px-6 bg-muted/20">
-          <div className="mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <section className="py-32 px-6">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
               {steps.map((step, index) => (
                 <div
                   key={step.number}
-                  className="glass-card p-8 rounded-2xl animate-fade-in"
+                  className="glass-card p-10 rounded-3xl animate-fade-in hover:shadow-lg transition-shadow"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="text-5xl font-bold text-primary/20 mb-4">
+                  <div className="text-6xl font-bold text-primary/15 mb-6">
                     {step.number}
                   </div>
-                  <h3 className="text-2xl font-semibold mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <h3 className="text-2xl font-semibold mb-4 leading-tight">{step.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-base">
                     {step.description}
                   </p>
                 </div>
@@ -147,9 +147,9 @@ const Home = () => {
         </section>
 
         {/* Module Cards */}
-        <section className="py-24 px-6">
+        <section className="py-32 px-6 bg-muted/10">
           <div className="mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {modules.map((module, index) => {
                 const Icon = module.icon;
                 return (
@@ -184,14 +184,14 @@ const Home = () => {
         </section>
 
         {/* Dashboard Preview */}
-        <section className="py-24 px-6 bg-muted/20">
+        <section className="py-32 px-6">
           <div className="mx-auto max-w-7xl">
             <ExecutiveDashboardPreview />
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="py-16 px-6 border-t border-border/50">
+        <footer className="py-20 px-6 border-t border-border/50 bg-muted/5">
           <div className="mx-auto max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
               {/* Brand */}
