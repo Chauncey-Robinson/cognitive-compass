@@ -47,7 +47,7 @@ const Home = () => {
         <Navigation />
 
         {/* Hero Section */}
-        <section className="pt-40 pb-32 px-6">
+        <section className="pt-56 pb-32 px-6">
           <div className="mx-auto max-w-5xl text-center">
             <h1 className="text-6xl md:text-8xl font-bold mb-8 animate-fade-in tracking-tight leading-tight">
               Lead smarter with AI.
