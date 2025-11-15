@@ -91,7 +91,7 @@ const ExecutiveDashboardPreview = () => {
 
   return (
     <div ref={containerRef} className="glass-card p-8 rounded-3xl">
-      <h2 className="text-2xl font-semibold mb-6">CEO Dashboard</h2>
+      <h2 className="text-2xl font-semibold mb-6">A simple view of what matters.</h2>
       
       <div className="bg-gradient-to-br from-foreground/5 to-foreground/10 rounded-2xl p-8">
         <p className="text-muted-foreground text-lg mb-6 text-center">Intelligence Metrics</p>
