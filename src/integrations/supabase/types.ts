@@ -14,48 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      executive_brief: {
-        Row: {
-          created_at: string
-          date: string
-          explain_like_im_10: string
-          id: string
-          leader_action: string
-          source_title: string
-          source_type: string
-          source_url: string | null
-          updated_at: string
-          what_happened: string
-          why_it_matters: string
-        }
-        Insert: {
-          created_at?: string
-          date: string
-          explain_like_im_10: string
-          id?: string
-          leader_action: string
-          source_title: string
-          source_type: string
-          source_url?: string | null
-          updated_at?: string
-          what_happened: string
-          why_it_matters: string
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          explain_like_im_10?: string
-          id?: string
-          leader_action?: string
-          source_title?: string
-          source_type?: string
-          source_url?: string | null
-          updated_at?: string
-          what_happened?: string
-          why_it_matters?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
