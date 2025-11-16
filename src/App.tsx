@@ -11,8 +11,6 @@ import AppliedSprints from "./pages/AppliedSprints";
 import Executive from "./pages/Executive";
 import ExecutiveDetail from "./pages/ExecutiveDetail";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
-import ExecutiveBriefIndex from "./pages/ExecutiveBriefIndex";
-import ExecutiveBriefDetail from "./pages/ExecutiveBriefDetail";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import Signup from "./pages/Signup";
@@ -44,8 +42,6 @@ const App = () => (
             <Route path="/executive" element={<Executive />} />
             <Route path="/executive/:id" element={<ExecutiveDetail />} />
             <Route path="/executive/dashboard" element={<ExecutiveDashboard />} />
-            <Route path="/executive-brief" element={<ExecutiveBriefIndex />} />
-            <Route path="/executive-brief/:id" element={<ExecutiveBriefDetail />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/about" element={<About />} />
             <Route path="/signup" element={<Signup />} />
