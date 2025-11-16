@@ -213,7 +213,7 @@ const Home = () => {
 
             <div className="pt-8 border-t border-border/50">
               <p className="text-sm text-muted-foreground text-center">
-                © 2024 Oxford Intelligence. All rights reserved.
+                © 2025 Oxford Intelligence. All rights reserved.
               </p>
             </div>
           </div>
