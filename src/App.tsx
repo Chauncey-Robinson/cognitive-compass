@@ -11,6 +11,8 @@ import AppliedSprints from "./pages/AppliedSprints";
 import Executive from "./pages/Executive";
 import AIBasics from "./pages/AIBasics";
 import Concepts from "./pages/Concepts";
+import ContextWindowsAtom from "./pages/ContextWindowsAtom";
+import OptimizePromptsSprint from "./pages/OptimizePromptsSprint";
 import ExecutiveDetail from "./pages/ExecutiveDetail";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import Pricing from "./pages/Pricing";
@@ -53,7 +55,9 @@ const App = () => (
             <Route path="/scan" element={<Scan />} />
             <Route path="/results" element={<Results />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/atoms/context-windows" element={<ContextWindowsAtom />} />
             <Route path="/atoms/:id" element={<AtomDetail />} />
+            <Route path="/sprints/optimize-prompts" element={<OptimizePromptsSprint />} />
             <Route path="/sprints/:id" element={<SprintDetail />} />
             <Route path="/report-sprint" element={<SprintDetail />} />
             <Route path="/workflow-sprint" element={<SprintDetail />} />
