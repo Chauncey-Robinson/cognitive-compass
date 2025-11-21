@@ -115,7 +115,7 @@ const Home = () => {
             </div>
             <div className="text-center">
               <Button
-                onClick={() => navigate("/about")}
+                onClick={() => navigate("/how-it-works")}
                 variant="outline"
                 size="lg"
                 className="text-base px-8 py-6 h-auto rounded-full"
