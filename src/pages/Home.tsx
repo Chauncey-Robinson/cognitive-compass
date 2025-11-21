@@ -13,28 +13,28 @@ const Home = () => {
   const modules = [
     {
       icon: Brain,
-      title: "Intelligence Scan",
+      title: "AI Basics",
       description: "A fast checkup that shows your AI level and what to do next.",
-      link: "/intelligence-scan",
+      link: "/ai-basics",
       audio: "A fast checkup that shows your AI level and what to do next."
     },
     {
       icon: Zap,
-      title: "Cognitive Atoms",
+      title: "Micro-Concepts",
       description: "15-second lessons that explain how AI thinks and works.",
-      link: "/atoms",
+      link: "/concepts",
       audio: "15-second lessons that explain how AI thinks and works."
     },
     {
       icon: Target,
-      title: "Applied Sprints",
+      title: "Applied AI Sprints",
       description: "Step-by-step guides to automate reports and redesign workflows.",
       link: "/sprints",
       audio: "Step-by-step guides to automate reports and redesign workflows."
     },
     {
       icon: Users,
-      title: "Executive Mode",
+      title: "Executive Fluency",
       description: "Clear explanations of strategy, risk, and planning.",
       link: "/executive",
       audio: "Clear explanations of strategy, risk, and planning."
@@ -136,7 +136,7 @@ const Home = () => {
                   <button
                     key={module.title}
                     onClick={() => navigate(module.link)}
-                    className="glass-card p-10 rounded-3xl text-left transition-all hover:shadow-xl hover:scale-[1.02] group animate-fade-in relative"
+                    className="glass-card p-10 rounded-3xl text-left transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] group animate-fade-in relative cursor-pointer"
                     style={{ animationDelay: `${index * 150}ms` }}
                   >
                     <div className="flex items-start justify-between mb-8">
