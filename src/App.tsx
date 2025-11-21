@@ -9,6 +9,8 @@ import IntelligenceScan from "./pages/IntelligenceScan";
 import CognitiveAtoms from "./pages/CognitiveAtoms";
 import AppliedSprints from "./pages/AppliedSprints";
 import Executive from "./pages/Executive";
+import AIBasics from "./pages/AIBasics";
+import Concepts from "./pages/Concepts";
 import ExecutiveDetail from "./pages/ExecutiveDetail";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import Pricing from "./pages/Pricing";
@@ -37,7 +39,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/intelligence-scan" element={<IntelligenceScan />} />
+            <Route path="/ai-basics" element={<AIBasics />} />
             <Route path="/atoms" element={<CognitiveAtoms />} />
+            <Route path="/concepts" element={<Concepts />} />
             <Route path="/sprints" element={<AppliedSprints />} />
             <Route path="/executive" element={<Executive />} />
             <Route path="/executive/:id" element={<ExecutiveDetail />} />
