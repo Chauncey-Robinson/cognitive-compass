@@ -47,7 +47,7 @@ const Home = () => {
         <Navigation />
 
         {/* Hero Section */}
-        <section className="pt-80 pb-32 px-6">
+        <section className="pt-32 pb-32 px-6">
           <div className="mx-auto max-w-5xl text-center">
             <h1 className="text-6xl md:text-8xl font-bold mb-8 animate-fade-in tracking-tight leading-tight">
               Lead smarter with AI.
@@ -70,7 +70,7 @@ const Home = () => {
         </section>
 
         {/* How It Works Section */}
-        <section className="py-32 px-6 bg-muted/10">
+        <section className="py-32 px-6 bg-muted/10 mt-20">
           <div className="mx-auto max-w-7xl">
             <h2 className="text-4xl md:text-5xl font-semibold mb-20 text-center leading-tight">
               How it works
