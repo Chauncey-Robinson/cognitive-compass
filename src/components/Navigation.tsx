@@ -26,13 +26,9 @@ const Navigation = () => {
   ];
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-        isScrolled ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm" : ""
-      }`}
-    >
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/50 transition-all duration-200">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className={`flex items-center justify-between transition-all duration-200 ${isScrolled ? 'h-14' : 'h-20'}`}>
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <button
             onClick={() => navigate("/")}
