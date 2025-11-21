@@ -13,6 +13,7 @@ import AIBasics from "./pages/AIBasics";
 import Concepts from "./pages/Concepts";
 import ContextWindowsAtom from "./pages/ContextWindowsAtom";
 import OptimizePromptsSprint from "./pages/OptimizePromptsSprint";
+import HowItWorks from "./pages/HowItWorks";
 import ExecutiveDetail from "./pages/ExecutiveDetail";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import Pricing from "./pages/Pricing";
@@ -40,6 +41,7 @@ const App = () => (
         <PageTransition>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/intelligence-scan" element={<IntelligenceScan />} />
             <Route path="/ai-basics" element={<AIBasics />} />
             <Route path="/atoms" element={<CognitiveAtoms />} />

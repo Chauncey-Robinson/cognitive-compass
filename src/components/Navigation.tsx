@@ -17,6 +17,7 @@ const Navigation = () => {
   }, []);
 
   const navLinks = [
+    { label: "How It Works", path: "/how-it-works" },
     { label: "Intelligence Scan", path: "/intelligence-scan" },
     { label: "Atoms", path: "/atoms" },
     { label: "Sprints", path: "/sprints" },
