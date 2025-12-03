@@ -29,6 +29,7 @@ import AtomDetail from "./pages/AtomDetail";
 import Sprints from "./pages/Sprints";
 import SprintDetail from "./pages/SprintDetail";
 import Tutor from "./pages/Tutor";
+import ExecutiveBrief from "./pages/ExecutiveBrief";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/executive" element={<Executive />} />
             <Route path="/executive/:id" element={<ExecutiveDetail />} />
             <Route path="/executive/dashboard" element={<ExecutiveDashboard />} />
+            <Route path="/executive/brief" element={<ExecutiveBrief />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/about" element={<About />} />
             <Route path="/signup" element={<Signup />} />

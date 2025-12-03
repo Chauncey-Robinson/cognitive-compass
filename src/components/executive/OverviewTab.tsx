@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Newspaper, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const OverviewTab = () => {
@@ -34,6 +34,49 @@ const OverviewTab = () => {
 
   return (
     <div className="space-y-12 animate-fade-in">
+      {/* Quick Access Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div 
+          className="glass-card rounded-3xl p-8 cursor-pointer hover:shadow-lg transition-all duration-300 card-hover"
+          onClick={() => navigate("/executive/brief")}
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Newspaper className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold mb-2">Executive Brief</h3>
+              <p className="text-muted-foreground mb-4">
+                AI news curated and summarized for leaders. Updated daily.
+              </p>
+              <Button variant="outline" size="sm">
+                View This Week's Brief →
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        <div 
+          className="glass-card rounded-3xl p-8 cursor-pointer hover:shadow-lg transition-all duration-300 card-hover"
+          onClick={() => navigate("/executive/dashboard")}
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <BarChart3 className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold mb-2">Intelligence Dashboard</h3>
+              <p className="text-muted-foreground mb-4">
+                Track competitive moves, ROI, and industry risks at a glance.
+              </p>
+              <Button variant="outline" size="sm">
+                Open Dashboard →
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Introduction */}
       <div className="glass-card rounded-3xl p-10">
         <h2 className="text-3xl font-bold mb-6">
