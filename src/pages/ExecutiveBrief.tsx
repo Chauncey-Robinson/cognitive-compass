@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, RefreshCw, ExternalLink, Filter, Clock, AlertCircle, Rocket, Building2, Scale, ChevronDown, ChevronUp, EyeOff } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, ExternalLink, Filter, Clock, AlertCircle, AlertTriangle, Shield, Building2, Rocket, ChevronDown, ChevronUp, EyeOff } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navigation from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-type TopicGroup = "research" | "industry" | "policy";
+type TopicGroup = "strategy" | "risk" | "ops" | "tech";
 
 interface BriefItem {
   id: string;
@@ -15,7 +15,7 @@ interface BriefItem {
   source: string;
   url: string;
   publishedAt: string;
-  tag: "Tech" | "Policy" | "Research" | "Industry" | "Risk";
+  tag: "Strategy" | "Risk" | "Ops" | "Tech";
   summary: string;
   impact: string;
   importanceScore: number;
@@ -41,28 +41,32 @@ interface ExecutiveBrief {
 }
 
 const TAG_COLORS: Record<string, string> = {
-  Tech: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  Policy: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
-  Research: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  Industry: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-  Risk: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  Strategy: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  Risk: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  Ops: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  Tech: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
 };
 
 const TOPIC_CONFIG: Record<TopicGroup, { title: string; emoji: React.ReactNode; color: string }> = {
-  research: {
-    title: "Major Research Breakthroughs",
-    emoji: <Rocket className="h-5 w-5" />,
-    color: "text-emerald-600 dark:text-emerald-400"
+  strategy: {
+    title: "Strategic Threats & Global Competition",
+    emoji: <AlertTriangle className="h-5 w-5" />,
+    color: "text-red-600 dark:text-red-400"
   },
-  industry: {
-    title: "Industry News & Releases",
+  risk: {
+    title: "Security, Risk & Compliance",
+    emoji: <Shield className="h-5 w-5" />,
+    color: "text-amber-600 dark:text-amber-400"
+  },
+  ops: {
+    title: "Enterprise Ops & Efficiency",
     emoji: <Building2 className="h-5 w-5" />,
     color: "text-blue-600 dark:text-blue-400"
   },
-  policy: {
-    title: "Policy & Safety",
-    emoji: <Scale className="h-5 w-5" />,
-    color: "text-violet-600 dark:text-violet-400"
+  tech: {
+    title: "Key Technical Breakthroughs",
+    emoji: <Rocket className="h-5 w-5" />,
+    color: "text-emerald-600 dark:text-emerald-400"
   }
 };
 
@@ -72,7 +76,7 @@ const ExecutiveBrief = () => {
   const [brief, setBrief] = useState<ExecutiveBrief | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [timeRange, setTimeRange] = useState<"24h" | "7d" | "14d" | "30d">("7d");
+  const [timeRange, setTimeRange] = useState<"24h" | "3d" | "7d" | "14d">("3d");
   const [tagFilter, setTagFilter] = useState<string>("All");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [showFiltered, setShowFiltered] = useState(false);
@@ -89,7 +93,7 @@ const ExecutiveBrief = () => {
     setError(null);
     
     try {
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/executive-brief?range=${timeRange}&max=20&tag=${tagFilter}`;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/executive-brief?range=${timeRange}&max=15&tag=${tagFilter}`;
       
       const response = await fetch(url, {
         method: "GET",
@@ -155,7 +159,7 @@ const ExecutiveBrief = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `ai_research_and_news_${new Date().toISOString().split("T")[0]}.html`;
+      a.download = `executive_ai_brief_${new Date().toISOString().split("T")[0]}.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -196,7 +200,6 @@ const ExecutiveBrief = () => {
   };
 
   const renderTopicSection = (group: TopicGroup, items: BriefItem[]) => {
-    // Apply tag filter
     const filteredItems = tagFilter === "All" 
       ? items 
       : items.filter(item => item.tag === tagFilter);
@@ -226,7 +229,7 @@ const ExecutiveBrief = () => {
                     {item.tag}
                   </span>
                   <span className={`text-xs font-bold px-2 py-1 rounded-full ${getScoreColor(item.importanceScore)}`}>
-                    [Score: {item.importanceScore}/10]
+                    [Impact: {item.importanceScore}/10]
                   </span>
                   <span className="text-sm text-muted-foreground">
                     {item.source} · {formatDate(item.publishedAt)}
@@ -279,10 +282,10 @@ const ExecutiveBrief = () => {
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
-                Executive Brief
+                Global Executive AI Brief
               </h1>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                AI research and news, scored and organized for leaders.
+                Strategic intelligence for leadership. CTO-scored, business-focused.
               </p>
             </div>
 
@@ -292,7 +295,7 @@ const ExecutiveBrief = () => {
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Time range:</span>
                 <div className="flex gap-1">
-                  {(["24h", "7d", "14d", "30d"] as const).map((range) => (
+                  {(["24h", "3d", "7d", "14d"] as const).map((range) => (
                     <Button
                       key={range}
                       variant={timeRange === range ? "default" : "outline"}
@@ -300,7 +303,7 @@ const ExecutiveBrief = () => {
                       onClick={() => setTimeRange(range)}
                       className="h-8"
                     >
-                      {range === "24h" ? "24h" : range === "7d" ? "7 days" : range === "14d" ? "14 days" : "30 days"}
+                      {range === "24h" ? "24h" : range === "3d" ? "3 days" : range === "7d" ? "7 days" : "14 days"}
                     </Button>
                   ))}
                 </div>
@@ -310,7 +313,7 @@ const ExecutiveBrief = () => {
                 <Filter className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Category:</span>
                 <div className="flex gap-1 flex-wrap">
-                  {["All", "Tech", "Policy", "Research", "Industry", "Risk"].map((tag) => (
+                  {["All", "Strategy", "Risk", "Ops", "Tech"].map((tag) => (
                     <Button
                       key={tag}
                       variant={tagFilter === tag ? "default" : "outline"}
@@ -340,7 +343,7 @@ const ExecutiveBrief = () => {
                 disabled={!brief || downloadingPdf || loading}
               >
                 <Download className="h-4 w-4 mr-2" />
-                {downloadingPdf ? "Generating..." : "Download PDF"}
+                {downloadingPdf ? "Generating..." : "Download Brief"}
               </Button>
             </div>
 
@@ -350,9 +353,9 @@ const ExecutiveBrief = () => {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                   <RefreshCw className="h-8 w-8 text-primary animate-spin" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">Generating Your Brief</h3>
+                <h3 className="text-lg font-medium mb-2">Generating Executive Brief</h3>
                 <p className="text-muted-foreground">
-                  Fetching sources, scoring importance, filtering low-quality items...
+                  Fetching global sources, applying CTO scoring criteria, filtering noise...
                 </p>
               </div>
             )}
@@ -375,17 +378,18 @@ const ExecutiveBrief = () => {
                 {/* Meta info */}
                 <div className="flex flex-wrap gap-4 mb-6 text-sm text-muted-foreground">
                   <span>📅 {brief.timeRange}</span>
-                  <span>📰 {brief.items.length} high-quality articles</span>
-                  <span>🔍 {brief.sourcesUsed.length} sources</span>
-                  <span>🗑️ {brief.rejectedCount} filtered out</span>
+                  <span>📰 {brief.items.length} high-impact articles</span>
+                  <span>🔍 {brief.sourcesUsed.length} global sources</span>
+                  <span>🗑️ {brief.rejectedCount} filtered (score &lt;8)</span>
                 </div>
 
                 {/* Grouped Articles */}
                 {brief.groupedItems ? (
                   <>
-                    {renderTopicSection("research", brief.groupedItems.research || [])}
-                    {renderTopicSection("industry", brief.groupedItems.industry || [])}
-                    {renderTopicSection("policy", brief.groupedItems.policy || [])}
+                    {renderTopicSection("strategy", brief.groupedItems.strategy || [])}
+                    {renderTopicSection("risk", brief.groupedItems.risk || [])}
+                    {renderTopicSection("ops", brief.groupedItems.ops || [])}
+                    {renderTopicSection("tech", brief.groupedItems.tech || [])}
                   </>
                 ) : (
                   <div className="text-center py-12 glass-card rounded-2xl">
@@ -398,7 +402,7 @@ const ExecutiveBrief = () => {
                 {/* Sources Footer */}
                 {brief.sourcesUsed.length > 0 && (
                   <div className="mt-12 pt-8 border-t border-border">
-                    <h4 className="text-sm font-medium mb-2">Sources</h4>
+                    <h4 className="text-sm font-medium mb-2">Global Sources</h4>
                     <p className="text-sm text-muted-foreground">
                       {brief.sourcesUsed.join(" · ")}
                     </p>
@@ -420,7 +424,7 @@ const ExecutiveBrief = () => {
                     <CollapsibleContent className="mt-4">
                       <div className="glass-card rounded-2xl p-4 space-y-3 max-h-96 overflow-y-auto">
                         <p className="text-sm text-muted-foreground mb-4">
-                          These articles were filtered out during processing:
+                          These articles were filtered out (score below 8 or didn't meet criteria):
                         </p>
                         {brief.rejectedArticles.map((article, index) => (
                           <div key={index} className="flex items-start justify-between gap-3 py-2 border-b border-border/50 last:border-0">

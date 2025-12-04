@@ -1,145 +1,109 @@
-// AI News RSS/JSON Feed Sources Configuration
+// Global Executive AI Intelligence Engine - Source Configuration
 export interface NewsSource {
   name: string;
   url: string;
   type: "rss" | "json";
   maxItems: number;
-  category: "Tech" | "Policy" | "Research" | "Industry" | "Risk";
-  isResearch?: boolean; // Flag for ArXiv/academic sources requiring strict filtering
+  category: "Strategy" | "Risk" | "Ops" | "Tech";
+  isResearch?: boolean;
 }
 
 export const AI_NEWS_SOURCES: NewsSource[] = [
-  // === ACADEMIC & RESEARCH LABS ===
+  // === 🌏 GLOBAL STRATEGY (China & Europe) ===
+  {
+    name: "SCMP Tech",
+    url: "https://www.scmp.com/rss/318421/feed",
+    type: "rss",
+    maxItems: 5,
+    category: "Strategy"
+  },
+  {
+    name: "Sifted EU",
+    url: "https://sifted.eu/feed",
+    type: "rss",
+    maxItems: 5,
+    category: "Strategy"
+  },
+  {
+    name: "Rest of World",
+    url: "https://restofworld.org/feed/",
+    type: "rss",
+    maxItems: 5,
+    category: "Strategy"
+  },
+
+  // === 🏢 ENTERPRISE & OPERATIONS (The "CTO" View) ===
+  {
+    name: "VentureBeat Enterprise",
+    url: "https://venturebeat.com/category/enterprise-analytics/feed/",
+    type: "rss",
+    maxItems: 5,
+    category: "Ops"
+  },
+  {
+    name: "ZDNet AI",
+    url: "https://www.zdnet.com/topic/artificial-intelligence/rss.xml",
+    type: "rss",
+    maxItems: 5,
+    category: "Ops"
+  },
+  {
+    name: "MIT Sloan Review",
+    url: "https://sloanreview.mit.edu/topic/technology-innovation/feed",
+    type: "rss",
+    maxItems: 5,
+    category: "Strategy"
+  },
+
+  // === 🛡️ RISK, SECURITY & GOVERNANCE ===
+  {
+    name: "Dark Reading",
+    url: "https://www.darkreading.com/rss_simple.asp",
+    type: "rss",
+    maxItems: 5,
+    category: "Risk"
+  },
+  {
+    name: "ArXiv Security",
+    url: "http://export.arxiv.org/rss/cs.CR",
+    type: "rss",
+    maxItems: 5,
+    category: "Risk",
+    isResearch: true
+  },
+
+  // === 🔬 BREAKTHROUGH WATCH (Keep Top Research) ===
+  {
+    name: "ArXiv AI",
+    url: "http://export.arxiv.org/rss/cs.AI",
+    type: "rss",
+    maxItems: 8,
+    category: "Tech",
+    isResearch: true
+  },
   {
     name: "MIT AI News",
     url: "https://news.mit.edu/rss/topic/artificial-intelligence2",
     type: "rss",
     maxItems: 5,
-    category: "Research",
+    category: "Tech",
     isResearch: true
   },
-  {
-    name: "Berkeley BAIR",
-    url: "https://bair.berkeley.edu/blog/feed.xml",
-    type: "rss",
-    maxItems: 5,
-    category: "Research",
-    isResearch: true
-  },
-  {
-    name: "Stanford HAI",
-    url: "https://hai.stanford.edu/news/rss.xml",
-    type: "rss",
-    maxItems: 5,
-    category: "Research",
-    isResearch: true
-  },
-  {
-    name: "Oxford CS",
-    url: "https://www.cs.ox.ac.uk/news/rss/",
-    type: "rss",
-    maxItems: 5,
-    category: "Research",
-    isResearch: true
-  },
-  {
-    name: "Harvard SEAS",
-    url: "https://www.seas.harvard.edu/news/rss",
-    type: "rss",
-    maxItems: 5,
-    category: "Research",
-    isResearch: true
-  },
-  // ArXiv Feeds (strict keyword filtering)
-  {
-    name: "ArXiv AI",
-    url: "http://export.arxiv.org/rss/cs.AI",
-    type: "rss",
-    maxItems: 10,
-    category: "Research",
-    isResearch: true
-  },
-  {
-    name: "ArXiv Machine Learning",
-    url: "http://export.arxiv.org/rss/cs.LG",
-    type: "rss",
-    maxItems: 10,
-    category: "Research",
-    isResearch: true
-  },
-  {
-    name: "ArXiv Computation & Language",
-    url: "http://export.arxiv.org/rss/cs.CL",
-    type: "rss",
-    maxItems: 10,
-    category: "Research",
-    isResearch: true
-  },
-  // Lab Blogs
-  {
-    name: "MIT Technology Review AI",
-    url: "https://www.technologyreview.com/topic/artificial-intelligence/feed",
-    type: "rss",
-    maxItems: 5,
-    category: "Research"
-  },
-  {
-    name: "Google AI Blog",
-    url: "https://blog.google/technology/ai/rss/",
-    type: "rss",
-    maxItems: 3,
-    category: "Research"
-  },
+
   // === INDUSTRY NEWS ===
   {
     name: "TechCrunch AI",
     url: "https://techcrunch.com/category/artificial-intelligence/feed/",
     type: "rss",
     maxItems: 5,
-    category: "Tech"
-  },
-  {
-    name: "VentureBeat AI",
-    url: "https://venturebeat.com/category/ai/feed/",
-    type: "rss",
-    maxItems: 5,
-    category: "Tech"
-  },
-  {
-    name: "The Verge AI",
-    url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
-    type: "rss",
-    maxItems: 5,
-    category: "Tech"
-  },
-  {
-    name: "Wired AI",
-    url: "https://www.wired.com/feed/tag/ai/latest/rss",
-    type: "rss",
-    maxItems: 5,
-    category: "Industry"
+    category: "Strategy"
   },
   {
     name: "Reuters Tech",
     url: "https://www.reuters.com/technology/rss",
     type: "rss",
     maxItems: 5,
-    category: "Industry"
-  },
-  {
-    name: "AI News",
-    url: "https://www.artificialintelligence-news.com/feed/",
-    type: "rss",
-    maxItems: 5,
-    category: "Industry"
-  },
-  // === POLICY ===
-  {
-    name: "Ars Technica AI",
-    url: "https://feeds.arstechnica.com/arstechnica/features",
-    type: "rss",
-    maxItems: 4,
-    category: "Policy"
+    category: "Strategy"
   }
 ];
 
@@ -150,37 +114,51 @@ export const AI_KEYWORDS = [
   "transformer", "neural network", "deep learning", "generative ai", "gen ai",
   "ai agent", "ai model", "foundation model", "ai policy", "ai regulation",
   "ai safety", "ai ethics", "ai governance", "automation", "copilot",
-  "diffusion model", "stable diffusion", "midjourney", "dall-e", "sora",
   "natural language processing", "nlp", "computer vision", "reinforcement learning"
 ];
 
-// Strict keywords for ArXiv/research paper filtering
-// Only fetch papers containing these high-signal terms
+// Business-critical ArXiv filters (replaces academic-focused keywords)
 export const ARXIV_KEYWORDS = [
-  "llm", "large language model", "transformer", "generative", "diffusion",
-  "state-of-the-art", "sota", "benchmark", "agent", "reasoning",
-  "chain-of-thought", "cot", "retrieval augmented", "rag", "multimodal",
-  "vision language", "vision-language", "instruction tuning", "rlhf", 
-  "preference learning", "foundation model"
+  "llm", "security", "privacy", "attack", "defense", "fraud",
+  "optimization", "agent", "reasoning", "hallucination", "cost",
+  "enterprise", "production", "deployment", "efficiency", "latency"
 ];
 
-// Topic groupings for final report
-export type TopicGroup = "research" | "industry" | "policy";
+// Priority keywords that flag articles as "High Priority" for executives
+export const PRIORITY_KEYWORDS = [
+  // Finance Interest
+  "fraud detection", "market prediction", "risk assessment", "compliance",
+  "algorithmic trading", "financial forecasting", "privacy", "federated learning",
+  "on-premise", "security", "audit",
+  // Logistics Interest
+  "routing", "multi-agent", "reinforcement learning", "last mile", "autonomous",
+  "fleet management", "supply chain", "optimization", "latency", "real-time",
+  // Strategic Threats
+  "china", "regulation", "eu ai act", "ban", "lawsuit", "competitor"
+];
+
+// Topic groupings for final report (Executive-focused)
+export type TopicGroup = "strategy" | "risk" | "ops" | "tech";
 
 export const TOPIC_CONFIG: Record<TopicGroup, { title: string; emoji: string; tags: string[] }> = {
-  research: {
-    title: "Major Research Breakthroughs",
-    emoji: "🚀",
-    tags: ["Research"]
+  strategy: {
+    title: "Strategic Threats & Global Competition",
+    emoji: "🚨",
+    tags: ["Strategy"]
   },
-  industry: {
-    title: "Industry News & Releases",
+  risk: {
+    title: "Security, Risk & Compliance",
+    emoji: "🛡️",
+    tags: ["Risk"]
+  },
+  ops: {
+    title: "Enterprise Ops & Efficiency",
     emoji: "🏢",
-    tags: ["Tech", "Industry"]
+    tags: ["Ops"]
   },
-  policy: {
-    title: "Policy & Safety",
-    emoji: "⚖️",
-    tags: ["Policy", "Risk"]
+  tech: {
+    title: "Key Technical Breakthroughs",
+    emoji: "🚀",
+    tags: ["Tech"]
   }
 };
