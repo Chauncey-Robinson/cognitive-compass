@@ -5,6 +5,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+type TopicGroup = "research" | "industry" | "policy";
+
 interface BriefItem {
   id: string;
   title: string;
@@ -14,6 +16,8 @@ interface BriefItem {
   tag: "Tech" | "Policy" | "Research" | "Industry" | "Risk";
   summary: string;
   impact: string;
+  importanceScore: number;
+  topicGroup: TopicGroup;
 }
 
 interface ExecutiveBrief {
@@ -22,7 +26,14 @@ interface ExecutiveBrief {
   items: BriefItem[];
   rejectedCount: number;
   sourcesUsed: string[];
+  groupedItems: Record<TopicGroup, BriefItem[]>;
 }
+
+const TOPIC_CONFIG: Record<TopicGroup, { title: string; emoji: string }> = {
+  research: { title: "Major Research Breakthroughs", emoji: "🚀" },
+  industry: { title: "Industry News & Releases", emoji: "🏢" },
+  policy: { title: "Policy & Safety", emoji: "⚖️" }
+};
 
 // Generate simple HTML that can be converted to PDF
 function generatePDFHTML(brief: ExecutiveBrief): string {
@@ -38,27 +49,45 @@ function generatePDFHTML(brief: ExecutiveBrief): string {
     }
   };
 
-  const itemsHTML = brief.items.map((item, index) => `
-    <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e5e5e5;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-        <span style="background: ${getTagColor(item.tag)}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${item.tag}</span>
-        <span style="color: #666; font-size: 12px;">${item.source} · ${formatDate(item.publishedAt)}</span>
+  // Generate grouped sections
+  const groupOrder: TopicGroup[] = ["research", "industry", "policy"];
+  const sectionsHTML = groupOrder.map(group => {
+    const items = brief.groupedItems?.[group] || [];
+    if (items.length === 0) return '';
+    
+    const config = TOPIC_CONFIG[group];
+    const itemsHTML = items.map((item, index) => `
+      <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #eee;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span style="background: ${getTagColor(item.tag)}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">${item.tag}</span>
+          <span style="background: #1a1a2e; color: #ffd700; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">[Score: ${item.importanceScore}/10]</span>
+          <span style="color: #666; font-size: 11px;">${item.source} · ${formatDate(item.publishedAt)}</span>
+        </div>
+        <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #111;">${item.title}</h4>
+        <p style="margin: 0 0 6px 0; font-size: 13px; color: #333; line-height: 1.5;">${item.summary}</p>
+        <p style="margin: 0; font-size: 12px; color: #666; font-style: italic;">💡 ${item.impact}</p>
       </div>
-      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #111;">${index + 1}. ${item.title}</h3>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333; line-height: 1.5;">${item.summary}</p>
-      <p style="margin: 0; font-size: 13px; color: #666; font-style: italic;">Why it matters: ${item.impact}</p>
-    </div>
-  `).join('');
+    `).join('');
+
+    return `
+      <div style="margin-bottom: 32px;">
+        <h2 style="font-size: 18px; font-weight: 700; color: #111; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid ${getSectionColor(group)};">
+          ${config.emoji} ${config.title}
+        </h2>
+        ${itemsHTML}
+      </div>
+    `;
+  }).join('');
 
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Executive Brief - ${brief.timeRange}</title>
+  <title>AI Research & News Brief - ${brief.timeRange}</title>
   <style>
     @page {
-      margin: 1in;
+      margin: 0.75in;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -70,13 +99,13 @@ function generatePDFHTML(brief: ExecutiveBrief): string {
     }
     .header {
       text-align: center;
-      margin-bottom: 40px;
-      padding-bottom: 24px;
-      border-bottom: 2px solid #111;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #111;
     }
     .header h1 {
       margin: 0 0 8px 0;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 700;
     }
     .header p {
@@ -87,39 +116,40 @@ function generatePDFHTML(brief: ExecutiveBrief): string {
     .meta {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 32px;
-      padding: 16px;
-      background: #f9f9f9;
+      margin-bottom: 28px;
+      padding: 12px 16px;
+      background: #f5f5f5;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12px;
     }
     .footer {
-      margin-top: 40px;
-      padding-top: 24px;
+      margin-top: 32px;
+      padding-top: 20px;
       border-top: 1px solid #e5e5e5;
       text-align: center;
-      font-size: 12px;
+      font-size: 11px;
       color: #999;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>Executive AI Brief</h1>
-    <p>This Week in AI, Simplified for Leaders</p>
+    <h1>AI Research & News Brief</h1>
+    <p>Intelligence Report for Executive Leadership</p>
   </div>
   
   <div class="meta">
     <span><strong>Period:</strong> ${brief.timeRange}</span>
     <span><strong>Generated:</strong> ${formatDate(brief.generatedAt)}</span>
     <span><strong>Articles:</strong> ${brief.items.length}</span>
+    <span><strong>Filtered:</strong> ${brief.rejectedCount} low-quality</span>
   </div>
   
-  ${itemsHTML}
+  ${sectionsHTML}
   
   <div class="footer">
     <p>Generated by Oxford Intelligence</p>
-    <p>Sources: ${brief.sourcesUsed.slice(0, 5).join(', ')}${brief.sourcesUsed.length > 5 ? ` and ${brief.sourcesUsed.length - 5} more` : ''}</p>
+    <p>Sources: ${brief.sourcesUsed.slice(0, 6).join(', ')}${brief.sourcesUsed.length > 6 ? ` and ${brief.sourcesUsed.length - 6} more` : ''}</p>
   </div>
 </body>
 </html>
@@ -133,6 +163,15 @@ function getTagColor(tag: string): string {
     case "Research": return "#059669";
     case "Industry": return "#d97706";
     case "Risk": return "#dc2626";
+    default: return "#6b7280";
+  }
+}
+
+function getSectionColor(group: TopicGroup): string {
+  switch (group) {
+    case "research": return "#059669";
+    case "industry": return "#0066cc";
+    case "policy": return "#7c3aed";
     default: return "#6b7280";
   }
 }

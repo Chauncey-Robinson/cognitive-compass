@@ -1,11 +1,16 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { AI_NEWS_SOURCES, AI_KEYWORDS, type NewsSource } from "./aiNewsSources.ts";
+import { AI_NEWS_SOURCES, AI_KEYWORDS, ARXIV_KEYWORDS, TOPIC_CONFIG, type NewsSource, type TopicGroup } from "./aiNewsSources.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// CONFIG: Default limits
+const MAX_ARTICLES_DEFAULT = 20;
+const MAX_ARTICLE_AGE_DAYS_DEFAULT = 14;
+const IMPORTANCE_THRESHOLD = 7; // Discard articles with score below this
 
 interface RawArticle {
   title: string;
@@ -14,6 +19,11 @@ interface RawArticle {
   publishedAt: string;
   source: string;
   sourceCategory: "Tech" | "Policy" | "Research" | "Industry" | "Risk";
+  isResearch: boolean;
+}
+
+interface ScoredArticle extends RawArticle {
+  importanceScore: number;
 }
 
 interface BriefItem {
@@ -25,6 +35,8 @@ interface BriefItem {
   tag: "Tech" | "Policy" | "Research" | "Industry" | "Risk";
   summary: string;
   impact: string;
+  importanceScore: number;
+  topicGroup: TopicGroup;
 }
 
 interface ExecutiveBrief {
@@ -33,13 +45,13 @@ interface ExecutiveBrief {
   items: BriefItem[];
   rejectedCount: number;
   sourcesUsed: string[];
+  groupedItems: Record<TopicGroup, BriefItem[]>;
 }
 
 // Parse RSS XML to extract articles
-function parseRSS(xml: string, sourceName: string, sourceCategory: NewsSource["category"]): RawArticle[] {
+function parseRSS(xml: string, sourceName: string, sourceCategory: NewsSource["category"], isResearch: boolean): RawArticle[] {
   const articles: RawArticle[] = [];
   
-  // Extract items using regex (Deno edge functions don't have DOMParser)
   const itemRegex = /<item[^>]*>([\s\S]*?)<\/item>/gi;
   const titleRegex = /<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i;
   const linkRegex = /<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i;
@@ -67,7 +79,8 @@ function parseRSS(xml: string, sourceName: string, sourceCategory: NewsSource["c
         url,
         publishedAt,
         source: sourceName,
-        sourceCategory
+        sourceCategory,
+        isResearch
       });
     }
   }
@@ -75,7 +88,7 @@ function parseRSS(xml: string, sourceName: string, sourceCategory: NewsSource["c
   return articles;
 }
 
-// STAGE 1: Fetch articles from all sources
+// STAGE 1: Fetch articles from all sources (with ArXiv keyword filtering)
 async function fetchArticles(daysBack: number): Promise<{ articles: RawArticle[], sourcesUsed: string[] }> {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysBack);
@@ -102,7 +115,16 @@ async function fetchArticles(daysBack: number): Promise<{ articles: RawArticle[]
       }
       
       const text = await response.text();
-      const articles = parseRSS(text, source.name, source.category);
+      let articles = parseRSS(text, source.name, source.category, source.isResearch || false);
+      
+      // Apply strict ArXiv keyword filtering for research sources
+      if (source.isResearch) {
+        articles = articles.filter(a => {
+          const searchText = `${a.title} ${a.description}`.toLowerCase();
+          return ARXIV_KEYWORDS.some(keyword => searchText.includes(keyword.toLowerCase()));
+        });
+        console.log(`ArXiv filter: ${source.name} - kept ${articles.length} papers with high-signal keywords`);
+      }
       
       // Filter by date and limit
       const filtered = articles
@@ -111,7 +133,7 @@ async function fetchArticles(daysBack: number): Promise<{ articles: RawArticle[]
             const pubDate = new Date(a.publishedAt);
             return pubDate >= cutoffDate;
           } catch {
-            return true; // Include if date parsing fails
+            return true;
           }
         })
         .slice(0, source.maxItems);
@@ -140,13 +162,11 @@ function dedupeArticles(articles: RawArticle[]): { deduped: RawArticle[], remove
   let removedCount = 0;
   
   for (const article of articles) {
-    // Check for same URL
     if (seen.has(article.url)) {
       removedCount++;
       continue;
     }
     
-    // Check for similar titles (simple fuzzy match)
     const normalizedTitle = article.title.toLowerCase().replace(/[^a-z0-9]/g, '');
     let isDuplicate = false;
     
@@ -154,7 +174,6 @@ function dedupeArticles(articles: RawArticle[]): { deduped: RawArticle[], remove
       const existing = deduped.find(a => a.url === existingUrl);
       if (existing) {
         const existingNormalized = existing.title.toLowerCase().replace(/[^a-z0-9]/g, '');
-        // If titles share 80% of characters, consider duplicate
         const similarity = calculateSimilarity(normalizedTitle, existingNormalized);
         if (similarity > 0.8) {
           isDuplicate = true;
@@ -182,7 +201,6 @@ function calculateSimilarity(a: string, b: string): number {
   
   if (longer.length === 0) return 1;
   
-  // Simple character overlap ratio
   let matches = 0;
   for (const char of shorter) {
     if (longer.includes(char)) matches++;
@@ -197,6 +215,12 @@ function filterAIContent(articles: RawArticle[]): { filtered: RawArticle[], remo
   let removedCount = 0;
   
   for (const article of articles) {
+    // Research articles already passed strict filtering
+    if (article.isResearch) {
+      filtered.push(article);
+      continue;
+    }
+    
     const searchText = `${article.title} ${article.description}`.toLowerCase();
     const isAIRelated = AI_KEYWORDS.some(keyword => searchText.includes(keyword.toLowerCase()));
     
@@ -210,98 +234,116 @@ function filterAIContent(articles: RawArticle[]): { filtered: RawArticle[], remo
   return { filtered, removedCount };
 }
 
-// STAGE 4: Rank articles using LLM
-async function rankArticles(articles: RawArticle[], maxArticles: number): Promise<RawArticle[]> {
-  if (articles.length <= maxArticles) {
-    return articles;
-  }
-  
+// STAGE 4: Score articles for importance using LLM
+async function scoreArticles(articles: RawArticle[]): Promise<{ scored: ScoredArticle[], discardedCount: number }> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) {
-    console.log("No LOVABLE_API_KEY, returning first N articles");
-    return articles.slice(0, maxArticles);
+    console.log("No LOVABLE_API_KEY, assigning default scores");
+    return {
+      scored: articles.map(a => ({ ...a, importanceScore: 8 })),
+      discardedCount: 0
+    };
   }
   
-  // Prepare candidates list
-  const candidates = articles.map((a, i) => `${i + 1}. "${a.title}" (${a.source})`).join("\n");
+  // Batch score articles (5 at a time)
+  const scored: ScoredArticle[] = [];
+  let discardedCount = 0;
+  const batchSize = 5;
   
-  const prompt = `You are helping senior executives make AI strategy decisions.
-
-Here are ${articles.length} recent AI news headlines. Select the top ${maxArticles} that would matter most to C-suite executives making AI adoption and strategy decisions.
-
-Focus on:
-- Major AI product launches or company announcements
-- Significant AI policy or regulation news
-- Important AI research breakthroughs
-- Industry trends affecting business strategy
-- AI risks or safety developments
-
-Headlines:
-${candidates}
-
-Return ONLY a comma-separated list of numbers (e.g., "1, 3, 5, 7, 9"). Nothing else.`;
-
-  try {
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "user", content: prompt }
-        ],
-        max_tokens: 100,
-      }),
-    });
+  for (let i = 0; i < articles.length; i += batchSize) {
+    const batch = articles.slice(i, i + batchSize);
+    const titles = batch.map((a, idx) => `${idx + 1}. "${a.title}" (${a.source})`).join("\n");
     
-    if (!response.ok) {
-      console.log("LLM ranking failed, using default order");
-      return articles.slice(0, maxArticles);
-    }
-    
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "";
-    
-    // Parse the numbers
-    const numbers = content.match(/\d+/g)?.map(Number) || [];
-    const selected: RawArticle[] = [];
-    
-    for (const num of numbers) {
-      if (num >= 1 && num <= articles.length && selected.length < maxArticles) {
-        const article = articles[num - 1];
-        if (!selected.includes(article)) {
-          selected.push(article);
+    const prompt = `You are evaluating AI news for senior executives. Rate each headline's "newsworthiness" from 1-10.
+
+Criteria for high scores (7-10):
+- Major breakthrough or state-of-the-art result
+- Significant product launch from major company
+- Important strategic move (acquisition, partnership, pivot)
+- Policy/regulation with broad industry impact
+- Safety concern affecting multiple organizations
+
+Criteria for low scores (1-6):
+- Minor updates or incremental improvements
+- Company-specific news with limited broader impact
+- Speculative or opinion pieces
+- Rehashed or follow-up coverage
+
+Headlines to score:
+${titles}
+
+Respond with ONLY a JSON array of scores, like: [8, 5, 9, 6, 7]
+Nothing else.`;
+
+    try {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 100,
+        }),
+      });
+      
+      if (!response.ok) {
+        console.log("Scoring LLM failed, using default scores");
+        batch.forEach(a => scored.push({ ...a, importanceScore: 8 }));
+        continue;
+      }
+      
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || "";
+      
+      // Parse scores
+      const scoresMatch = content.match(/\[[\d,\s]+\]/);
+      let scores: number[] = [];
+      if (scoresMatch) {
+        try {
+          scores = JSON.parse(scoresMatch[0]);
+        } catch {
+          scores = batch.map(() => 8);
         }
+      } else {
+        scores = batch.map(() => 8);
       }
+      
+      // Apply scores and filter
+      batch.forEach((article, idx) => {
+        const score = scores[idx] || 8;
+        if (score >= IMPORTANCE_THRESHOLD) {
+          scored.push({ ...article, importanceScore: score });
+        } else {
+          discardedCount++;
+          console.log(`Discarded (score ${score}): "${article.title}"`);
+        }
+      });
+      
+    } catch (error) {
+      console.log("Scoring error:", error);
+      batch.forEach(a => scored.push({ ...a, importanceScore: 8 }));
     }
-    
-    // Fill remaining slots if needed
-    for (const article of articles) {
-      if (selected.length >= maxArticles) break;
-      if (!selected.includes(article)) {
-        selected.push(article);
-      }
-    }
-    
-    return selected;
-  } catch (error) {
-    console.log("Ranking error:", error);
-    return articles.slice(0, maxArticles);
   }
+  
+  // Sort by importance score descending
+  scored.sort((a, b) => b.importanceScore - a.importanceScore);
+  
+  return { scored, discardedCount };
 }
 
-// CONFIG: Default limits
-const MAX_ARTICLES_DEFAULT = 20;
-const MAX_ARTICLE_AGE_DAYS_DEFAULT = 14;
+// STAGE 5: Rank and limit articles
+async function rankArticles(articles: ScoredArticle[], maxArticles: number): Promise<ScoredArticle[]> {
+  // Already sorted by importance score, just limit
+  return articles.slice(0, maxArticles);
+}
 
-// STAGE 5: Summarize and tag articles
-async function summarizeArticles(articles: RawArticle[]): Promise<BriefItem[]> {
+// STAGE 6: Summarize and tag articles
+async function summarizeArticles(articles: ScoredArticle[]): Promise<BriefItem[]> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) {
-    // Return basic items without summaries
     return articles.map((a, i) => ({
       id: `brief-${i}-${Date.now()}`,
       title: a.title,
@@ -310,14 +352,15 @@ async function summarizeArticles(articles: RawArticle[]): Promise<BriefItem[]> {
       publishedAt: a.publishedAt,
       tag: a.sourceCategory,
       summary: a.description.slice(0, 200) + "...",
-      impact: "AI developments continue to reshape business strategies."
+      impact: "AI developments continue to reshape business strategies.",
+      importanceScore: a.importanceScore,
+      topicGroup: getTopicGroup(a.sourceCategory)
     }));
   }
   
   const results: BriefItem[] = [];
-  
-  // Process in batches of 3 for efficiency
   const batchSize = 3;
+  
   for (let i = 0; i < articles.length; i += batchSize) {
     const batch = articles.slice(i, i + batchSize);
     
@@ -350,9 +393,7 @@ Respond in this exact JSON format:
           },
           body: JSON.stringify({
             model: "google/gemini-2.5-flash",
-            messages: [
-              { role: "user", content: prompt }
-            ],
+            messages: [{ role: "user", content: prompt }],
             max_tokens: 300,
           }),
         });
@@ -364,26 +405,27 @@ Respond in this exact JSON format:
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content || "";
         
-        // Extract JSON from response
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
+          const tag = parsed.tag || article.sourceCategory;
           return {
             id: `brief-${i + idx}-${Date.now()}`,
             title: article.title,
             source: article.source,
             url: article.url,
             publishedAt: article.publishedAt,
-            tag: parsed.tag || article.sourceCategory,
+            tag,
             summary: parsed.summary || article.description.slice(0, 200),
-            impact: parsed.impact || "This development may affect AI strategy decisions."
+            impact: parsed.impact || "This development may affect AI strategy decisions.",
+            importanceScore: article.importanceScore,
+            topicGroup: getTopicGroup(tag)
           };
         }
       } catch (error) {
         console.log(`Summarize error for "${article.title}":`, error);
       }
       
-      // Fallback
       return {
         id: `brief-${i + idx}-${Date.now()}`,
         title: article.title,
@@ -392,7 +434,9 @@ Respond in this exact JSON format:
         publishedAt: article.publishedAt,
         tag: article.sourceCategory,
         summary: article.description.slice(0, 200) || "Summary unavailable.",
-        impact: "AI developments continue to evolve rapidly."
+        impact: "AI developments continue to evolve rapidly.",
+        importanceScore: article.importanceScore,
+        topicGroup: getTopicGroup(article.sourceCategory)
       };
     });
     
@@ -403,6 +447,33 @@ Respond in this exact JSON format:
   return results;
 }
 
+// Helper to determine topic group from tag
+function getTopicGroup(tag: string): TopicGroup {
+  if (tag === "Research") return "research";
+  if (tag === "Policy" || tag === "Risk") return "policy";
+  return "industry";
+}
+
+// Group items by topic
+function groupByTopic(items: BriefItem[]): Record<TopicGroup, BriefItem[]> {
+  const grouped: Record<TopicGroup, BriefItem[]> = {
+    research: [],
+    industry: [],
+    policy: []
+  };
+  
+  for (const item of items) {
+    grouped[item.topicGroup].push(item);
+  }
+  
+  // Sort each group by importance score
+  for (const group of Object.keys(grouped) as TopicGroup[]) {
+    grouped[group].sort((a, b) => b.importanceScore - a.importanceScore);
+  }
+  
+  return grouped;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -411,7 +482,7 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     const range = url.searchParams.get("range") || "7d";
-    const max = parseInt(url.searchParams.get("max") || "10", 10);
+    const max = parseInt(url.searchParams.get("max") || "20", 10);
     const tagFilter = url.searchParams.get("tag") || "All";
     
     // Parse range (default to 14 days for research papers)
@@ -425,7 +496,7 @@ serve(async (req) => {
     
     console.log(`Generating brief: range=${daysBack}d, max=${maxArticles}, tag=${tagFilter}`);
     
-    // STAGE 1: Fetch
+    // STAGE 1: Fetch (with ArXiv filtering)
     console.log("Stage 1: Fetching articles...");
     const { articles: rawArticles, sourcesUsed } = await fetchArticles(daysBack);
     console.log(`Fetched ${rawArticles.length} articles from ${sourcesUsed.length} sources`);
@@ -440,13 +511,18 @@ serve(async (req) => {
     const { filtered, removedCount: filterRemoved } = filterAIContent(deduped);
     console.log(`After filter: ${filtered.length} articles (removed ${filterRemoved})`);
     
-    // STAGE 4: Rank
-    console.log("Stage 4: Ranking...");
-    const ranked = await rankArticles(filtered, maxArticles);
+    // STAGE 4: Score for importance
+    console.log("Stage 4: Scoring importance...");
+    const { scored, discardedCount: scoreDiscarded } = await scoreArticles(filtered);
+    console.log(`After scoring: ${scored.length} articles (discarded ${scoreDiscarded} below threshold ${IMPORTANCE_THRESHOLD})`);
+    
+    // STAGE 5: Rank and limit
+    console.log("Stage 5: Ranking...");
+    const ranked = await rankArticles(scored, maxArticles);
     console.log(`After ranking: ${ranked.length} articles`);
     
-    // STAGE 5: Summarize
-    console.log("Stage 5: Summarizing...");
+    // STAGE 6: Summarize
+    console.log("Stage 6: Summarizing...");
     let items = await summarizeArticles(ranked);
     
     // Apply tag filter if specified
@@ -454,17 +530,21 @@ serve(async (req) => {
       items = items.filter(item => item.tag === tagFilter);
     }
     
-    const timeRangeLabel = daysBack === 1 ? "Last 24 hours" : daysBack === 7 ? "Last 7 days" : "Last 30 days";
+    // Group by topic
+    const groupedItems = groupByTopic(items);
+    
+    const timeRangeLabel = daysBack === 1 ? "Last 24 hours" : daysBack === 7 ? "Last 7 days" : daysBack === 14 ? "Last 14 days" : "Last 30 days";
     
     const brief: ExecutiveBrief = {
       generatedAt: new Date().toISOString(),
       timeRange: timeRangeLabel,
       items,
-      rejectedCount: dedupeRemoved + filterRemoved,
-      sourcesUsed
+      rejectedCount: dedupeRemoved + filterRemoved + scoreDiscarded,
+      sourcesUsed,
+      groupedItems
     };
     
-    console.log(`Brief generated: ${items.length} items`);
+    console.log(`Brief generated: ${items.length} items in ${Object.keys(groupedItems).length} topic groups`);
     
     return new Response(JSON.stringify(brief), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
