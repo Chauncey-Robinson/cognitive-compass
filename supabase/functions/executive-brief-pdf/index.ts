@@ -155,7 +155,7 @@ serve(async (req) => {
       headers: {
         ...corsHeaders,
         "Content-Type": "text/html; charset=utf-8",
-        "Content-Disposition": `attachment; filename="executive-brief-${new Date().toISOString().split('T')[0]}.html"`,
+        "Content-Disposition": `attachment; filename="ai_research_and_news_${new Date().toISOString().split('T')[0]}.html"`,
       },
     });
     

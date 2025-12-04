@@ -293,6 +293,10 @@ Return ONLY a comma-separated list of numbers (e.g., "1, 3, 5, 7, 9"). Nothing e
   }
 }
 
+// CONFIG: Default limits
+const MAX_ARTICLES_DEFAULT = 20;
+const MAX_ARTICLE_AGE_DAYS_DEFAULT = 14;
+
 // STAGE 5: Summarize and tag articles
 async function summarizeArticles(articles: RawArticle[]): Promise<BriefItem[]> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -318,7 +322,13 @@ async function summarizeArticles(articles: RawArticle[]): Promise<BriefItem[]> {
     const batch = articles.slice(i, i + batchSize);
     
     const batchPromises = batch.map(async (article, idx) => {
-      const prompt = `Summarize this AI news for a busy executive. Write at a 6th-grade reading level.
+      const prompt = `You are an expert AI Research Analyst and Tech Reporter. Analyze the content provided. Determine if it is General Industry News or an Academic/Technical Paper.
+
+If General News: Summarize the key event, the companies involved, and the strategic implications for the AI industry.
+
+If Academic Research (e.g., ArXiv, University Blog): Identify the Core Problem being solved, the Methodology/Architecture used (e.g., Transformer, Diffusion), and the Key Results (state-of-the-art improvements).
+
+Keep all summaries concise, objective, and technical. Avoid marketing fluff. Write at a 6th-grade reading level where possible.
 
 Title: ${article.title}
 Source: ${article.source}
@@ -326,7 +336,7 @@ Description: ${article.description}
 
 Respond in this exact JSON format:
 {
-  "summary": "2-3 sentence summary of what happened",
+  "summary": "2-3 sentence summary following the guidelines above",
   "impact": "1 sentence on why this matters for business leaders",
   "tag": "one of: Tech, Policy, Research, Industry, Risk"
 }`;
@@ -404,13 +414,14 @@ serve(async (req) => {
     const max = parseInt(url.searchParams.get("max") || "10", 10);
     const tagFilter = url.searchParams.get("tag") || "All";
     
-    // Parse range
-    let daysBack = 7;
+    // Parse range (default to 14 days for research papers)
+    let daysBack = MAX_ARTICLE_AGE_DAYS_DEFAULT;
     if (range === "24h") daysBack = 1;
     else if (range === "7d") daysBack = 7;
+    else if (range === "14d") daysBack = 14;
     else if (range === "30d") daysBack = 30;
     
-    const maxArticles = Math.min(Math.max(max, 1), 20);
+    const maxArticles = Math.min(Math.max(max, 1), MAX_ARTICLES_DEFAULT);
     
     console.log(`Generating brief: range=${daysBack}d, max=${maxArticles}, tag=${tagFilter}`);
     
