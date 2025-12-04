@@ -1,16 +1,16 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { AI_NEWS_SOURCES, AI_KEYWORDS, ARXIV_KEYWORDS, TOPIC_CONFIG, type NewsSource, type TopicGroup } from "./aiNewsSources.ts";
+import { AI_NEWS_SOURCES, AI_KEYWORDS, ARXIV_KEYWORDS, PRIORITY_KEYWORDS, TOPIC_CONFIG, type NewsSource, type TopicGroup } from "./aiNewsSources.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// CONFIG: Default limits
-const MAX_ARTICLES_DEFAULT = 20;
-const MAX_ARTICLE_AGE_DAYS_DEFAULT = 14;
-const IMPORTANCE_THRESHOLD = 7; // Discard articles with score below this
+// CONFIG: Executive-focused limits
+const MAX_ARTICLES_DEFAULT = 15; // Busy executives read less, but higher quality
+const MAX_ARTICLE_AGE_DAYS_DEFAULT = 3; // Breaking news focus
+const IMPORTANCE_THRESHOLD = 8; // STRICT: Only 8/10 or higher gets through
 
 interface RawArticle {
   title: string;
@@ -18,7 +18,7 @@ interface RawArticle {
   url: string;
   publishedAt: string;
   source: string;
-  sourceCategory: "Tech" | "Policy" | "Research" | "Industry" | "Risk";
+  sourceCategory: "Strategy" | "Risk" | "Ops" | "Tech";
   isResearch: boolean;
 }
 
@@ -32,7 +32,7 @@ interface BriefItem {
   source: string;
   url: string;
   publishedAt: string;
-  tag: "Tech" | "Policy" | "Research" | "Industry" | "Risk";
+  tag: "Strategy" | "Risk" | "Ops" | "Tech";
   summary: string;
   impact: string;
   importanceScore: number;
@@ -113,7 +113,7 @@ async function fetchArticles(daysBack: number): Promise<{ articles: RawArticle[]
       const response = await fetch(source.url, {
         signal: controller.signal,
         headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; OxfordIntelligence/1.0)"
+          "User-Agent": "Mozilla/5.0 (compatible; ExecutiveIntelligence/1.0)"
         }
       });
       clearTimeout(timeout);
@@ -132,7 +132,7 @@ async function fetchArticles(daysBack: number): Promise<{ articles: RawArticle[]
           const searchText = `${a.title} ${a.description}`.toLowerCase();
           return ARXIV_KEYWORDS.some(keyword => searchText.includes(keyword.toLowerCase()));
         });
-        console.log(`ArXiv filter: ${source.name} - kept ${articles.length} papers with high-signal keywords`);
+        console.log(`ArXiv filter: ${source.name} - kept ${articles.length} papers with business-critical keywords`);
       }
       
       // Filter by date and limit
@@ -243,7 +243,7 @@ function filterAIContent(articles: RawArticle[]): { filtered: RawArticle[], reje
   return { filtered, rejected };
 }
 
-// STAGE 4: Score articles for importance using LLM
+// STAGE 4: Score articles for importance using LLM (CTO Perspective)
 async function scoreArticles(articles: RawArticle[]): Promise<{ scored: ScoredArticle[], rejected: RejectedArticle[] }> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) {
@@ -261,22 +261,22 @@ async function scoreArticles(articles: RawArticle[]): Promise<{ scored: ScoredAr
   
   for (let i = 0; i < articles.length; i += batchSize) {
     const batch = articles.slice(i, i + batchSize);
-    const titles = batch.map((a, idx) => `${idx + 1}. "${a.title}" (${a.source})`).join("\n");
+    const titles = batch.map((a, idx) => `${idx + 1}. "${a.title}" (${a.source}): ${a.description.slice(0, 150)}...`).join("\n");
     
-    const prompt = `You are evaluating AI news for senior executives. Rate each headline's "newsworthiness" from 1-10.
+    // CTO-focused scoring prompt
+    const prompt = `Act as a CTO for a Global Fortune 500 company (Finance/Logistics). Rate the importance of each news item from 1-10.
 
-Criteria for high scores (7-10):
-- Major breakthrough or state-of-the-art result
-- Significant product launch from major company
-- Important strategic move (acquisition, partnership, pivot)
-- Policy/regulation with broad industry impact
-- Safety concern affecting multiple organizations
+CRITERIA FOR HIGH SCORES (8-10):
+- **Strategic Threat:** New competitor models (especially from China/Europe).
+- **Enterprise Value:** Solves 'Privacy', 'Hallucination', 'Security', or 'Cost'.
+- **Operational Efficiency:** Improves routing, fraud detection, or customer support.
+- **Regulation:** Major compliance shifts (e.g., EU AI Act).
 
-Criteria for low scores (1-6):
-- Minor updates or incremental improvements
-- Company-specific news with limited broader impact
-- Speculative or opinion pieces
-- Rehashed or follow-up coverage
+CRITERIA FOR LOW SCORES (1-4):
+- Theoretical math with no application.
+- Generic startup funding news.
+- Consumer entertainment (gaming/art).
+- Speculative opinion pieces.
 
 Headlines to score:
 ${titles}
@@ -345,11 +345,10 @@ Nothing else.`;
 
 // STAGE 5: Rank and limit articles
 async function rankArticles(articles: ScoredArticle[], maxArticles: number): Promise<ScoredArticle[]> {
-  // Already sorted by importance score, just limit
   return articles.slice(0, maxArticles);
 }
 
-// STAGE 6: Summarize and tag articles
+// STAGE 6: Summarize and tag articles (Executive Advisor Persona)
 async function summarizeArticles(articles: ScoredArticle[]): Promise<BriefItem[]> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) {
@@ -374,13 +373,18 @@ async function summarizeArticles(articles: ScoredArticle[]): Promise<BriefItem[]
     const batch = articles.slice(i, i + batchSize);
     
     const batchPromises = batch.map(async (article, idx) => {
-      const prompt = `You are an expert AI Research Analyst and Tech Reporter. Analyze the content provided. Determine if it is General Industry News or an Academic/Technical Paper.
+      // Executive Advisor Persona
+      const prompt = `You are a Strategic AI Advisor to a Fortune 500 CTO. Summarize this content focusing on **Business Impact**, **Risk**, and **ROI**.
 
-If General News: Summarize the key event, the companies involved, and the strategic implications for the AI industry.
+Do not just repeat the news. Answer: Why does this matter to enterprise leadership?
 
-If Academic Research (e.g., ArXiv, University Blog): Identify the Core Problem being solved, the Methodology/Architecture used (e.g., Transformer, Diffusion), and the Key Results (state-of-the-art improvements).
+Highlight if this is a 'Strategic Threat' (e.g., from China/Europe competitors) or an 'Operational Win' (efficiency/cost savings).
 
-Keep all summaries concise, objective, and technical. Avoid marketing fluff. Write at a 6th-grade reading level where possible.
+Categorize as one of:
+- Strategy: Global competition, major acquisitions, market shifts
+- Risk: Security threats, compliance, privacy concerns, regulations
+- Ops: Enterprise efficiency, cost reduction, operational improvements
+- Tech: Technical breakthroughs with clear business applications
 
 Title: ${article.title}
 Source: ${article.source}
@@ -388,9 +392,9 @@ Description: ${article.description}
 
 Respond in this exact JSON format:
 {
-  "summary": "2-3 sentence summary following the guidelines above",
-  "impact": "1 sentence on why this matters for business leaders",
-  "tag": "one of: Tech, Policy, Research, Industry, Risk"
+  "summary": "2-3 sentence executive summary focusing on business impact",
+  "impact": "1 sentence: the key strategic takeaway for C-suite",
+  "tag": "one of: Strategy, Risk, Ops, Tech"
 }`;
 
       try {
@@ -417,7 +421,7 @@ Respond in this exact JSON format:
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
-          const tag = parsed.tag || article.sourceCategory;
+          const tag = (parsed.tag as "Strategy" | "Risk" | "Ops" | "Tech") || article.sourceCategory;
           return {
             id: `brief-${i + idx}-${Date.now()}`,
             title: article.title,
@@ -458,17 +462,19 @@ Respond in this exact JSON format:
 
 // Helper to determine topic group from tag
 function getTopicGroup(tag: string): TopicGroup {
-  if (tag === "Research") return "research";
-  if (tag === "Policy" || tag === "Risk") return "policy";
-  return "industry";
+  if (tag === "Strategy") return "strategy";
+  if (tag === "Risk") return "risk";
+  if (tag === "Ops") return "ops";
+  return "tech";
 }
 
 // Group items by topic
 function groupByTopic(items: BriefItem[]): Record<TopicGroup, BriefItem[]> {
   const grouped: Record<TopicGroup, BriefItem[]> = {
-    research: [],
-    industry: [],
-    policy: []
+    strategy: [],
+    risk: [],
+    ops: [],
+    tech: []
   };
   
   for (const item of items) {
@@ -490,20 +496,20 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    const range = url.searchParams.get("range") || "7d";
-    const max = parseInt(url.searchParams.get("max") || "20", 10);
+    const range = url.searchParams.get("range") || "3d";
+    const max = parseInt(url.searchParams.get("max") || "15", 10);
     const tagFilter = url.searchParams.get("tag") || "All";
     
-    // Parse range (default to 14 days for research papers)
+    // Parse range (default to 3 days for breaking news)
     let daysBack = MAX_ARTICLE_AGE_DAYS_DEFAULT;
     if (range === "24h") daysBack = 1;
+    else if (range === "3d") daysBack = 3;
     else if (range === "7d") daysBack = 7;
     else if (range === "14d") daysBack = 14;
-    else if (range === "30d") daysBack = 30;
     
     const maxArticles = Math.min(Math.max(max, 1), MAX_ARTICLES_DEFAULT);
     
-    console.log(`Generating brief: range=${daysBack}d, max=${maxArticles}, tag=${tagFilter}`);
+    console.log(`Generating executive brief: range=${daysBack}d, max=${maxArticles}, tag=${tagFilter}`);
     
     // STAGE 1: Fetch (with ArXiv filtering)
     console.log("Stage 1: Fetching articles...");
@@ -520,8 +526,8 @@ serve(async (req) => {
     const { filtered, rejected: filterRejected } = filterAIContent(deduped);
     console.log(`After filter: ${filtered.length} articles (removed ${filterRejected.length})`);
     
-    // STAGE 4: Score for importance
-    console.log("Stage 4: Scoring importance...");
+    // STAGE 4: Score for importance (CTO criteria)
+    console.log("Stage 4: Scoring importance (CTO criteria)...");
     const { scored, rejected: scoreRejected } = await scoreArticles(filtered);
     console.log(`After scoring: ${scored.length} articles (discarded ${scoreRejected.length} below threshold ${IMPORTANCE_THRESHOLD})`);
     
@@ -531,7 +537,7 @@ serve(async (req) => {
     console.log(`After ranking: ${ranked.length} articles`);
     
     // STAGE 6: Summarize
-    console.log("Stage 6: Summarizing...");
+    console.log("Stage 6: Summarizing (Executive Advisor)...");
     let items = await summarizeArticles(ranked);
     
     // Apply tag filter if specified
@@ -545,7 +551,7 @@ serve(async (req) => {
     // Combine all rejected articles
     const allRejected: RejectedArticle[] = [...dedupeRejected, ...filterRejected, ...scoreRejected];
     
-    const timeRangeLabel = daysBack === 1 ? "Last 24 hours" : daysBack === 7 ? "Last 7 days" : daysBack === 14 ? "Last 14 days" : "Last 30 days";
+    const timeRangeLabel = daysBack === 1 ? "Last 24 hours" : daysBack === 3 ? "Last 3 days" : daysBack === 7 ? "Last 7 days" : "Last 14 days";
     
     const brief: ExecutiveBrief = {
       generatedAt: new Date().toISOString(),
@@ -557,7 +563,7 @@ serve(async (req) => {
       rejectedArticles: allRejected
     };
     
-    console.log(`Brief generated: ${items.length} items in ${Object.keys(groupedItems).length} topic groups`);
+    console.log(`Executive brief generated: ${items.length} items in ${Object.keys(groupedItems).length} topic groups`);
     
     return new Response(JSON.stringify(brief), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
