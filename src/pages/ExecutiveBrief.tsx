@@ -76,7 +76,7 @@ const ExecutiveBrief = () => {
   const [brief, setBrief] = useState<ExecutiveBrief | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [timeRange, setTimeRange] = useState<"24h" | "3d" | "7d" | "14d">("3d");
+  const [timeRange, setTimeRange] = useState<"24h" | "3d" | "7d" | "14d" | "30d">("3d");
   const [tagFilter, setTagFilter] = useState<string>("All");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [showFiltered, setShowFiltered] = useState(false);
@@ -295,8 +295,8 @@ const ExecutiveBrief = () => {
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Time range:</span>
-                <div className="flex gap-1">
-                  {(["24h", "3d", "7d", "14d"] as const).map((range) => (
+                <div className="flex gap-1 flex-wrap">
+                  {(["24h", "3d", "7d", "14d", "30d"] as const).map((range) => (
                     <Button
                       key={range}
                       variant={timeRange === range ? "default" : "outline"}
@@ -304,7 +304,7 @@ const ExecutiveBrief = () => {
                       onClick={() => setTimeRange(range)}
                       className="h-8"
                     >
-                      {range === "24h" ? "24h" : range === "3d" ? "3 days" : range === "7d" ? "7 days" : "14 days"}
+                      {range === "24h" ? "24h" : range === "3d" ? "3 days" : range === "7d" ? "7 days" : range === "14d" ? "14 days" : "30 days"}
                     </Button>
                   ))}
                 </div>
