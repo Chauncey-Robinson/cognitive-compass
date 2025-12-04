@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { AI_NEWS_SOURCES, AI_KEYWORDS, ARXIV_KEYWORDS, PRIORITY_KEYWORDS, TOPIC_CONFIG, type NewsSource, type TopicGroup } from "./aiNewsSources.ts";
 
 const corsHeaders = {
@@ -11,6 +12,11 @@ const corsHeaders = {
 const MAX_ARTICLES_DEFAULT = 15; // Busy executives read less, but higher quality
 const MAX_ARTICLE_AGE_DAYS_DEFAULT = 3; // Breaking news focus
 const IMPORTANCE_THRESHOLD = 8; // STRICT: Only 8/10 or higher gets through
+
+// Initialize Supabase client for memory operations
+const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 interface RawArticle {
   title: string;
@@ -43,8 +49,54 @@ interface RejectedArticle {
   title: string;
   source: string;
   url: string;
-  reason: "duplicate" | "not-ai-related" | "low-score" | "arxiv-filter";
+  reason: "duplicate" | "not-ai-related" | "low-score" | "arxiv-filter" | "previously-seen";
   score?: number;
+}
+
+// MEMORY: Check if URLs have been seen before
+async function checkSeenUrls(urls: string[]): Promise<Set<string>> {
+  try {
+    const { data, error } = await supabase
+      .from("seen_articles")
+      .select("url")
+      .in("url", urls);
+    
+    if (error) {
+      console.log("Memory check error:", error);
+      return new Set();
+    }
+    
+    return new Set(data?.map(r => r.url) || []);
+  } catch (e) {
+    console.log("Memory check failed:", e);
+    return new Set();
+  }
+}
+
+// MEMORY: Mark articles as seen (after processing)
+async function markArticlesAsSeen(articles: Array<{ url: string; title: string; source: string }>): Promise<void> {
+  if (articles.length === 0) return;
+  
+  try {
+    const rows = articles.map(a => ({
+      url: a.url,
+      title: a.title,
+      source: a.source,
+      seen_date: new Date().toISOString()
+    }));
+    
+    const { error } = await supabase
+      .from("seen_articles")
+      .upsert(rows, { onConflict: "url", ignoreDuplicates: true });
+    
+    if (error) {
+      console.log("Memory save error:", error);
+    } else {
+      console.log(`Memory: Marked ${articles.length} articles as seen`);
+    }
+  } catch (e) {
+    console.log("Memory save failed:", e);
+  }
 }
 
 interface ExecutiveBrief {
@@ -164,13 +216,24 @@ async function fetchArticles(daysBack: number): Promise<{ articles: RawArticle[]
   return { articles: allArticles, sourcesUsed };
 }
 
-// STAGE 2: Deduplicate articles
-function dedupeArticles(articles: RawArticle[]): { deduped: RawArticle[], rejected: RejectedArticle[] } {
+// STAGE 2: Deduplicate articles (including memory check)
+async function dedupeArticles(articles: RawArticle[]): Promise<{ deduped: RawArticle[], rejected: RejectedArticle[] }> {
   const seen = new Set<string>();
   const deduped: RawArticle[] = [];
   const rejected: RejectedArticle[] = [];
   
+  // Check memory for previously seen URLs
+  const allUrls = articles.map(a => a.url);
+  const previouslySeen = await checkSeenUrls(allUrls);
+  console.log(`Memory: Found ${previouslySeen.size} previously seen articles`);
+  
   for (const article of articles) {
+    // Check if previously seen in memory
+    if (previouslySeen.has(article.url)) {
+      rejected.push({ title: article.title, source: article.source, url: article.url, reason: "previously-seen" });
+      continue;
+    }
+    
     if (seen.has(article.url)) {
       rejected.push({ title: article.title, source: article.source, url: article.url, reason: "duplicate" });
       continue;
@@ -516,9 +579,9 @@ serve(async (req) => {
     const { articles: rawArticles, sourcesUsed } = await fetchArticles(daysBack);
     console.log(`Fetched ${rawArticles.length} articles from ${sourcesUsed.length} sources`);
     
-    // STAGE 2: Dedupe
-    console.log("Stage 2: Deduplicating...");
-    const { deduped, rejected: dedupeRejected } = dedupeArticles(rawArticles);
+    // STAGE 2: Dedupe (with memory check)
+    console.log("Stage 2: Deduplicating (with memory)...");
+    const { deduped, rejected: dedupeRejected } = await dedupeArticles(rawArticles);
     console.log(`After dedupe: ${deduped.length} articles (removed ${dedupeRejected.length})`);
     
     // STAGE 3: Filter
@@ -539,6 +602,10 @@ serve(async (req) => {
     // STAGE 6: Summarize
     console.log("Stage 6: Summarizing (Executive Advisor)...");
     let items = await summarizeArticles(ranked);
+    
+    // STAGE 7: Save to Memory (mark as seen for future runs)
+    console.log("Stage 7: Saving to memory...");
+    await markArticlesAsSeen(items.map(i => ({ url: i.url, title: i.title, source: i.source })));
     
     // Apply tag filter if specified
     if (tagFilter && tagFilter !== "All") {

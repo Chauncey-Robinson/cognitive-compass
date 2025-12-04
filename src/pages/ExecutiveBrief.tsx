@@ -26,7 +26,7 @@ interface RejectedArticle {
   title: string;
   source: string;
   url: string;
-  reason: "duplicate" | "not-ai-related" | "low-score" | "arxiv-filter";
+  reason: "duplicate" | "not-ai-related" | "low-score" | "arxiv-filter" | "previously-seen";
   score?: number;
 }
 
@@ -85,7 +85,8 @@ const ExecutiveBrief = () => {
     "duplicate": "Duplicate",
     "not-ai-related": "Not AI related",
     "low-score": "Low importance",
-    "arxiv-filter": "ArXiv filter"
+    "arxiv-filter": "ArXiv filter",
+    "previously-seen": "Previously seen"
   };
 
   const fetchBrief = async () => {
