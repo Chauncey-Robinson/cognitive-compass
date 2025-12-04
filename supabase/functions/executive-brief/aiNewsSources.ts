@@ -9,7 +9,88 @@ export interface NewsSource {
 }
 
 export const AI_NEWS_SOURCES: NewsSource[] = [
-  // Tech News
+  // === ACADEMIC & RESEARCH LABS ===
+  {
+    name: "MIT AI News",
+    url: "https://news.mit.edu/rss/topic/artificial-intelligence2",
+    type: "rss",
+    maxItems: 5,
+    category: "Research",
+    isResearch: true
+  },
+  {
+    name: "Berkeley BAIR",
+    url: "https://bair.berkeley.edu/blog/feed.xml",
+    type: "rss",
+    maxItems: 5,
+    category: "Research",
+    isResearch: true
+  },
+  {
+    name: "Stanford HAI",
+    url: "https://hai.stanford.edu/news/rss.xml",
+    type: "rss",
+    maxItems: 5,
+    category: "Research",
+    isResearch: true
+  },
+  {
+    name: "Oxford CS",
+    url: "https://www.cs.ox.ac.uk/news/rss/",
+    type: "rss",
+    maxItems: 5,
+    category: "Research",
+    isResearch: true
+  },
+  {
+    name: "Harvard SEAS",
+    url: "https://www.seas.harvard.edu/news/rss",
+    type: "rss",
+    maxItems: 5,
+    category: "Research",
+    isResearch: true
+  },
+  // ArXiv Feeds (strict keyword filtering)
+  {
+    name: "ArXiv AI",
+    url: "http://export.arxiv.org/rss/cs.AI",
+    type: "rss",
+    maxItems: 10,
+    category: "Research",
+    isResearch: true
+  },
+  {
+    name: "ArXiv Machine Learning",
+    url: "http://export.arxiv.org/rss/cs.LG",
+    type: "rss",
+    maxItems: 10,
+    category: "Research",
+    isResearch: true
+  },
+  {
+    name: "ArXiv Computation & Language",
+    url: "http://export.arxiv.org/rss/cs.CL",
+    type: "rss",
+    maxItems: 10,
+    category: "Research",
+    isResearch: true
+  },
+  // Lab Blogs
+  {
+    name: "MIT Technology Review AI",
+    url: "https://www.technologyreview.com/topic/artificial-intelligence/feed",
+    type: "rss",
+    maxItems: 5,
+    category: "Research"
+  },
+  {
+    name: "Google AI Blog",
+    url: "https://blog.google/technology/ai/rss/",
+    type: "rss",
+    maxItems: 3,
+    category: "Research"
+  },
+  // === INDUSTRY NEWS ===
   {
     name: "TechCrunch AI",
     url: "https://techcrunch.com/category/artificial-intelligence/feed/",
@@ -31,47 +112,6 @@ export const AI_NEWS_SOURCES: NewsSource[] = [
     maxItems: 5,
     category: "Tech"
   },
-  // Research - ArXiv Feeds (strict keyword filtering)
-  {
-    name: "ArXiv AI",
-    url: "https://rss.arxiv.org/rss/cs.AI",
-    type: "rss",
-    maxItems: 10,
-    category: "Research",
-    isResearch: true
-  },
-  {
-    name: "ArXiv Machine Learning",
-    url: "https://rss.arxiv.org/rss/cs.LG",
-    type: "rss",
-    maxItems: 10,
-    category: "Research",
-    isResearch: true
-  },
-  {
-    name: "ArXiv Computation & Language",
-    url: "https://rss.arxiv.org/rss/cs.CL",
-    type: "rss",
-    maxItems: 10,
-    category: "Research",
-    isResearch: true
-  },
-  // Research - Lab Blogs
-  {
-    name: "MIT Technology Review AI",
-    url: "https://www.technologyreview.com/topic/artificial-intelligence/feed",
-    type: "rss",
-    maxItems: 5,
-    category: "Research"
-  },
-  {
-    name: "Google AI Blog",
-    url: "https://blog.google/technology/ai/rss/",
-    type: "rss",
-    maxItems: 3,
-    category: "Research"
-  },
-  // Industry
   {
     name: "Wired AI",
     url: "https://www.wired.com/feed/tag/ai/latest/rss",
@@ -86,7 +126,14 @@ export const AI_NEWS_SOURCES: NewsSource[] = [
     maxItems: 5,
     category: "Industry"
   },
-  // Policy
+  {
+    name: "AI News",
+    url: "https://www.artificialintelligence-news.com/feed/",
+    type: "rss",
+    maxItems: 5,
+    category: "Industry"
+  },
+  // === POLICY ===
   {
     name: "Ars Technica AI",
     url: "https://feeds.arstechnica.com/arstechnica/features",
@@ -96,7 +143,7 @@ export const AI_NEWS_SOURCES: NewsSource[] = [
   }
 ];
 
-// Keywords for filtering AI-related content (general)
+// Keywords for filtering AI-related content (general news)
 export const AI_KEYWORDS = [
   "ai", "artificial intelligence", "machine learning", "ml", "llm", "large language model",
   "gpt", "chatgpt", "openai", "anthropic", "claude", "gemini", "deepmind",
@@ -113,7 +160,8 @@ export const ARXIV_KEYWORDS = [
   "llm", "large language model", "transformer", "generative", "diffusion",
   "state-of-the-art", "sota", "benchmark", "agent", "reasoning",
   "chain-of-thought", "cot", "retrieval augmented", "rag", "multimodal",
-  "vision language", "instruction tuning", "rlhf", "preference learning"
+  "vision language", "vision-language", "instruction tuning", "rlhf", 
+  "preference learning", "foundation model"
 ];
 
 // Topic groupings for final report
