@@ -5,6 +5,7 @@ export interface NewsSource {
   type: "rss" | "json";
   maxItems: number;
   category: "Tech" | "Policy" | "Research" | "Industry" | "Risk";
+  isResearch?: boolean; // Flag for ArXiv/academic sources requiring strict filtering
 }
 
 export const AI_NEWS_SOURCES: NewsSource[] = [
@@ -30,7 +31,32 @@ export const AI_NEWS_SOURCES: NewsSource[] = [
     maxItems: 5,
     category: "Tech"
   },
-  // Research
+  // Research - ArXiv Feeds (strict keyword filtering)
+  {
+    name: "ArXiv AI",
+    url: "https://rss.arxiv.org/rss/cs.AI",
+    type: "rss",
+    maxItems: 10,
+    category: "Research",
+    isResearch: true
+  },
+  {
+    name: "ArXiv Machine Learning",
+    url: "https://rss.arxiv.org/rss/cs.LG",
+    type: "rss",
+    maxItems: 10,
+    category: "Research",
+    isResearch: true
+  },
+  {
+    name: "ArXiv Computation & Language",
+    url: "https://rss.arxiv.org/rss/cs.CL",
+    type: "rss",
+    maxItems: 10,
+    category: "Research",
+    isResearch: true
+  },
+  // Research - Lab Blogs
   {
     name: "MIT Technology Review AI",
     url: "https://www.technologyreview.com/topic/artificial-intelligence/feed",
@@ -70,7 +96,7 @@ export const AI_NEWS_SOURCES: NewsSource[] = [
   }
 ];
 
-// Keywords for filtering AI-related content
+// Keywords for filtering AI-related content (general)
 export const AI_KEYWORDS = [
   "ai", "artificial intelligence", "machine learning", "ml", "llm", "large language model",
   "gpt", "chatgpt", "openai", "anthropic", "claude", "gemini", "deepmind",
@@ -80,3 +106,33 @@ export const AI_KEYWORDS = [
   "diffusion model", "stable diffusion", "midjourney", "dall-e", "sora",
   "natural language processing", "nlp", "computer vision", "reinforcement learning"
 ];
+
+// Strict keywords for ArXiv/research paper filtering
+// Only fetch papers containing these high-signal terms
+export const ARXIV_KEYWORDS = [
+  "llm", "large language model", "transformer", "generative", "diffusion",
+  "state-of-the-art", "sota", "benchmark", "agent", "reasoning",
+  "chain-of-thought", "cot", "retrieval augmented", "rag", "multimodal",
+  "vision language", "instruction tuning", "rlhf", "preference learning"
+];
+
+// Topic groupings for final report
+export type TopicGroup = "research" | "industry" | "policy";
+
+export const TOPIC_CONFIG: Record<TopicGroup, { title: string; emoji: string; tags: string[] }> = {
+  research: {
+    title: "Major Research Breakthroughs",
+    emoji: "🚀",
+    tags: ["Research"]
+  },
+  industry: {
+    title: "Industry News & Releases",
+    emoji: "🏢",
+    tags: ["Tech", "Industry"]
+  },
+  policy: {
+    title: "Policy & Safety",
+    emoji: "⚖️",
+    tags: ["Policy", "Risk"]
+  }
+};
