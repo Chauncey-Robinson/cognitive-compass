@@ -39,6 +39,14 @@ interface BriefItem {
   topicGroup: TopicGroup;
 }
 
+interface RejectedArticle {
+  title: string;
+  source: string;
+  url: string;
+  reason: "duplicate" | "not-ai-related" | "low-score" | "arxiv-filter";
+  score?: number;
+}
+
 interface ExecutiveBrief {
   generatedAt: string;
   timeRange: string;
@@ -46,6 +54,7 @@ interface ExecutiveBrief {
   rejectedCount: number;
   sourcesUsed: string[];
   groupedItems: Record<TopicGroup, BriefItem[]>;
+  rejectedArticles: RejectedArticle[];
 }
 
 // Parse RSS XML to extract articles
@@ -156,14 +165,14 @@ async function fetchArticles(daysBack: number): Promise<{ articles: RawArticle[]
 }
 
 // STAGE 2: Deduplicate articles
-function dedupeArticles(articles: RawArticle[]): { deduped: RawArticle[], removedCount: number } {
+function dedupeArticles(articles: RawArticle[]): { deduped: RawArticle[], rejected: RejectedArticle[] } {
   const seen = new Set<string>();
   const deduped: RawArticle[] = [];
-  let removedCount = 0;
+  const rejected: RejectedArticle[] = [];
   
   for (const article of articles) {
     if (seen.has(article.url)) {
-      removedCount++;
+      rejected.push({ title: article.title, source: article.source, url: article.url, reason: "duplicate" });
       continue;
     }
     
@@ -177,7 +186,7 @@ function dedupeArticles(articles: RawArticle[]): { deduped: RawArticle[], remove
         const similarity = calculateSimilarity(normalizedTitle, existingNormalized);
         if (similarity > 0.8) {
           isDuplicate = true;
-          removedCount++;
+          rejected.push({ title: article.title, source: article.source, url: article.url, reason: "duplicate" });
           break;
         }
       }
@@ -189,7 +198,7 @@ function dedupeArticles(articles: RawArticle[]): { deduped: RawArticle[], remove
     }
   }
   
-  return { deduped, removedCount };
+  return { deduped, rejected };
 }
 
 function calculateSimilarity(a: string, b: string): number {
@@ -210,9 +219,9 @@ function calculateSimilarity(a: string, b: string): number {
 }
 
 // STAGE 3: Filter for AI-related content
-function filterAIContent(articles: RawArticle[]): { filtered: RawArticle[], removedCount: number } {
+function filterAIContent(articles: RawArticle[]): { filtered: RawArticle[], rejected: RejectedArticle[] } {
   const filtered: RawArticle[] = [];
-  let removedCount = 0;
+  const rejected: RejectedArticle[] = [];
   
   for (const article of articles) {
     // Research articles already passed strict filtering
@@ -227,27 +236,27 @@ function filterAIContent(articles: RawArticle[]): { filtered: RawArticle[], remo
     if (isAIRelated) {
       filtered.push(article);
     } else {
-      removedCount++;
+      rejected.push({ title: article.title, source: article.source, url: article.url, reason: "not-ai-related" });
     }
   }
   
-  return { filtered, removedCount };
+  return { filtered, rejected };
 }
 
 // STAGE 4: Score articles for importance using LLM
-async function scoreArticles(articles: RawArticle[]): Promise<{ scored: ScoredArticle[], discardedCount: number }> {
+async function scoreArticles(articles: RawArticle[]): Promise<{ scored: ScoredArticle[], rejected: RejectedArticle[] }> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) {
     console.log("No LOVABLE_API_KEY, assigning default scores");
     return {
       scored: articles.map(a => ({ ...a, importanceScore: 8 })),
-      discardedCount: 0
+      rejected: []
     };
   }
   
   // Batch score articles (5 at a time)
   const scored: ScoredArticle[] = [];
-  let discardedCount = 0;
+  const rejected: RejectedArticle[] = [];
   const batchSize = 5;
   
   for (let i = 0; i < articles.length; i += batchSize) {
@@ -317,7 +326,7 @@ Nothing else.`;
         if (score >= IMPORTANCE_THRESHOLD) {
           scored.push({ ...article, importanceScore: score });
         } else {
-          discardedCount++;
+          rejected.push({ title: article.title, source: article.source, url: article.url, reason: "low-score", score });
           console.log(`Discarded (score ${score}): "${article.title}"`);
         }
       });
@@ -331,7 +340,7 @@ Nothing else.`;
   // Sort by importance score descending
   scored.sort((a, b) => b.importanceScore - a.importanceScore);
   
-  return { scored, discardedCount };
+  return { scored, rejected };
 }
 
 // STAGE 5: Rank and limit articles
@@ -503,18 +512,18 @@ serve(async (req) => {
     
     // STAGE 2: Dedupe
     console.log("Stage 2: Deduplicating...");
-    const { deduped, removedCount: dedupeRemoved } = dedupeArticles(rawArticles);
-    console.log(`After dedupe: ${deduped.length} articles (removed ${dedupeRemoved})`);
+    const { deduped, rejected: dedupeRejected } = dedupeArticles(rawArticles);
+    console.log(`After dedupe: ${deduped.length} articles (removed ${dedupeRejected.length})`);
     
     // STAGE 3: Filter
     console.log("Stage 3: Filtering AI content...");
-    const { filtered, removedCount: filterRemoved } = filterAIContent(deduped);
-    console.log(`After filter: ${filtered.length} articles (removed ${filterRemoved})`);
+    const { filtered, rejected: filterRejected } = filterAIContent(deduped);
+    console.log(`After filter: ${filtered.length} articles (removed ${filterRejected.length})`);
     
     // STAGE 4: Score for importance
     console.log("Stage 4: Scoring importance...");
-    const { scored, discardedCount: scoreDiscarded } = await scoreArticles(filtered);
-    console.log(`After scoring: ${scored.length} articles (discarded ${scoreDiscarded} below threshold ${IMPORTANCE_THRESHOLD})`);
+    const { scored, rejected: scoreRejected } = await scoreArticles(filtered);
+    console.log(`After scoring: ${scored.length} articles (discarded ${scoreRejected.length} below threshold ${IMPORTANCE_THRESHOLD})`);
     
     // STAGE 5: Rank and limit
     console.log("Stage 5: Ranking...");
@@ -533,15 +542,19 @@ serve(async (req) => {
     // Group by topic
     const groupedItems = groupByTopic(items);
     
+    // Combine all rejected articles
+    const allRejected: RejectedArticle[] = [...dedupeRejected, ...filterRejected, ...scoreRejected];
+    
     const timeRangeLabel = daysBack === 1 ? "Last 24 hours" : daysBack === 7 ? "Last 7 days" : daysBack === 14 ? "Last 14 days" : "Last 30 days";
     
     const brief: ExecutiveBrief = {
       generatedAt: new Date().toISOString(),
       timeRange: timeRangeLabel,
       items,
-      rejectedCount: dedupeRemoved + filterRemoved + scoreDiscarded,
+      rejectedCount: allRejected.length,
       sourcesUsed,
-      groupedItems
+      groupedItems,
+      rejectedArticles: allRejected
     };
     
     console.log(`Brief generated: ${items.length} items in ${Object.keys(groupedItems).length} topic groups`);
