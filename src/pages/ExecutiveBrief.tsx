@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, RefreshCw, ExternalLink, Filter, Clock, AlertCircle, Rocket, Building2, Scale } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, ExternalLink, Filter, Clock, AlertCircle, Rocket, Building2, Scale, ChevronDown, ChevronUp, EyeOff } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navigation from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 type TopicGroup = "research" | "industry" | "policy";
 
@@ -21,6 +22,14 @@ interface BriefItem {
   topicGroup: TopicGroup;
 }
 
+interface RejectedArticle {
+  title: string;
+  source: string;
+  url: string;
+  reason: "duplicate" | "not-ai-related" | "low-score" | "arxiv-filter";
+  score?: number;
+}
+
 interface ExecutiveBrief {
   generatedAt: string;
   timeRange: string;
@@ -28,6 +37,7 @@ interface ExecutiveBrief {
   rejectedCount: number;
   sourcesUsed: string[];
   groupedItems: Record<TopicGroup, BriefItem[]>;
+  rejectedArticles?: RejectedArticle[];
 }
 
 const TAG_COLORS: Record<string, string> = {
@@ -65,6 +75,14 @@ const ExecutiveBrief = () => {
   const [timeRange, setTimeRange] = useState<"24h" | "7d" | "14d" | "30d">("7d");
   const [tagFilter, setTagFilter] = useState<string>("All");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [showFiltered, setShowFiltered] = useState(false);
+
+  const REASON_LABELS: Record<string, string> = {
+    "duplicate": "Duplicate",
+    "not-ai-related": "Not AI related",
+    "low-score": "Low importance",
+    "arxiv-filter": "ArXiv filter"
+  };
 
   const fetchBrief = async () => {
     setLoading(true);
@@ -385,6 +403,53 @@ const ExecutiveBrief = () => {
                       {brief.sourcesUsed.join(" · ")}
                     </p>
                   </div>
+                )}
+
+                {/* Filtered Articles Section */}
+                {brief.rejectedArticles && brief.rejectedArticles.length > 0 && (
+                  <Collapsible open={showFiltered} onOpenChange={setShowFiltered} className="mt-8">
+                    <CollapsibleTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between">
+                        <span className="flex items-center gap-2">
+                          <EyeOff className="h-4 w-4" />
+                          View {brief.rejectedArticles.length} Filtered Articles
+                        </span>
+                        {showFiltered ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-4">
+                      <div className="glass-card rounded-2xl p-4 space-y-3 max-h-96 overflow-y-auto">
+                        <p className="text-sm text-muted-foreground mb-4">
+                          These articles were filtered out during processing:
+                        </p>
+                        {brief.rejectedArticles.map((article, index) => (
+                          <div key={index} className="flex items-start justify-between gap-3 py-2 border-b border-border/50 last:border-0">
+                            <div className="flex-1 min-w-0">
+                              <a
+                                href={article.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-medium hover:text-primary transition-colors line-clamp-2"
+                              >
+                                {article.title}
+                              </a>
+                              <p className="text-xs text-muted-foreground mt-1">{article.source}</p>
+                            </div>
+                            <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
+                              article.reason === "low-score" 
+                                ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" 
+                                : article.reason === "duplicate"
+                                ? "bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400"
+                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                            }`}>
+                              {REASON_LABELS[article.reason]}
+                              {article.score !== undefined && ` (${article.score}/10)`}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 )}
               </>
             )}
