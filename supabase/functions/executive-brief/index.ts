@@ -11,7 +11,7 @@ const corsHeaders = {
 // CONFIG: Executive-focused limits
 const MAX_ARTICLES_DEFAULT = 15; // Busy executives read less, but higher quality
 const MAX_ARTICLE_AGE_DAYS_DEFAULT = 3; // Breaking news focus
-const IMPORTANCE_THRESHOLD = 8; // STRICT: Only 8/10 or higher gets through
+// Score filtering disabled - showing all articles regardless of score
 
 // Initialize Supabase client for memory operations
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -384,15 +384,10 @@ Nothing else.`;
         scores = batch.map(() => 8);
       }
       
-      // Apply scores and filter
+      // Apply scores - keep all articles regardless of score
       batch.forEach((article, idx) => {
-        const score = scores[idx] || 8;
-        if (score >= IMPORTANCE_THRESHOLD) {
-          scored.push({ ...article, importanceScore: score });
-        } else {
-          rejected.push({ title: article.title, source: article.source, url: article.url, reason: "low-score", score });
-          console.log(`Discarded (score ${score}): "${article.title}"`);
-        }
+        const score = scores[idx] || 5;
+        scored.push({ ...article, importanceScore: score });
       });
       
     } catch (error) {
@@ -687,7 +682,7 @@ serve(async (req) => {
     // STAGE 4: Score for importance (CTO criteria)
     console.log("Stage 4: Scoring importance (CTO criteria)...");
     const { scored, rejected: scoreRejected } = await scoreArticles(filtered);
-    console.log(`After scoring: ${scored.length} articles (discarded ${scoreRejected.length} below threshold ${IMPORTANCE_THRESHOLD})`);
+    console.log(`After scoring: ${scored.length} articles`);
     
     // STAGE 5: Rank and limit
     console.log("Stage 5: Ranking...");
