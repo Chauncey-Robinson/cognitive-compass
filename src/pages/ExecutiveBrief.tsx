@@ -389,9 +389,8 @@ const ExecutiveBrief = () => {
                 {/* Meta info */}
                 <div className="flex flex-wrap gap-4 mb-6 text-sm text-muted-foreground">
                   <span>📅 {brief.timeRange}</span>
-                  <span>📰 {brief.items.length} high-impact articles</span>
+                  <span>📰 {brief.items.length} articles</span>
                   <span>🔍 {brief.sourcesUsed.length} global sources</span>
-                  <span>🗑️ {brief.rejectedCount} filtered (score &lt;8)</span>
                 </div>
 
                 {/* Grouped Articles */}
