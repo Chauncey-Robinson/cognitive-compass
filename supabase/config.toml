@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.executive-brief-pdf]
 verify_jwt = false
+
+[functions.generate-atom-video]
+verify_jwt = false
