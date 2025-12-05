@@ -43,6 +43,7 @@ interface BriefItem {
   impact: string;
   importanceScore: number;
   topicGroup: TopicGroup;
+  videoUrl?: string;
 }
 
 interface RejectedArticle {
@@ -531,6 +532,96 @@ function getTopicGroup(tag: string): TopicGroup {
   return "tech";
 }
 
+// HeyGen Video Generation for Top Story
+const HEYGEN_AVATAR_ID = "Jocelyn_standing_sofa_front";
+const HEYGEN_VOICE_ID = "1bd001e7e50f421d891986aad5158bc8";
+
+async function generateHeyGenVideo(script: string): Promise<string | null> {
+  const HEYGEN_API_KEY = Deno.env.get("HEYGEN_API_KEY");
+  if (!HEYGEN_API_KEY) {
+    console.log("No HEYGEN_API_KEY found, skipping video generation");
+    return null;
+  }
+  
+  console.log("🎬 Generating HeyGen video for top story...");
+  
+  const payload = {
+    video_inputs: [{
+      character: { 
+        type: "avatar", 
+        avatar_id: HEYGEN_AVATAR_ID, 
+        avatar_style: "normal" 
+      },
+      voice: { 
+        type: "text", 
+        input_text: script.slice(0, 1500), // HeyGen text limit
+        voice_id: HEYGEN_VOICE_ID 
+      },
+      background: { type: "color", value: "#FAFAFA" }
+    }],
+    dimension: { width: 1280, height: 720 },
+    test: false
+  };
+
+  try {
+    const resp = await fetch("https://api.heygen.com/v2/video/generate", {
+      method: "POST",
+      headers: {
+        "X-Api-Key": HEYGEN_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (!resp.ok) {
+      const errorText = await resp.text();
+      console.log(`HeyGen API error: ${resp.status} - ${errorText}`);
+      return null;
+    }
+    
+    const data = await resp.json();
+    const videoId = data.data?.video_id;
+    if (!videoId) {
+      console.log("No video_id returned from HeyGen");
+      return null;
+    }
+    
+    console.log(`Video generation started, video_id: ${videoId}`);
+    
+    // Poll for completion (max 60 seconds with 5 second intervals)
+    const statusUrl = `https://api.heygen.com/v1/video_status.get?video_id=${videoId}`;
+    for (let attempt = 0; attempt < 12; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
+      const statusResp = await fetch(statusUrl, {
+        headers: { "X-Api-Key": HEYGEN_API_KEY }
+      });
+      
+      if (!statusResp.ok) continue;
+      
+      const statusData = await statusResp.json();
+      const status = statusData.data?.status;
+      
+      if (status === "completed") {
+        const videoUrl = statusData.data?.video_url;
+        console.log(`✅ Video ready: ${videoUrl}`);
+        return videoUrl;
+      } else if (status === "failed") {
+        console.log("❌ Video generation failed");
+        return null;
+      }
+      
+      console.log(`Video status: ${status}, waiting...`);
+    }
+    
+    console.log("Video generation timed out, returning pending video_id");
+    return `pending:${videoId}`;
+  } catch (error) {
+    console.log("HeyGen error:", error);
+    return null;
+  }
+}
+
 // Group items by topic
 function groupByTopic(items: BriefItem[]): Record<TopicGroup, BriefItem[]> {
   const grouped: Record<TopicGroup, BriefItem[]> = {
@@ -569,6 +660,10 @@ serve(async (req) => {
     else if (range === "3d") daysBack = 3;
     else if (range === "7d") daysBack = 7;
     else if (range === "14d") daysBack = 14;
+    else if (range === "30d") daysBack = 30;
+    
+    // Check if video generation is requested
+    const generateVideo = url.searchParams.get("video") === "true";
     
     const maxArticles = Math.min(Math.max(max, 1), MAX_ARTICLES_DEFAULT);
     
@@ -603,8 +698,19 @@ serve(async (req) => {
     console.log("Stage 6: Summarizing (Executive Advisor)...");
     let items = await summarizeArticles(ranked);
     
-    // STAGE 7: Save to Memory (mark as seen for future runs)
-    console.log("Stage 7: Saving to memory...");
+    // STAGE 7: Generate video for top story (if requested)
+    if (generateVideo && items.length > 0) {
+      console.log("Stage 7: Generating video for top story...");
+      const topStory = items[0];
+      const script = `Executive Briefing. ${topStory.title}. ${topStory.summary}`;
+      const videoUrl = await generateHeyGenVideo(script);
+      if (videoUrl) {
+        items[0] = { ...topStory, videoUrl };
+      }
+    }
+    
+    // STAGE 8: Save to Memory (mark as seen for future runs)
+    console.log("Stage 8: Saving to memory...");
     await markArticlesAsSeen(items.map(i => ({ url: i.url, title: i.title, source: i.source })));
     
     // Apply tag filter if specified
@@ -618,7 +724,7 @@ serve(async (req) => {
     // Combine all rejected articles
     const allRejected: RejectedArticle[] = [...dedupeRejected, ...filterRejected, ...scoreRejected];
     
-    const timeRangeLabel = daysBack === 1 ? "Last 24 hours" : daysBack === 3 ? "Last 3 days" : daysBack === 7 ? "Last 7 days" : "Last 14 days";
+    const timeRangeLabel = daysBack === 1 ? "Last 24 hours" : daysBack === 3 ? "Last 3 days" : daysBack === 7 ? "Last 7 days" : daysBack === 14 ? "Last 14 days" : "Last 30 days";
     
     const brief: ExecutiveBrief = {
       generatedAt: new Date().toISOString(),

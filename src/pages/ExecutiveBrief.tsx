@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, RefreshCw, ExternalLink, Filter, Clock, AlertCircle, AlertTriangle, Shield, Building2, Rocket, ChevronDown, ChevronUp, EyeOff } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, ExternalLink, Filter, Clock, AlertCircle, AlertTriangle, Shield, Building2, Rocket, ChevronDown, ChevronUp, EyeOff, Video } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import PageTransition from "@/components/PageTransition";
 import Navigation from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +21,7 @@ interface BriefItem {
   impact: string;
   importanceScore: number;
   topicGroup: TopicGroup;
+  videoUrl?: string;
 }
 
 interface RejectedArticle {
@@ -80,6 +82,7 @@ const ExecutiveBrief = () => {
   const [tagFilter, setTagFilter] = useState<string>("All");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [showFiltered, setShowFiltered] = useState(false);
+  const [generateVideo, setGenerateVideo] = useState(false);
 
   const REASON_LABELS: Record<string, string> = {
     "duplicate": "Duplicate",
@@ -94,7 +97,8 @@ const ExecutiveBrief = () => {
     setError(null);
     
     try {
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/executive-brief?range=${timeRange}&max=15&tag=${tagFilter}`;
+      const videoParam = generateVideo ? "&video=true" : "";
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/executive-brief?range=${timeRange}&max=15&tag=${tagFilter}${videoParam}`;
       
       const response = await fetch(url, {
         method: "GET",
@@ -131,7 +135,7 @@ const ExecutiveBrief = () => {
 
   useEffect(() => {
     fetchBrief();
-  }, [timeRange]);
+  }, [timeRange, generateVideo]);
 
   const handleDownloadPdf = async () => {
     if (!brief) return;
@@ -254,6 +258,26 @@ const ExecutiveBrief = () => {
                 {item.summary}
               </p>
               
+              {item.videoUrl && (
+                <div className="mb-4 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5">
+                  {item.videoUrl.startsWith("pending:") ? (
+                    <div className="p-4 text-center text-muted-foreground">
+                      <Video className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+                      <p className="text-sm">Video generating... Check back soon.</p>
+                    </div>
+                  ) : (
+                    <video 
+                      controls 
+                      className="w-full max-h-[400px]"
+                      poster=""
+                    >
+                      <source src={item.videoUrl} type="video/mp4" />
+                      Your browser does not support video playback.
+                    </video>
+                  )}
+                </div>
+              )}
+              
               <p className="text-sm text-muted-foreground italic border-l-2 border-primary/30 pl-3">
                 💡 {item.impact}
               </p>
@@ -330,7 +354,7 @@ const ExecutiveBrief = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 mb-8">
+            <div className="flex flex-wrap items-center gap-4 mb-8">
               <Button
                 variant="outline"
                 onClick={fetchBrief}
@@ -346,6 +370,15 @@ const ExecutiveBrief = () => {
                 <Download className="h-4 w-4 mr-2" />
                 {downloadingPdf ? "Generating..." : "Download Brief"}
               </Button>
+              
+              <div className="flex items-center gap-2 ml-auto">
+                <Video className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">AI Video for #1 Story</span>
+                <Switch
+                  checked={generateVideo}
+                  onCheckedChange={setGenerateVideo}
+                />
+              </div>
             </div>
 
             {/* Loading State */}
