@@ -1,7 +1,9 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Video, Loader2 } from "lucide-react";
 import ListenButton from "@/components/ListenButton";
+import { useToast } from "@/hooks/use-toast";
 import modelsIcon from "@/assets/atoms/models-icon.png";
 import tokensIcon from "@/assets/atoms/tokens-icon.png";
 import contextWindowsIcon from "@/assets/atoms/context-windows-icon.png";
@@ -129,7 +131,120 @@ const atomContent: Record<string, { title: string; content: string; keyTakeaway:
 const AtomDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { toast } = useToast();
   const atom = id ? atomContent[id] : null;
+  
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoId, setVideoId] = useState<string | null>(null);
+  const [videoStatus, setVideoStatus] = useState<string>("idle");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Check for cached video in localStorage
+  useEffect(() => {
+    if (id) {
+      const cached = localStorage.getItem(`atom_video_${id}`);
+      if (cached) {
+        const { url, vid } = JSON.parse(cached);
+        if (url) {
+          setVideoUrl(url);
+          setVideoStatus("completed");
+        } else if (vid) {
+          setVideoId(vid);
+          setVideoStatus("pending");
+        }
+      }
+    }
+  }, [id]);
+
+  // Poll for video status if pending
+  useEffect(() => {
+    if (videoStatus !== "pending" || !videoId) return;
+    
+    const pollStatus = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-atom-video`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({ action: "check_status", videoId }),
+          }
+        );
+        
+        const data = await response.json();
+        if (data.status === "completed" && data.videoUrl) {
+          setVideoUrl(data.videoUrl);
+          setVideoStatus("completed");
+          localStorage.setItem(`atom_video_${id}`, JSON.stringify({ url: data.videoUrl, vid: videoId }));
+          toast({ title: "Video Ready", description: "Your AI tutor video is ready to watch!" });
+        } else if (data.status === "failed") {
+          setVideoStatus("failed");
+          toast({ title: "Video Failed", description: "Video generation failed. Please try again.", variant: "destructive" });
+        }
+      } catch (error) {
+        console.error("Status poll error:", error);
+      }
+    };
+    
+    const interval = setInterval(pollStatus, 5000);
+    return () => clearInterval(interval);
+  }, [videoStatus, videoId, id, toast]);
+
+  const handleGenerateVideo = async () => {
+    if (!atom || !id) return;
+    
+    setIsGenerating(true);
+    setVideoStatus("generating");
+    
+    try {
+      const script = `${atom.title}. ${atom.content}`;
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-atom-video`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ action: "generate", script, atomId: id }),
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error("Failed to generate video");
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === "completed" && data.videoUrl) {
+        setVideoUrl(data.videoUrl);
+        setVideoStatus("completed");
+        localStorage.setItem(`atom_video_${id}`, JSON.stringify({ url: data.videoUrl, vid: data.videoId }));
+        toast({ title: "Video Ready", description: "Your AI tutor video is ready!" });
+      } else if (data.videoId) {
+        setVideoId(data.videoId);
+        setVideoStatus("pending");
+        localStorage.setItem(`atom_video_${id}`, JSON.stringify({ url: null, vid: data.videoId }));
+        toast({ title: "Video Processing", description: "Video is being generated. This may take a minute..." });
+      } else {
+        throw new Error(data.error || "Video generation failed");
+      }
+    } catch (error) {
+      console.error("Generate video error:", error);
+      setVideoStatus("failed");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate video",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   if (!atom) {
     return <div>Atom not found</div>;
@@ -150,10 +265,10 @@ const AtomDetail = () => {
         </Button>
 
         <div className="bg-card rounded-2xl border border-border p-8 shadow-lg">
-          {atomIcons[id] && (
+          {atomIcons[id!] && (
             <div className="mb-6 flex justify-center">
               <img 
-                src={atomIcons[id]} 
+                src={atomIcons[id!]} 
                 alt="" 
                 className="w-20 h-20 object-contain opacity-90"
               />
@@ -164,10 +279,55 @@ const AtomDetail = () => {
               {atom.title}
             </h1>
             <div className="h-1 w-20 bg-primary rounded-full mb-4" />
-            <div className="w-full md:w-auto">
+            <div className="flex flex-wrap gap-3">
               <ListenButton text={lessonText} />
+              <Button
+                variant="outline"
+                onClick={handleGenerateVideo}
+                disabled={isGenerating || videoStatus === "pending" || videoStatus === "completed"}
+                className="gap-2"
+              >
+                {isGenerating || videoStatus === "pending" ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {videoStatus === "pending" ? "Processing..." : "Generating..."}
+                  </>
+                ) : videoStatus === "completed" ? (
+                  <>
+                    <Video className="h-4 w-4" />
+                    Video Ready
+                  </>
+                ) : (
+                  <>
+                    <Video className="h-4 w-4" />
+                    Generate AI Video
+                  </>
+                )}
+              </Button>
             </div>
           </div>
+
+          {/* Video Player */}
+          {videoUrl && (
+            <div className="mb-8 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5">
+              <video 
+                controls 
+                className="w-full"
+                poster=""
+              >
+                <source src={videoUrl} type="video/mp4" />
+                Your browser does not support video playback.
+              </video>
+            </div>
+          )}
+          
+          {videoStatus === "pending" && !videoUrl && (
+            <div className="mb-8 p-6 rounded-xl bg-muted/50 text-center">
+              <Loader2 className="h-8 w-8 mx-auto mb-3 animate-spin text-primary" />
+              <p className="text-muted-foreground">Video is being generated by AI...</p>
+              <p className="text-sm text-muted-foreground/70">This usually takes 30-60 seconds</p>
+            </div>
+          )}
 
           <div className="prose prose-lg max-w-none mb-8">
             <p className="text-foreground leading-relaxed">
