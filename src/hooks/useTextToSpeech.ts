@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-export const useTextToSpeech = () => {
+export type VoiceGender = 'male' | 'female';
+
+export const useTextToSpeech = (preferredGender: VoiceGender = 'male') => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -40,18 +42,35 @@ export const useTextToSpeech = () => {
     utterance.pitch = 1.0;
     utterance.lang = 'en-GB'; // Set to British English
 
-    // Get available voices and select a UK male voice
+    // Get available voices and select based on gender preference
     const voices = window.speechSynthesis.getVoices();
-    const ukMaleVoice = voices.find(voice => 
-      voice.lang.includes('en-GB') && 
-      (voice.name.toLowerCase().includes('male') || 
-       voice.name.toLowerCase().includes('daniel') ||
-       voice.name.toLowerCase().includes('arthur') ||
-       voice.name.toLowerCase().includes('george'))
-    );
     
-    // If no specific UK male voice found, try any UK voice
-    const ukVoice = ukMaleVoice || voices.find(voice => voice.lang.includes('en-GB'));
+    let preferredVoice;
+    if (preferredGender === 'female') {
+      // UK female voice names
+      preferredVoice = voices.find(voice => 
+        voice.lang.includes('en-GB') && 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('kate') ||
+         voice.name.toLowerCase().includes('serena') ||
+         voice.name.toLowerCase().includes('martha') ||
+         voice.name.toLowerCase().includes('fiona') ||
+         voice.name.toLowerCase().includes('stephanie') ||
+         voice.name.toLowerCase().includes('moira'))
+      );
+    } else {
+      // UK male voice names
+      preferredVoice = voices.find(voice => 
+        voice.lang.includes('en-GB') && 
+        (voice.name.toLowerCase().includes('male') || 
+         voice.name.toLowerCase().includes('daniel') ||
+         voice.name.toLowerCase().includes('arthur') ||
+         voice.name.toLowerCase().includes('george'))
+      );
+    }
+    
+    // If no specific voice found, try any UK voice
+    const ukVoice = preferredVoice || voices.find(voice => voice.lang.includes('en-GB'));
     
     if (ukVoice) {
       utterance.voice = ukVoice;
@@ -72,7 +91,7 @@ export const useTextToSpeech = () => {
 
     utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
-  }, [isAvailable]);
+  }, [isAvailable, preferredGender]);
 
   const stop = useCallback(() => {
     if (!isAvailable) return;
