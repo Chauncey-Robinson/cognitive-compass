@@ -674,10 +674,10 @@ serve(async (req) => {
     const { deduped, rejected: dedupeRejected } = await dedupeArticles(rawArticles);
     console.log(`After dedupe: ${deduped.length} articles (removed ${dedupeRejected.length})`);
     
-    // STAGE 3: Filter
-    console.log("Stage 3: Filtering AI content...");
-    const { filtered, rejected: filterRejected } = filterAIContent(deduped);
-    console.log(`After filter: ${filtered.length} articles (removed ${filterRejected.length})`);
+    // STAGE 3: Filter - DISABLED per user request (will add filtering controls later)
+    console.log("Stage 3: Filtering DISABLED - keeping all articles");
+    const filtered = deduped;
+    const filterRejected: RejectedArticle[] = [];
     
     // STAGE 4: Score for importance (CTO criteria)
     console.log("Stage 4: Scoring importance (CTO criteria)...");
