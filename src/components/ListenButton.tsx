@@ -1,13 +1,14 @@
 import { Volume2, VolumeX } from 'lucide-react';
-import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useTextToSpeech, VoiceGender } from '@/hooks/useTextToSpeech';
 
 interface ListenButtonProps {
   text: string;
   label?: string;
+  voiceGender?: VoiceGender;
 }
 
-const ListenButton = ({ text, label = "Listen" }: ListenButtonProps) => {
-  const { speak, stop, isSpeaking } = useTextToSpeech();
+const ListenButton = ({ text, label = "Listen", voiceGender = 'male' }: ListenButtonProps) => {
+  const { speak, stop, isSpeaking } = useTextToSpeech(voiceGender);
 
   const handleClick = () => {
     if (isSpeaking) {
