@@ -7,9 +7,10 @@ import { UnifiedDashboard } from "@/components/playbook/UnifiedDashboard";
 import { TimelineView } from "@/components/playbook/TimelineView";
 import { ComparisonTable } from "@/components/playbook/ComparisonTable";
 import { PlaybookGrading } from "@/components/playbook/PlaybookGrading";
+import { ContradictionFinder } from "@/components/playbook/ContradictionFinder";
 import { 
   Brain, MessageSquare, BarChart3, Clock, GitCompare, 
-  Star, Lightbulb
+  Star, Lightbulb, AlertTriangle
 } from "lucide-react";
 
 const PlaybookPlatform = () => {
@@ -59,6 +60,10 @@ const PlaybookPlatform = () => {
                 <GitCompare className="h-4 w-4" />
                 Compare
               </TabsTrigger>
+              <TabsTrigger value="contradictions" className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                Contradictions
+              </TabsTrigger>
               <TabsTrigger value="chat" className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" />
                 Ask AI
@@ -74,6 +79,7 @@ const PlaybookPlatform = () => {
           {activeView === "dashboard" && <UnifiedDashboard />}
           {activeView === "timeline" && <TimelineView />}
           {activeView === "compare" && <ComparisonTable />}
+          {activeView === "contradictions" && <ContradictionFinder />}
           {activeView === "chat" && <PlaybookChat />}
         </main>
       </div>
