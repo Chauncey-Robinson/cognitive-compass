@@ -127,9 +127,9 @@ export function UnifiedInsights() {
           <div className="flex items-start gap-4">
             <Lightbulb className="h-10 w-10 text-primary" />
             <div>
-              <h2 className="text-xl font-bold">Role-Based Insights</h2>
+              <h2 className="text-xl font-bold">What Each Role Needs to Know</h2>
               <p className="text-muted-foreground mt-1">
-                What each persona actually needs from these 12 playbooks—no fluff.
+                All perspectives in one view—CEO, CTO, and MBA Student insights from 12 playbooks.
               </p>
             </div>
           </div>
