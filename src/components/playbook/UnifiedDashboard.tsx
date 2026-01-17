@@ -9,11 +9,6 @@ import {
   TrendingUp, AlertTriangle, CheckCircle2, 
   Target, Lightbulb, Shield, Clock
 } from "lucide-react";
-import type { RoleType } from "@/pages/PlaybookPlatform";
-
-interface AnalysisDashboardProps {
-  role: RoleType;
-}
 
 const consensusData = [
   { topic: "Multi-agent orchestration is key", agree: 11, disagree: 1 },
@@ -51,30 +46,16 @@ const riskFactors = [
   { risk: "Vendor lock-in", mentions: 5, severity: "low" },
 ];
 
-const priorityActions = {
-  CEO: [
-    { action: "Establish AI governance board", priority: 95, category: "Leadership" },
-    { action: "Allocate 2-4% revenue to AI", priority: 90, category: "Strategy" },
-    { action: "Identify 3 pilot use cases", priority: 88, category: "Strategy" },
-    { action: "Develop talent acquisition plan", priority: 85, category: "Build" },
-  ],
-  CTO: [
-    { action: "Evaluate multi-agent frameworks", priority: 95, category: "Build" },
-    { action: "Implement RAG infrastructure", priority: 92, category: "Build" },
-    { action: "Set up observability stack", priority: 88, category: "Build" },
-    { action: "Define API strategy for agents", priority: 85, category: "Strategy" },
-  ],
-  MBA: [
-    { action: "Master agentic AI terminology", priority: 95, category: "Learning" },
-    { action: "Analyze 3 industry case studies", priority: 90, category: "Research" },
-    { action: "Compare consulting frameworks", priority: 88, category: "Analysis" },
-    { action: "Build ROI calculation model", priority: 85, category: "Skills" },
-  ],
-};
+const topActions = [
+  { action: "Establish AI governance board", priority: 95, role: "CEO" },
+  { action: "Evaluate multi-agent frameworks", priority: 93, role: "CTO" },
+  { action: "Allocate 2-4% revenue to AI", priority: 90, role: "CEO" },
+  { action: "Implement RAG infrastructure", priority: 88, role: "CTO" },
+  { action: "Identify 3 pilot use cases", priority: 85, role: "CEO" },
+  { action: "Master agentic AI terminology", priority: 82, role: "MBA" },
+];
 
-export function AnalysisDashboard({ role }: AnalysisDashboardProps) {
-  const actions = priorityActions[role];
-
+export function UnifiedDashboard() {
   return (
     <div className="space-y-6">
       {/* Top Stats */}
@@ -189,21 +170,32 @@ export function AnalysisDashboard({ role }: AnalysisDashboardProps) {
 
       {/* Bottom Row */}
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Priority Actions */}
+        {/* Priority Actions (All Roles) */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Target className="h-4 w-4" />
-              Priority Actions for {role}
+              Top Priority Actions (All Roles)
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {actions.map((item, idx) => (
+              {topActions.map((item, idx) => (
                 <div key={idx} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">{item.action}</span>
-                    <Badge variant="outline" className="text-xs">{item.category}</Badge>
+                    <Badge 
+                      variant="outline" 
+                      className={
+                        item.role === "CEO" 
+                          ? "bg-blue-500/20 text-blue-400" 
+                          : item.role === "CTO" 
+                          ? "bg-green-500/20 text-green-400"
+                          : "bg-purple-500/20 text-purple-400"
+                      }
+                    >
+                      {item.role}
+                    </Badge>
                   </div>
                   <div className="flex items-center gap-3">
                     <Progress value={item.priority} className="flex-1 h-2" />

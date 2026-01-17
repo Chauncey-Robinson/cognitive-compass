@@ -10,16 +10,11 @@ import {
   Send, MessageSquare, Bot, User, Loader2, 
   Sparkles, HelpCircle 
 } from "lucide-react";
-import type { RoleType } from "@/pages/PlaybookPlatform";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
-}
-
-interface PlaybookChatProps {
-  role: RoleType;
 }
 
 const EXAMPLE_QUESTIONS = [
@@ -33,7 +28,7 @@ const EXAMPLE_QUESTIONS = [
   "What governance frameworks are recommended?",
 ];
 
-export function PlaybookChat({ role }: PlaybookChatProps) {
+export function PlaybookChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +36,6 @@ export function PlaybookChat({ role }: PlaybookChatProps) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Scroll to bottom on new messages
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -65,8 +59,8 @@ export function PlaybookChat({ role }: PlaybookChatProps) {
       const response = await supabase.functions.invoke("playbook-chat", {
         body: { 
           message: text,
-          role: role,
-          history: messages.slice(-10), // Last 10 messages for context
+          role: "general",
+          history: messages.slice(-10),
         },
       });
 
@@ -82,10 +76,9 @@ export function PlaybookChat({ role }: PlaybookChatProps) {
 
       setMessages(prev => [...prev, assistantMessage]);
 
-      // Save to database
       await supabase.from("playbook_chat_messages").insert([
-        { role: "user", content: text, context_role: role },
-        { role: "assistant", content: assistantMessage.content, context_role: role },
+        { role: "user", content: text, context_role: "general" },
+        { role: "assistant", content: assistantMessage.content, context_role: "general" },
       ]);
     } catch (error: any) {
       console.error("Chat error:", error);
@@ -115,12 +108,6 @@ export function PlaybookChat({ role }: PlaybookChatProps) {
     }
   };
 
-  const roleColors = {
-    CEO: "border-blue-500/30 bg-blue-500/5",
-    CTO: "border-green-500/30 bg-green-500/5",
-    MBA: "border-purple-500/30 bg-purple-500/5",
-  };
-
   return (
     <div className="grid lg:grid-cols-4 gap-6 h-[calc(100vh-220px)]">
       {/* Chat Area */}
@@ -129,12 +116,10 @@ export function PlaybookChat({ role }: PlaybookChatProps) {
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-primary" />
             Ask Questions About the Playbooks
-            <Badge variant="outline" className="ml-2">{role} Context</Badge>
           </CardTitle>
         </CardHeader>
         
         <CardContent className="flex-1 flex flex-col p-0">
-          {/* Messages */}
           <ScrollArea className="flex-1 p-4" ref={scrollRef}>
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
@@ -191,7 +176,6 @@ export function PlaybookChat({ role }: PlaybookChatProps) {
             )}
           </ScrollArea>
 
-          {/* Input */}
           <div className="p-4 border-t">
             <div className="flex gap-2">
               <Input
@@ -215,7 +199,7 @@ export function PlaybookChat({ role }: PlaybookChatProps) {
       </Card>
 
       {/* Example Questions */}
-      <Card className={`border ${roleColors[role]}`}>
+      <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <HelpCircle className="h-4 w-4" />
