@@ -45,7 +45,7 @@ const PlaybookPlatform = () => {
               </TabsTrigger>
               <TabsTrigger value="insights" className="flex items-center gap-2">
                 <Lightbulb className="h-4 w-4" />
-                Role Insights
+                What Each Role Needs
               </TabsTrigger>
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
