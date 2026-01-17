@@ -30,6 +30,7 @@ import Sprints from "./pages/Sprints";
 import SprintDetail from "./pages/SprintDetail";
 import Tutor from "./pages/Tutor";
 import ExecutiveBrief from "./pages/ExecutiveBrief";
+import PlaybookPlatform from "./pages/PlaybookPlatform";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,7 +43,8 @@ const App = () => (
       <BrowserRouter>
         <PageTransition>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<PlaybookPlatform />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/settings/notifications" element={<SettingsNotifications />} />
             <Route path="/intelligence-scan" element={<IntelligenceScan />} />

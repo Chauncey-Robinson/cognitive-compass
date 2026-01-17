@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      playbook_analyses: {
+        Row: {
+          analysis_data: Json
+          created_at: string
+          id: string
+          playbook_ids: string[]
+          role_type: string
+        }
+        Insert: {
+          analysis_data?: Json
+          created_at?: string
+          id?: string
+          playbook_ids: string[]
+          role_type: string
+        }
+        Update: {
+          analysis_data?: Json
+          created_at?: string
+          id?: string
+          playbook_ids?: string[]
+          role_type?: string
+        }
+        Relationships: []
+      }
+      playbook_chat_messages: {
+        Row: {
+          content: string
+          context_role: string | null
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          context_role?: string | null
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          context_role?: string | null
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      playbooks: {
+        Row: {
+          category: string
+          company: string
+          content_extracted: string | null
+          created_at: string
+          file_name: string | null
+          file_url: string | null
+          id: string
+          is_preloaded: boolean | null
+          publication_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          company: string
+          content_extracted?: string | null
+          created_at?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          is_preloaded?: boolean | null
+          publication_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          company?: string
+          content_extracted?: string | null
+          created_at?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          is_preloaded?: boolean | null
+          publication_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seen_articles: {
         Row: {
           id: string
