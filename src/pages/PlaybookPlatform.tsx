@@ -6,13 +6,18 @@ import { PlaybookChat } from "@/components/playbook/PlaybookChat";
 import { AnalysisDashboard } from "@/components/playbook/AnalysisDashboard";
 import { TimelineView } from "@/components/playbook/TimelineView";
 import { ComparisonTable } from "@/components/playbook/ComparisonTable";
-import { Brain, MessageSquare, BarChart3, Clock, GitCompare } from "lucide-react";
+import { PlaybookGrading } from "@/components/playbook/PlaybookGrading";
+import { PersonaDeepDive } from "@/components/playbook/PersonaDeepDive";
+import { 
+  Brain, MessageSquare, BarChart3, Clock, GitCompare, 
+  Star, User, AlertTriangle 
+} from "lucide-react";
 
 export type RoleType = "CEO" | "CTO" | "MBA";
 
 const PlaybookPlatform = () => {
   const [activeRole, setActiveRole] = useState<RoleType>("CEO");
-  const [activeView, setActiveView] = useState("insights");
+  const [activeView, setActiveView] = useState("grades");
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -30,7 +35,7 @@ const PlaybookPlatform = () => {
                 AI Playbook Intelligence Platform
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Analyze 12 leading strategy playbooks on Agentic AI
+                No-BS analysis of 12 strategy playbooks on Agentic AI
               </p>
             </div>
             
@@ -54,14 +59,22 @@ const PlaybookPlatform = () => {
         {/* View Navigation */}
         <div className="border-b bg-card/50 px-6 py-2">
           <Tabs value={activeView} onValueChange={setActiveView}>
-            <TabsList className="bg-transparent gap-2">
+            <TabsList className="bg-transparent gap-1">
+              <TabsTrigger value="grades" className="flex items-center gap-2">
+                <Star className="h-4 w-4" />
+                Playbook Grades
+              </TabsTrigger>
+              <TabsTrigger value="persona" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                What You Need
+              </TabsTrigger>
               <TabsTrigger value="insights" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
-                Role Insights
+                Key Insights
               </TabsTrigger>
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <Brain className="h-4 w-4" />
-                Analysis Dashboard
+                Dashboard
               </TabsTrigger>
               <TabsTrigger value="timeline" className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
@@ -73,7 +86,7 @@ const PlaybookPlatform = () => {
               </TabsTrigger>
               <TabsTrigger value="chat" className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" />
-                Q&A Chat
+                Ask AI
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -81,6 +94,8 @@ const PlaybookPlatform = () => {
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto p-6">
+          {activeView === "grades" && <PlaybookGrading />}
+          {activeView === "persona" && <PersonaDeepDive />}
           {activeView === "insights" && <RoleInsights role={activeRole} />}
           {activeView === "dashboard" && <AnalysisDashboard role={activeRole} />}
           {activeView === "timeline" && <TimelineView />}
