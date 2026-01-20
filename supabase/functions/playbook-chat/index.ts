@@ -5,6 +5,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Input validation constants
+const MAX_MESSAGE_LENGTH = 2000;
+const MAX_HISTORY_LENGTH = 50;
+const VALID_ROLES = ['CEO', 'CTO', 'MBA', 'general'];
+
 const PLAYBOOK_CONTEXT = `You are an AI assistant specialized in analyzing 12 strategy playbooks about Agentic AI from leading consulting firms and organizations. These playbooks were published between June and November 2025.
 
 The 12 playbooks you have knowledge of:
@@ -43,13 +48,61 @@ When answering questions:
 4. Provide actionable recommendations
 5. Tailor responses to the user's role context (CEO, CTO, or MBA Student)`;
 
+// Safe error logging - no sensitive details
+function logSafeError(context: string, error: unknown): void {
+  if (error instanceof Error) {
+    console.error(`${context}: ${error.name}`);
+  } else {
+    console.error(`${context}: Unknown error type`);
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message, role, history } = await req.json();
+    const body = await req.json();
+    const { message, role, history } = body;
+    
+    // Input validation
+    if (!message || typeof message !== 'string') {
+      return new Response(
+        JSON.stringify({ error: "Invalid message: must be a non-empty string" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Message too long (max ${MAX_MESSAGE_LENGTH} characters)` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (role && !VALID_ROLES.includes(role)) {
+      return new Response(
+        JSON.stringify({ error: `Invalid role. Must be one of: ${VALID_ROLES.join(', ')}` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (history) {
+      if (!Array.isArray(history)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid history: must be an array" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (history.length > MAX_HISTORY_LENGTH) {
+        return new Response(
+          JSON.stringify({ error: `History too long (max ${MAX_HISTORY_LENGTH} messages)` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -64,15 +117,24 @@ serve(async (req) => {
 
     const systemPrompt = `${PLAYBOOK_CONTEXT}
 
-Current user role: ${role}
+Current user role: ${role || 'general'}
 ${roleContext[role as keyof typeof roleContext] || ""}
 
 Provide helpful, accurate responses based on the playbook content. Be specific and cite sources when possible.`;
 
+    // Validate and sanitize history entries
+    const sanitizedHistory = (history || [])
+      .filter((m: unknown) => m && typeof m === 'object' && 'role' in m && 'content' in m)
+      .slice(0, MAX_HISTORY_LENGTH)
+      .map((m: { role: string; content: string }) => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: typeof m.content === 'string' ? m.content.slice(0, MAX_MESSAGE_LENGTH) : ''
+      }));
+
     const messages = [
       { role: "system", content: systemPrompt },
-      ...(history || []).map((m: any) => ({ role: m.role, content: m.content })),
-      { role: "user", content: message }
+      ...sanitizedHistory,
+      { role: "user", content: message.slice(0, MAX_MESSAGE_LENGTH) }
     ];
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -102,9 +164,8 @@ Provide helpful, accurate responses based on the playbook content. Be specific a
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      console.error(`AI gateway error: ${response.status}`);
+      throw new Error("AI service temporarily unavailable");
     }
 
     const data = await response.json();
@@ -115,9 +176,9 @@ Provide helpful, accurate responses based on the playbook content. Be specific a
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Chat error:", error);
+    logSafeError("Chat error", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "An error occurred processing your request" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

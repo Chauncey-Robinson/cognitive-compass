@@ -11,12 +11,22 @@ const corsHeaders = {
 // CONFIG: Executive-focused limits
 const MAX_ARTICLES_DEFAULT = 15; // Busy executives read less, but higher quality
 const MAX_ARTICLE_AGE_DAYS_DEFAULT = 3; // Breaking news focus
-// Score filtering disabled - showing all articles regardless of score
+const VALID_RANGES = ['24h', '3d', '7d', '14d', '30d'];
+const VALID_TAGS = ['All', 'Strategy', 'Risk', 'Ops', 'Tech'];
 
 // Initialize Supabase client for memory operations
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+// Safe error logging - no sensitive details
+function logSafeError(context: string, error: unknown): void {
+  if (error instanceof Error) {
+    console.error(`${context}: ${error.name}`);
+  } else {
+    console.error(`${context}: Unknown error type`);
+  }
+}
 
 interface RawArticle {
   title: string;
@@ -63,13 +73,13 @@ async function checkSeenUrls(urls: string[]): Promise<Set<string>> {
       .in("url", urls);
     
     if (error) {
-      console.log("Memory check error:", error);
+      console.log("Memory check failed");
       return new Set();
     }
     
     return new Set(data?.map(r => r.url) || []);
   } catch (e) {
-    console.log("Memory check failed:", e);
+    logSafeError("Memory check", e);
     return new Set();
   }
 }
@@ -91,12 +101,12 @@ async function markArticlesAsSeen(articles: Array<{ url: string; title: string; 
       .upsert(rows, { onConflict: "url", ignoreDuplicates: true });
     
     if (error) {
-      console.log("Memory save error:", error);
+      console.log("Memory save failed");
     } else {
       console.log(`Memory: Marked ${articles.length} articles as seen`);
     }
   } catch (e) {
-    console.log("Memory save failed:", e);
+    logSafeError("Memory save", e);
   }
 }
 
@@ -206,7 +216,7 @@ async function fetchArticles(daysBack: number): Promise<{ articles: RawArticle[]
       
       return filtered;
     } catch (error) {
-      console.log(`Error fetching ${source.name}:`, error);
+      logSafeError(`Fetch ${source.name}`, error);
       return [];
     }
   });
@@ -391,7 +401,7 @@ Nothing else.`;
       });
       
     } catch (error) {
-      console.log("Scoring error:", error);
+      logSafeError("Scoring", error);
       batch.forEach(a => scored.push({ ...a, importanceScore: 8 }));
     }
   }
@@ -495,7 +505,7 @@ Respond in this exact JSON format:
           };
         }
       } catch (error) {
-        console.log(`Summarize error for "${article.title}":`, error);
+        logSafeError(`Summarize "${article.title.slice(0, 30)}"`, error);
       }
       
       return {
@@ -534,11 +544,11 @@ const HEYGEN_VOICE_ID = "1bd001e7e50f421d891986aad5158bc8";
 async function generateHeyGenVideo(script: string): Promise<string | null> {
   const HEYGEN_API_KEY = Deno.env.get("HEYGEN_API_KEY");
   if (!HEYGEN_API_KEY) {
-    console.log("No HEYGEN_API_KEY found, skipping video generation");
+    console.log("HeyGen API key not configured");
     return null;
   }
   
-  console.log("🎬 Generating HeyGen video for top story...");
+  console.log("Generating HeyGen video for top story");
   
   const payload = {
     video_inputs: [{
@@ -569,8 +579,7 @@ async function generateHeyGenVideo(script: string): Promise<string | null> {
     });
     
     if (!resp.ok) {
-      const errorText = await resp.text();
-      console.log(`HeyGen API error: ${resp.status} - ${errorText}`);
+      console.error(`HeyGen API error: ${resp.status}`);
       return null;
     }
     
@@ -581,7 +590,7 @@ async function generateHeyGenVideo(script: string): Promise<string | null> {
       return null;
     }
     
-    console.log(`Video generation started, video_id: ${videoId}`);
+    console.log(`Video generation started: ${videoId}`);
     
     // Poll for completion (max 60 seconds with 5 second intervals)
     const statusUrl = `https://api.heygen.com/v1/video_status.get?video_id=${videoId}`;
@@ -598,21 +607,20 @@ async function generateHeyGenVideo(script: string): Promise<string | null> {
       const status = statusData.data?.status;
       
       if (status === "completed") {
-        const videoUrl = statusData.data?.video_url;
-        console.log(`✅ Video ready: ${videoUrl}`);
-        return videoUrl;
+        console.log("Video generation completed");
+        return statusData.data?.video_url;
       } else if (status === "failed") {
-        console.log("❌ Video generation failed");
+        console.log("Video generation failed");
         return null;
       }
       
-      console.log(`Video status: ${status}, waiting...`);
+      console.log(`Video status: ${status}`);
     }
     
-    console.log("Video generation timed out, returning pending video_id");
+    console.log("Video generation timed out");
     return `pending:${videoId}`;
   } catch (error) {
-    console.log("HeyGen error:", error);
+    logSafeError("HeyGen video generation", error);
     return null;
   }
 }
@@ -646,8 +654,31 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     const range = url.searchParams.get("range") || "3d";
-    const max = parseInt(url.searchParams.get("max") || "15", 10);
+    const maxParam = url.searchParams.get("max") || "15";
     const tagFilter = url.searchParams.get("tag") || "All";
+    
+    // Input validation
+    if (!VALID_RANGES.includes(range)) {
+      return new Response(
+        JSON.stringify({ error: `Invalid range. Must be one of: ${VALID_RANGES.join(', ')}` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (!VALID_TAGS.includes(tagFilter)) {
+      return new Response(
+        JSON.stringify({ error: `Invalid tag. Must be one of: ${VALID_TAGS.join(', ')}` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    const max = parseInt(maxParam, 10);
+    if (isNaN(max) || max < 1 || max > 100) {
+      return new Response(
+        JSON.stringify({ error: "Invalid max. Must be a number between 1 and 100" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     
     // Parse range (default to 3 days for breaking news)
     let daysBack = MAX_ARTICLE_AGE_DAYS_DEFAULT;
@@ -738,13 +769,10 @@ serve(async (req) => {
     });
     
   } catch (error) {
-    console.error("Executive brief error:", error);
+    logSafeError("Executive brief", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ error: "An error occurred processing your request" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
