@@ -21,6 +21,7 @@ export type Database = {
           id: string
           playbook_ids: string[]
           role_type: string
+          user_id: string | null
         }
         Insert: {
           analysis_data?: Json
@@ -28,6 +29,7 @@ export type Database = {
           id?: string
           playbook_ids: string[]
           role_type: string
+          user_id?: string | null
         }
         Update: {
           analysis_data?: Json
@@ -35,6 +37,7 @@ export type Database = {
           id?: string
           playbook_ids?: string[]
           role_type?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -45,6 +48,7 @@ export type Database = {
           created_at: string
           id: string
           role: string
+          user_id: string | null
         }
         Insert: {
           content: string
@@ -52,6 +56,7 @@ export type Database = {
           created_at?: string
           id?: string
           role: string
+          user_id?: string | null
         }
         Update: {
           content?: string
@@ -59,6 +64,7 @@ export type Database = {
           created_at?: string
           id?: string
           role?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -75,6 +81,7 @@ export type Database = {
           publication_date: string | null
           title: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           category?: string
@@ -88,6 +95,7 @@ export type Database = {
           publication_date?: string | null
           title: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           category?: string
@@ -101,6 +109,7 @@ export type Database = {
           publication_date?: string | null
           title?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

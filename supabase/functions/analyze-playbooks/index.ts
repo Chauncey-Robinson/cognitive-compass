@@ -173,11 +173,12 @@ Return as JSON with keys: frameworks, case_studies, key_theories, exam_concepts 
         analysisData = {};
       }
 
-      // Store analysis
+      // Store analysis with user_id for RLS
       const { error } = await supabase.from("playbook_analyses").insert({
         role_type: role,
         analysis_data: analysisData,
         playbook_ids: playbook_ids || [],
+        user_id: userId,
       });
 
       if (error) {
