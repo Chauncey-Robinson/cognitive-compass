@@ -9,8 +9,8 @@ const corsHeaders = {
 };
 
 // CONFIG: Executive-focused limits
-const MAX_ARTICLES_DEFAULT = 15; // Busy executives read less, but higher quality
-const MAX_ARTICLE_AGE_DAYS_DEFAULT = 3; // Breaking news focus
+const MAX_ARTICLES_DEFAULT = 15;
+const MAX_ARTICLE_AGE_DAYS_DEFAULT = 3;
 const VALID_RANGES = ['24h', '3d', '7d', '14d', '30d'];
 const VALID_TAGS = ['All', 'Strategy', 'Risk', 'Ops', 'Tech'];
 
@@ -26,6 +26,33 @@ function logSafeError(context: string, error: unknown): void {
   } else {
     console.error(`${context}: Unknown error type`);
   }
+}
+
+// JWT validation helper
+async function validateAuth(req: Request): Promise<{ userId: string | null; error: string | null }> {
+  const authHeader = req.headers.get('Authorization');
+  
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { userId: null, error: 'Missing or invalid authorization header' };
+  }
+
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return { userId: null, error: 'Server configuration error' };
+  }
+
+  const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const token = authHeader.replace('Bearer ', '');
+  const { data, error } = await authClient.auth.getClaims(token);
+  
+  if (error || !data?.claims) {
+    return { userId: null, error: 'Invalid or expired token' };
+  }
+
+  return { userId: data.claims.sub as string, error: null };
 }
 
 interface RawArticle {
@@ -652,6 +679,17 @@ serve(async (req) => {
   }
 
   try {
+    // Validate authentication
+    const { userId, error: authError } = await validateAuth(req);
+    if (authError) {
+      return new Response(
+        JSON.stringify({ error: authError }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    console.log(`Authenticated user: ${userId?.slice(0, 8)}...`);
+    
     const url = new URL(req.url);
     const range = url.searchParams.get("range") || "3d";
     const maxParam = url.searchParams.get("max") || "15";

@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import PageTransition from "./components/PageTransition";
 import Home from "./pages/Home";
 import IntelligenceScan from "./pages/IntelligenceScan";
@@ -41,41 +43,93 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <PageTransition>
-          <Routes>
-            <Route path="/" element={<PlaybookPlatform />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/settings/notifications" element={<SettingsNotifications />} />
-            <Route path="/intelligence-scan" element={<IntelligenceScan />} />
-            <Route path="/ai-basics" element={<AIBasics />} />
-            <Route path="/atoms" element={<CognitiveAtoms />} />
-            <Route path="/concepts" element={<Concepts />} />
-            <Route path="/sprints" element={<AppliedSprints />} />
-            <Route path="/executive" element={<Executive />} />
-            <Route path="/executive/:id" element={<ExecutiveDetail />} />
-            <Route path="/executive/dashboard" element={<ExecutiveDashboard />} />
-            <Route path="/executive/brief" element={<ExecutiveBrief />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/signin" element={<Signin />} />
-            <Route path="/scan" element={<Scan />} />
-            <Route path="/results" element={<Results />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/atoms/context-windows" element={<ContextWindowsAtom />} />
-            <Route path="/atoms/:id" element={<AtomDetail />} />
-            <Route path="/sprints/optimize-prompts" element={<OptimizePromptsSprint />} />
-            <Route path="/sprints/:id" element={<SprintDetail />} />
-            <Route path="/report-sprint" element={<SprintDetail />} />
-            <Route path="/workflow-sprint" element={<SprintDetail />} />
-            <Route path="/assistant-sprint" element={<SprintDetail />} />
-            <Route path="/role-tool-sprint" element={<SprintDetail />} />
-            <Route path="/sop-sprint" element={<SprintDetail />} />
-            <Route path="/tutor" element={<Tutor />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </PageTransition>
+        <AuthProvider>
+          <PageTransition>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<PlaybookPlatform />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/signin" element={<Signin />} />
+              
+              {/* Protected routes */}
+              <Route path="/settings/notifications" element={
+                <ProtectedRoute><SettingsNotifications /></ProtectedRoute>
+              } />
+              <Route path="/intelligence-scan" element={
+                <ProtectedRoute><IntelligenceScan /></ProtectedRoute>
+              } />
+              <Route path="/ai-basics" element={
+                <ProtectedRoute><AIBasics /></ProtectedRoute>
+              } />
+              <Route path="/atoms" element={
+                <ProtectedRoute><CognitiveAtoms /></ProtectedRoute>
+              } />
+              <Route path="/concepts" element={
+                <ProtectedRoute><Concepts /></ProtectedRoute>
+              } />
+              <Route path="/sprints" element={
+                <ProtectedRoute><AppliedSprints /></ProtectedRoute>
+              } />
+              <Route path="/executive" element={
+                <ProtectedRoute><Executive /></ProtectedRoute>
+              } />
+              <Route path="/executive/:id" element={
+                <ProtectedRoute><ExecutiveDetail /></ProtectedRoute>
+              } />
+              <Route path="/executive/dashboard" element={
+                <ProtectedRoute><ExecutiveDashboard /></ProtectedRoute>
+              } />
+              <Route path="/executive/brief" element={
+                <ProtectedRoute><ExecutiveBrief /></ProtectedRoute>
+              } />
+              <Route path="/scan" element={
+                <ProtectedRoute><Scan /></ProtectedRoute>
+              } />
+              <Route path="/results" element={
+                <ProtectedRoute><Results /></ProtectedRoute>
+              } />
+              <Route path="/dashboard" element={
+                <ProtectedRoute><Dashboard /></ProtectedRoute>
+              } />
+              <Route path="/atoms/context-windows" element={
+                <ProtectedRoute><ContextWindowsAtom /></ProtectedRoute>
+              } />
+              <Route path="/atoms/:id" element={
+                <ProtectedRoute><AtomDetail /></ProtectedRoute>
+              } />
+              <Route path="/sprints/optimize-prompts" element={
+                <ProtectedRoute><OptimizePromptsSprint /></ProtectedRoute>
+              } />
+              <Route path="/sprints/:id" element={
+                <ProtectedRoute><SprintDetail /></ProtectedRoute>
+              } />
+              <Route path="/report-sprint" element={
+                <ProtectedRoute><SprintDetail /></ProtectedRoute>
+              } />
+              <Route path="/workflow-sprint" element={
+                <ProtectedRoute><SprintDetail /></ProtectedRoute>
+              } />
+              <Route path="/assistant-sprint" element={
+                <ProtectedRoute><SprintDetail /></ProtectedRoute>
+              } />
+              <Route path="/role-tool-sprint" element={
+                <ProtectedRoute><SprintDetail /></ProtectedRoute>
+              } />
+              <Route path="/sop-sprint" element={
+                <ProtectedRoute><SprintDetail /></ProtectedRoute>
+              } />
+              <Route path="/tutor" element={
+                <ProtectedRoute><Tutor /></ProtectedRoute>
+              } />
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </PageTransition>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
