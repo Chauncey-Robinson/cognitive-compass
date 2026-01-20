@@ -7,6 +7,7 @@ import Navigation from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ListenButton from "@/components/ListenButton";
+import { useAuth } from "@/hooks/useAuth";
 
 type TopicGroup = "strategy" | "risk" | "ops" | "tech";
 
@@ -75,6 +76,7 @@ const TOPIC_CONFIG: Record<TopicGroup, { title: string; emoji: React.ReactNode; 
 const ExecutiveBrief = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { session } = useAuth();
   const [brief, setBrief] = useState<ExecutiveBrief | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +94,12 @@ const ExecutiveBrief = () => {
   };
 
   const fetchBrief = async () => {
+    if (!session?.access_token) {
+      setError("Please sign in to view executive brief");
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     
@@ -102,11 +110,14 @@ const ExecutiveBrief = () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          "Authorization": `Bearer ${session.access_token}`,
         },
       });
       
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Session expired. Please sign in again.");
+        }
         if (response.status === 429) {
           throw new Error("Rate limit exceeded. Please try again in a few minutes.");
         }
@@ -138,6 +149,15 @@ const ExecutiveBrief = () => {
   const handleDownloadPdf = async () => {
     if (!brief) return;
     
+    if (!session?.access_token) {
+      toast({
+        title: "Error",
+        description: "Please sign in to download the brief",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setDownloadingPdf(true);
     try {
       const response = await fetch(
@@ -146,13 +166,16 @@ const ExecutiveBrief = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            "Authorization": `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ brief }),
         }
       );
       
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Session expired. Please sign in again.");
+        }
         throw new Error("Failed to generate PDF");
       }
       
@@ -176,7 +199,7 @@ const ExecutiveBrief = () => {
       console.error("PDF download error:", err);
       toast({
         title: "Download Failed",
-        description: "Unable to generate the PDF. Please try again.",
+        description: err instanceof Error ? err.message : "Unable to generate the PDF. Please try again.",
         variant: "destructive",
       });
     } finally {

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Video, Loader2 } from "lucide-react";
 import ListenButton from "@/components/ListenButton";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import modelsIcon from "@/assets/atoms/models-icon.png";
 import tokensIcon from "@/assets/atoms/tokens-icon.png";
 import contextWindowsIcon from "@/assets/atoms/context-windows-icon.png";
@@ -132,6 +133,7 @@ const AtomDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const { session } = useAuth();
   const atom = id ? atomContent[id] : null;
   
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -158,7 +160,7 @@ const AtomDetail = () => {
 
   // Poll for video status if pending
   useEffect(() => {
-    if (videoStatus !== "pending" || !videoId) return;
+    if (videoStatus !== "pending" || !videoId || !session?.access_token) return;
     
     const pollStatus = async () => {
       try {
@@ -168,7 +170,7 @@ const AtomDetail = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              "Authorization": `Bearer ${session.access_token}`,
             },
             body: JSON.stringify({ action: "check_status", videoId }),
           }
@@ -192,10 +194,19 @@ const AtomDetail = () => {
     pollStatus(); // Poll immediately on mount
     const interval = setInterval(pollStatus, 3000); // Poll every 3 seconds
     return () => clearInterval(interval);
-  }, [videoStatus, videoId, id, toast]);
+  }, [videoStatus, videoId, id, toast, session?.access_token]);
 
   const handleGenerateVideo = async () => {
     if (!atom || !id) return;
+    
+    if (!session?.access_token) {
+      toast({
+        title: "Error",
+        description: "Please sign in to generate videos",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsGenerating(true);
     setVideoStatus("generating");
@@ -209,13 +220,16 @@ const AtomDetail = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            "Authorization": `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ action: "generate", script, atomId: id }),
         }
       );
       
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Session expired. Please sign in again.");
+        }
         throw new Error("Failed to generate video");
       }
       
