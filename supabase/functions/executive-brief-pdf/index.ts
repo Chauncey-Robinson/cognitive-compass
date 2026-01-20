@@ -36,6 +36,15 @@ const TOPIC_CONFIG: Record<TopicGroup, { title: string; emoji: string }> = {
   tech: { title: "Key Technical Breakthroughs", emoji: "🚀" }
 };
 
+// Safe error logging - no sensitive details
+function logSafeError(context: string, error: unknown): void {
+  if (error instanceof Error) {
+    console.error(`${context}: ${error.name}`);
+  } else {
+    console.error(`${context}: Unknown error type`);
+  }
+}
+
 // HTML escape function to prevent XSS attacks
 function escapeHtml(unsafe: string): string {
   if (!unsafe) return '';
@@ -45,6 +54,29 @@ function escapeHtml(unsafe: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+// Validate brief structure
+function validateBrief(brief: unknown): brief is ExecutiveBrief {
+  if (!brief || typeof brief !== 'object') return false;
+  const b = brief as Record<string, unknown>;
+  
+  if (typeof b.generatedAt !== 'string') return false;
+  if (typeof b.timeRange !== 'string') return false;
+  if (!Array.isArray(b.items)) return false;
+  if (typeof b.rejectedCount !== 'number') return false;
+  if (!Array.isArray(b.sourcesUsed)) return false;
+  
+  // Validate items have required fields
+  for (const item of b.items) {
+    if (!item || typeof item !== 'object') return false;
+    const i = item as Record<string, unknown>;
+    if (typeof i.title !== 'string') return false;
+    if (typeof i.source !== 'string') return false;
+    if (typeof i.summary !== 'string') return false;
+  }
+  
+  return true;
 }
 
 function generatePDFHTML(brief: ExecutiveBrief): string {
@@ -192,10 +224,23 @@ serve(async (req) => {
   }
 
   try {
-    const { brief } = await req.json() as { brief: ExecutiveBrief };
+    const body = await req.json();
+    const { brief } = body as { brief: unknown };
     
-    if (!brief || !brief.items) {
-      throw new Error("Invalid brief data");
+    // Input validation
+    if (!validateBrief(brief)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid brief data structure" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    // Limit items to prevent abuse
+    if (brief.items.length > 100) {
+      return new Response(
+        JSON.stringify({ error: "Too many items (max 100)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
     
     const html = generatePDFHTML(brief);
@@ -209,13 +254,10 @@ serve(async (req) => {
     });
     
   } catch (error) {
-    console.error("PDF generation error:", error);
+    logSafeError("PDF generation", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ error: "An error occurred processing your request" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

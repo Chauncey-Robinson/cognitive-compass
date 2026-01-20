@@ -6,13 +6,57 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Input validation constants
+const MAX_PLAYBOOK_IDS = 100;
+
+// Safe error logging - no sensitive details
+function logSafeError(context: string, error: unknown): void {
+  if (error instanceof Error) {
+    console.error(`${context}: ${error.name}`);
+  } else {
+    console.error(`${context}: Unknown error type`);
+  }
+}
+
+// UUID validation regex
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { playbook_ids } = await req.json();
+    const body = await req.json();
+    const { playbook_ids } = body;
+    
+    // Input validation
+    if (playbook_ids !== undefined) {
+      if (!Array.isArray(playbook_ids)) {
+        return new Response(
+          JSON.stringify({ error: "playbook_ids must be an array" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      if (playbook_ids.length > MAX_PLAYBOOK_IDS) {
+        return new Response(
+          JSON.stringify({ error: `Too many playbook IDs (max ${MAX_PLAYBOOK_IDS})` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      // Validate each ID is a valid UUID
+      for (const id of playbook_ids) {
+        if (typeof id !== 'string' || !UUID_REGEX.test(id)) {
+          return new Response(
+            JSON.stringify({ error: "Invalid playbook ID format. Must be valid UUIDs." }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -71,7 +115,7 @@ Return as JSON with keys: frameworks, case_studies, key_theories, exam_concepts 
       });
 
       if (!response.ok) {
-        console.error(`Analysis failed for ${role}:`, response.status);
+        console.error(`Analysis failed for ${role}: ${response.status}`);
         continue;
       }
 
@@ -85,7 +129,7 @@ Return as JSON with keys: frameworks, case_studies, key_theories, exam_concepts 
       try {
         analysisData = JSON.parse(content);
       } catch (e) {
-        console.error(`Failed to parse JSON for ${role}:`, e);
+        console.error(`Failed to parse JSON for ${role}`);
         analysisData = {};
       }
 
@@ -97,7 +141,7 @@ Return as JSON with keys: frameworks, case_studies, key_theories, exam_concepts 
       });
 
       if (error) {
-        console.error(`Failed to store analysis for ${role}:`, error);
+        console.error(`Failed to store analysis for ${role}`);
       }
     }
 
@@ -106,9 +150,9 @@ Return as JSON with keys: frameworks, case_studies, key_theories, exam_concepts 
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Analysis error:", error);
+    logSafeError("Analysis error", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "An error occurred processing your request" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
