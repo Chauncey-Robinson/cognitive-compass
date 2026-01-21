@@ -10,6 +10,9 @@ import {
   Shield, Clock, DollarSign, Users, Zap, Info
 } from "lucide-react";
 
+// Philosophy: This platform optimizes for decision quality, not narrative coherence.
+// Treat each consulting firm as an opinionated actor ("Expert Position"), not a neutral authority.
+
 interface Contradiction {
   id: string;
   topic: string;
@@ -30,6 +33,7 @@ interface Contradiction {
   };
   severity: "high" | "medium" | "low";
   resolution?: string;
+  decisionImplication: string; // What should leadership do differently?
   userVotes?: { sideA: number; sideB: number };
 }
 
@@ -54,6 +58,7 @@ const contradictions: Contradiction[] = [
     },
     severity: "high",
     resolution: "The difference may be explained by definition of 'ROI' - McKinsey focuses on productivity gains, Bain on bottom-line impact.",
+    decisionImplication: "Plan for 24-month payback in board presentations but structure quick wins at 6 months to maintain momentum.",
     userVotes: { sideA: 145, sideB: 89 },
   },
   {
@@ -76,6 +81,7 @@ const contradictions: Contradiction[] = [
     },
     severity: "high",
     resolution: "Context matters: tech companies should build, enterprises should buy then customize.",
+    decisionImplication: "If AI is core to your product, build. If AI supports operations, buy first and customize once you've proven value.",
     userVotes: { sideA: 234, sideB: 178 },
   },
   {
@@ -97,6 +103,7 @@ const contradictions: Contradiction[] = [
       date: "November 2025",
     },
     severity: "high",
+    decisionImplication: "Design for human oversight from day one. Autonomy can be increased incrementally as trust and guardrails mature.",
     userVotes: { sideA: 156, sideB: 267 },
   },
   {
@@ -119,6 +126,7 @@ const contradictions: Contradiction[] = [
     },
     severity: "medium",
     resolution: "Industry-dependent: tech companies may need 3-5%, traditional enterprises 1-3%.",
+    decisionImplication: "Start at 2% of revenue, with clear milestones to scale to 4% based on demonstrated ROI. This is defensible to boards.",
     userVotes: { sideA: 98, sideB: 142 },
   },
   {
@@ -140,6 +148,7 @@ const contradictions: Contradiction[] = [
       date: "October 2025",
     },
     severity: "medium",
+    decisionImplication: "Design model-agnostic architecture now. Avoid lock-in to any single provider while leveraging proprietary models for current performance.",
     userVotes: { sideA: 189, sideB: 134 },
   },
   {
@@ -162,6 +171,7 @@ const contradictions: Contradiction[] = [
     },
     severity: "high",
     resolution: "Industry context: regulated industries (finance, healthcare) need governance first; others can iterate.",
+    decisionImplication: "For regulated industries, governance first. For others, establish minimum viable governance and iterate. Never skip governance entirely.",
     userVotes: { sideA: 201, sideB: 87 },
   },
   {
@@ -183,6 +193,7 @@ const contradictions: Contradiction[] = [
       date: "October 2025",
     },
     severity: "medium",
+    decisionImplication: "Budget 3x your model costs for observability and debugging. If that breaks your business case, simplify your agent architecture.",
     userVotes: { sideA: 112, sideB: 98 },
   },
   {
@@ -205,6 +216,7 @@ const contradictions: Contradiction[] = [
     },
     severity: "medium",
     resolution: "Both are needed: hire for core AI team, upskill for organization-wide adoption.",
+    decisionImplication: "Hire 5-10 specialized AI engineers for your core team. Upskill 100+ employees for AI-augmented roles. Both tracks are necessary.",
     userVotes: { sideA: 167, sideB: 145 },
   },
 ];
@@ -251,9 +263,12 @@ export function ContradictionFinder() {
           <div className="flex items-start gap-4">
             <AlertTriangle className="h-10 w-10 text-orange-500" />
             <div className="flex-1">
-              <h2 className="text-xl font-bold">Contradiction Finder</h2>
+              <h2 className="text-xl font-bold">Expert Position Conflicts</h2>
               <p className="text-muted-foreground mt-1">
-                Where the experts disagree—and why it matters for your decisions.
+                Where the Expert Positions disagree—and why it matters for your decisions.
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 italic">
+                Each firm is an opinionated actor with incentives, not a neutral authority.
               </p>
             </div>
             <div className="flex gap-4 text-center">
@@ -435,6 +450,15 @@ export function ContradictionFinder() {
                     </div>
                   </div>
                 )}
+
+                {/* Decision Implication */}
+                <div className="flex items-start gap-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-semibold text-primary mb-1">Decision Implication</p>
+                    <p className="text-sm text-muted-foreground">{contradiction.decisionImplication}</p>
+                  </div>
+                </div>
 
                 {/* Resolution (if available) */}
                 {contradiction.resolution && (

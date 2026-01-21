@@ -8,6 +8,11 @@ import {
   ThumbsUp, ThumbsDown, Meh
 } from "lucide-react";
 
+// Philosophy: This platform optimizes for decision quality, not narrative coherence.
+// Treat each consulting firm as an opinionated actor ("Expert Position"), not a neutral authority.
+
+type ConsensusLevel = "high" | "moderate" | "contested";
+
 interface PlaybookGrade {
   title: string;
   company: string;
@@ -22,9 +27,12 @@ interface PlaybookGrade {
   overallGrade: string;
   verdict: "essential" | "useful" | "skip";
   tldr: string;
+  decisionImplication: string; // What should leadership do differently?
+  consensusLevel: ConsensusLevel; // How much agreement with other Expert Positions
   fluffAlert: string[];
   goldNuggets: string[];
   hiddenAgenda?: string;
+  biasFlags?: string[]; // Vendor self-positioning, service upsell, branded slogans
 }
 
 const playbookGrades: PlaybookGrade[] = [
@@ -35,10 +43,12 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 6, depth: 8, bias: 4, novelty: 7, dataBacked: 9 },
     overallGrade: "B+",
     verdict: "essential",
+    consensusLevel: "high",
     tldr: "Solid foundation-setting report. Heavy on data, light on 'how to actually do it.'",
+    decisionImplication: "Use this as your baseline for board-level AI strategy discussions. The data points are defensible in executive settings.",
     fluffAlert: [
-      "'Transform your organization' - says every consulting deck ever",
-      "Lots of 'could' and 'might' language"
+      "Repeated 'transform your organization' language",
+      "Hedged language with 'could' and 'might'"
     ],
     goldNuggets: [
       "40% productivity gain stat is well-sourced",
@@ -53,7 +63,9 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 5, depth: 6, bias: 7, novelty: 4, dataBacked: 5 },
     overallGrade: "C+",
     verdict: "skip",
-    tldr: "Feels like a sales pitch for PwC's transformation services. 'Reinvention' used 47 times.",
+    consensusLevel: "moderate",
+    tldr: "Reads as a sales pitch for PwC's transformation services. 'Reinvention' used 47 times.",
+    decisionImplication: "Skip unless you need regulatory landscape context. The core recommendations are derivative of other Expert Positions.",
     fluffAlert: [
       "'Reinvention' is just rebranded digital transformation",
       "Heavy on buzzwords, light on specifics",
@@ -63,7 +75,8 @@ const playbookGrades: PlaybookGrade[] = [
       "Regulatory landscape section is solid",
       "Change management checklist is practical"
     ],
-    hiddenAgenda: "Selling PwC transformation consulting"
+    hiddenAgenda: "Service upsell for PwC transformation consulting",
+    biasFlags: ["Service upsell language", "Branded slogan overuse ('reinvention')"]
   },
   {
     title: "The Agentic AI Opportunity",
@@ -72,7 +85,9 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 7, depth: 8, bias: 3, novelty: 6, dataBacked: 8 },
     overallGrade: "A-",
     verdict: "essential",
+    consensusLevel: "high",
     tldr: "McKinsey's strongest piece. Actual use cases with ROI projections you can take to the board.",
+    decisionImplication: "Use the ROI calculator methodology to build your internal business case. The prioritization matrix should inform your pilot selection.",
     fluffAlert: [
       "Some industry examples feel cherry-picked"
     ],
@@ -89,16 +104,19 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 8, depth: 7, bias: 5, novelty: 6, dataBacked: 7 },
     overallGrade: "B+",
     verdict: "useful",
+    consensusLevel: "moderate",
     tldr: "Surprisingly practical. The '6 insights' framework is actually useful for building a business case.",
+    decisionImplication: "Adopt the cost modeling framework for your budget planning. The build vs buy decision tree should guide your architecture discussions.",
     fluffAlert: [
-      "Case studies are all Accenture clients (convenient)",
+      "Case studies are all Accenture clients",
       "'Responsible AI' section feels tacked on"
     ],
     goldNuggets: [
       "Cost modeling framework is excellent",
       "Build vs buy decision tree",
       "12-month implementation roadmap template"
-    ]
+    ],
+    biasFlags: ["Cherry-picked client case studies"]
   },
   {
     title: "The Rise of Autonomous Agents",
@@ -107,18 +125,21 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 9, depth: 9, bias: 6, novelty: 8, dataBacked: 7 },
     overallGrade: "A",
     verdict: "essential",
+    consensusLevel: "moderate",
     tldr: "Technical deep-dive that's actually useful. Yes, it pushes AWS services, but the architecture patterns are solid.",
+    decisionImplication: "Extract the multi-agent architecture patterns for your technical team. Discount the AWS-specific recommendations by 50% for vendor neutrality.",
     fluffAlert: [
       "Every solution somehow involves AWS Bedrock",
-      "Competitor comparison is... generous to AWS"
+      "Competitor comparison is generous to AWS"
     ],
     goldNuggets: [
       "Multi-agent architecture diagrams are production-ready",
       "Cost optimization strategies are real",
       "Security patterns for agent systems",
-      "Actual code examples (rare!)"
+      "Actual code examples"
     ],
-    hiddenAgenda: "Selling AWS Bedrock, but at least they're honest about it"
+    hiddenAgenda: "Vendor self-positioning for AWS Bedrock platform",
+    biasFlags: ["Vendor self-positioning", "Competitor comparison bias"]
   },
   {
     title: "From Hype to Reality",
@@ -127,7 +148,9 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 7, depth: 7, bias: 3, novelty: 8, dataBacked: 6 },
     overallGrade: "B+",
     verdict: "essential",
-    tldr: "Refreshingly skeptical. Bain calls BS on overhyped claims. Good reality check before you overspend.",
+    consensusLevel: "contested",
+    tldr: "Refreshingly skeptical. Bain calls out overhyped claims. Good reality check before you overspend.",
+    decisionImplication: "Use the 'Red flags' checklist to vet your vendors. The budget reality check should inform your CFO conversations.",
     fluffAlert: [
       "Some contrarian takes feel forced"
     ],
@@ -145,7 +168,9 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 6, depth: 8, bias: 6, novelty: 5, dataBacked: 6 },
     overallGrade: "B",
     verdict: "useful",
-    tldr: "Solid on org design, weak on technology (unless you're buying IBM). Operating model framework is legit.",
+    consensusLevel: "moderate",
+    tldr: "Solid on org design, weak on technology unless you're buying IBM. Operating model framework is legit.",
+    decisionImplication: "Adopt the RACI matrix for AI governance. Use the CoE blueprint if you're establishing a new AI function.",
     fluffAlert: [
       "watsonx mentioned on every other page",
       "'Operating model' is overused"
@@ -155,7 +180,8 @@ const playbookGrades: PlaybookGrade[] = [
       "Center of Excellence blueprint",
       "Skills taxonomy for AI roles"
     ],
-    hiddenAgenda: "Selling watsonx platform"
+    hiddenAgenda: "Vendor self-positioning for watsonx platform",
+    biasFlags: ["Vendor self-positioning (watsonx)"]
   },
   {
     title: "Agentic Enterprise 2028",
@@ -164,10 +190,12 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 4, depth: 7, bias: 4, novelty: 6, dataBacked: 5 },
     overallGrade: "C+",
     verdict: "skip",
-    tldr: "Interesting thought experiment, but 2028 predictions are basically sci-fi. Hard to action today.",
+    consensusLevel: "contested",
+    tldr: "Interesting thought experiment, but 2028 predictions are speculative. Hard to action today.",
+    decisionImplication: "Reference only for long-term workforce planning discussions. Do not use for near-term budget decisions.",
     fluffAlert: [
       "Scenario planning without probabilities",
-      "'By 2028' predictions are pure speculation",
+      "'By 2028' predictions are speculation",
       "Lacks immediate actionability"
     ],
     goldNuggets: [
@@ -182,7 +210,9 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 6, depth: 7, bias: 4, novelty: 7, dataBacked: 6 },
     overallGrade: "B",
     verdict: "useful",
-    tldr: "Good for CEOs worried about leadership in AI era. Less useful for anyone who needs to actually build something.",
+    consensusLevel: "moderate",
+    tldr: "Good for CEOs worried about leadership in AI era. Less useful for anyone who needs to build something.",
+    decisionImplication: "Use the CEO AI literacy checklist for your own development. The board governance framework should inform your next board presentation.",
     fluffAlert: [
       "'Leadership transformation' is vague",
       "Board presentation material, not implementation guide"
@@ -200,7 +230,9 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 7, depth: 8, bias: 3, novelty: 7, dataBacked: 7 },
     overallGrade: "B+",
     verdict: "essential",
-    tldr: "McKinsey's org design playbook. If you're restructuring for AI, start here.",
+    consensusLevel: "high",
+    tldr: "McKinsey's org design guidance. If you're restructuring for AI, start here.",
+    decisionImplication: "Use the CoE templates when establishing your AI function. The talent redeployment framework should guide your CHRO conversations.",
     fluffAlert: [
       "Some org charts feel theoretical"
     ],
@@ -218,10 +250,12 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 3, depth: 6, bias: 2, novelty: 5, dataBacked: 7 },
     overallGrade: "C",
     verdict: "skip",
-    tldr: "Policy perspective, not business guidance. Good for understanding regulatory direction, useless for implementation.",
+    consensusLevel: "high",
+    tldr: "Policy perspective, not business guidance. Good for understanding regulatory direction, not useful for implementation.",
+    decisionImplication: "Reference only when preparing for regulatory discussions or international expansion. Not actionable for product or operations decisions.",
     fluffAlert: [
       "Very high-level, policy-focused",
-      "'Multi-stakeholder' everything",
+      "'Multi-stakeholder' used excessively",
       "No specific business recommendations"
     ],
     goldNuggets: [
@@ -236,7 +270,9 @@ const playbookGrades: PlaybookGrade[] = [
     scores: { actionability: 8, depth: 7, bias: 4, novelty: 6, dataBacked: 7 },
     overallGrade: "A-",
     verdict: "essential",
+    consensusLevel: "high",
     tldr: "McKinsey's action-oriented summary. If you only read one, make it this one. Synthesizes their other reports.",
+    decisionImplication: "Use the 90-day action plan template to structure your immediate next steps. The investment sizing framework should inform your budget request.",
     fluffAlert: [
       "Some urgency feels manufactured"
     ],
@@ -273,6 +309,24 @@ const getGradeColor = (grade: string) => {
   return "text-red-400";
 };
 
+const getConsensusColor = (level: ConsensusLevel) => {
+  switch (level) {
+    case "high": return "bg-green-500/20 text-green-400 border-green-500/30";
+    case "moderate": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+    case "contested": return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+    default: return "";
+  }
+};
+
+const getConsensusLabel = (level: ConsensusLevel) => {
+  switch (level) {
+    case "high": return "High Consensus";
+    case "moderate": return "Moderate Consensus";
+    case "contested": return "Contested";
+    default: return "";
+  }
+};
+
 export function PlaybookGrading() {
   const essentialCount = playbookGrades.filter(p => p.verdict === "essential").length;
   const skipCount = playbookGrades.filter(p => p.verdict === "skip").length;
@@ -285,9 +339,12 @@ export function PlaybookGrading() {
           <div className="flex items-start gap-4">
             <AlertTriangle className="h-10 w-10 text-amber-400" />
             <div>
-              <h2 className="text-xl font-bold">Playbook Quality Report Card</h2>
+              <h2 className="text-xl font-bold">Expert Position Quality Report</h2>
               <p className="text-muted-foreground mt-1">
-                Honest grades for each playbook. We call out the fluff so you don't waste time.
+                Honest grades for each Expert Position. We call out the fluff so you don't waste time.
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 italic">
+                Outputs are board-ready: concise, defensible, and free of hype.
               </p>
               <div className="flex gap-4 mt-3">
                 <Badge className="bg-green-500/20 text-green-400">{essentialCount} Essential</Badge>
@@ -351,15 +408,26 @@ export function PlaybookGrading() {
                       </p>
                     </div>
                   </div>
-                  <Badge variant="outline" className={getVerdictColor(playbook.verdict)}>
-                    <VerdictIcon className="h-3 w-3 mr-1" />
-                    {playbook.verdict.toUpperCase()}
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Badge variant="outline" className={getConsensusColor(playbook.consensusLevel)}>
+                      {getConsensusLabel(playbook.consensusLevel)}
+                    </Badge>
+                    <Badge variant="outline" className={getVerdictColor(playbook.verdict)}>
+                      <VerdictIcon className="h-3 w-3 mr-1" />
+                      {playbook.verdict.toUpperCase()}
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* TL;DR */}
                 <p className="text-sm font-medium">{playbook.tldr}</p>
+                
+                {/* Decision Implication */}
+                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <p className="text-xs font-semibold text-primary mb-1">Decision Implication</p>
+                  <p className="text-sm text-muted-foreground">{playbook.decisionImplication}</p>
+                </div>
 
                 {/* Score Bars */}
                 <div className="grid grid-cols-5 gap-3">
@@ -398,7 +466,7 @@ export function PlaybookGrading() {
                       ))}
                     </ul>
                   </TabsContent>
-                  <TabsContent value="fluff" className="mt-3">
+                  <TabsContent value="fluff" className="mt-3 space-y-3">
                     <ul className="space-y-1">
                       {playbook.fluffAlert.map((fluff, fIdx) => (
                         <li key={fIdx} className="text-sm text-red-400 flex items-start gap-2">
@@ -407,8 +475,20 @@ export function PlaybookGrading() {
                         </li>
                       ))}
                     </ul>
+                    {playbook.biasFlags && playbook.biasFlags.length > 0 && (
+                      <div className="p-2 bg-orange-500/10 border border-orange-500/20 rounded">
+                        <p className="text-xs font-semibold text-orange-400 mb-1">Bias Flags</p>
+                        <ul className="space-y-1">
+                          {playbook.biasFlags.map((flag, bIdx) => (
+                            <li key={bIdx} className="text-xs text-orange-300 flex items-start gap-1">
+                              <span>•</span> {flag}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                     {playbook.hiddenAgenda && (
-                      <p className="mt-2 text-xs text-amber-400 bg-amber-500/10 p-2 rounded">
+                      <p className="text-xs text-amber-400 bg-amber-500/10 p-2 rounded">
                         <strong>Hidden Agenda:</strong> {playbook.hiddenAgenda}
                       </p>
                     )}
