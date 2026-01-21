@@ -603,8 +603,25 @@ export function UnifiedInsights() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {mbaData.keyInsights.map((insight, idx) => (
                     <div key={idx} className="text-sm text-muted-foreground p-2 bg-muted/30 rounded-lg flex items-start gap-2">
-                      <span className="text-purple-400">•</span>
-                      {insight}
+                      <Badge variant="outline" className={`text-[9px] px-1 shrink-0 ${getConsensusColor(insight.consensus)}`}>
+                        {getConsensusLabel(insight.consensus)}
+                      </Badge>
+                      <span>{insight.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Decision Implications */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  <ArrowRight className="h-4 w-4 text-primary" />
+                  Decision Implications
+                </h4>
+                <div className="grid md:grid-cols-3 gap-2">
+                  {mbaData.decisionImplications.map((impl, idx) => (
+                    <div key={idx} className="text-sm p-2 bg-primary/5 border border-primary/20 rounded text-muted-foreground">
+                      {impl}
                     </div>
                   ))}
                 </div>
