@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { GitCompare, CheckCircle2, XCircle, Minus } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
+import { useRuthlessMode } from "@/contexts/RuthlessMode";
 
 type ComparisonCategory = "strategy" | "build" | "leadership";
 
@@ -43,7 +45,7 @@ const strategyComparisons: ComparisonItem[] = [
     bain: "18-24 months",
     deloitte: "24-36 months",
     ibm: "12-18 months",
-    wef: "N/A"
+    wef: "—"
   },
   {
     dimension: "Investment Level",
@@ -55,70 +57,34 @@ const strategyComparisons: ComparisonItem[] = [
     bain: "1-3% revenue",
     deloitte: "4-6% revenue",
     ibm: "2-4% revenue",
-    wef: "N/A"
-  },
-  {
-    dimension: "Risk Appetite",
-    mckinsey: "Moderate-High",
-    pwc: "High",
-    accenture: "Moderate",
-    aws: "Variable",
-    bcg: "High",
-    bain: "Low-Moderate",
-    deloitte: "High",
-    ibm: "Moderate",
-    wef: "N/A"
+    wef: "—"
   },
 ];
 
 const buildComparisons: ComparisonItem[] = [
   {
     dimension: "Foundation Model",
-    mckinsey: "Partner (OpenAI/Anthropic)",
+    mckinsey: "Partner",
     pwc: "Multi-vendor",
     accenture: "Partner + Fine-tune",
-    aws: "Bedrock ecosystem",
+    aws: "Bedrock",
     bcg: "Vendor agnostic",
     bain: "Best-of-breed",
-    deloitte: "Hybrid approach",
-    ibm: "watsonx + partners",
-    wef: "N/A"
-  },
-  {
-    dimension: "Orchestration",
-    mckinsey: "Custom build",
-    pwc: "LangChain/LangGraph",
-    accenture: "Custom + frameworks",
-    aws: "Step Functions + Bedrock",
-    bcg: "Framework agnostic",
-    bain: "Vendor solutions",
     deloitte: "Hybrid",
-    ibm: "IBM tooling",
-    wef: "N/A"
-  },
-  {
-    dimension: "Data Architecture",
-    mckinsey: "RAG + Vector DB",
-    pwc: "RAG essential",
-    accenture: "RAG + Knowledge graphs",
-    aws: "OpenSearch + RAG",
-    bcg: "RAG foundation",
-    bain: "Pragmatic RAG",
-    deloitte: "Enterprise RAG",
-    ibm: "RAG + watsonx.data",
-    wef: "N/A"
+    ibm: "watsonx",
+    wef: "—"
   },
   {
     dimension: "Build vs Buy",
     mckinsey: "Build core, buy foundation",
-    pwc: "Strategic build, tactical buy",
-    accenture: "Balanced approach",
+    pwc: "Strategic build",
+    accenture: "Balanced",
     aws: "Buy + customize",
     bcg: "Build differentiators",
-    bain: "Buy first, build later",
+    bain: "Buy first",
     deloitte: "Build for scale",
-    ibm: "IBM ecosystem + build",
-    wef: "N/A"
+    ibm: "IBM ecosystem",
+    wef: "—"
   },
 ];
 
@@ -136,18 +102,6 @@ const leadershipComparisons: ComparisonItem[] = [
     wef: "Multi-stakeholder"
   },
   {
-    dimension: "Change Management",
-    mckinsey: "Top-down transformation",
-    pwc: "Culture-first approach",
-    accenture: "Skills-based transition",
-    aws: "Technical enablement",
-    bcg: "Leadership alignment",
-    bain: "Practical adoption",
-    deloitte: "Scenario planning",
-    ibm: "Operating model shift",
-    wef: "Societal considerations"
-  },
-  {
     dimension: "Talent Strategy",
     mckinsey: "Upskill + acquire",
     pwc: "Reimagine workforce",
@@ -159,34 +113,12 @@ const leadershipComparisons: ComparisonItem[] = [
     ibm: "AI-augmented workforce",
     wef: "Just transition"
   },
-  {
-    dimension: "Success Metrics",
-    mckinsey: "Revenue + efficiency",
-    pwc: "Transformation KPIs",
-    accenture: "ROI dashboards",
-    aws: "Technical metrics",
-    bcg: "Strategic outcomes",
-    bain: "Practical milestones",
-    deloitte: "Maturity models",
-    ibm: "Operational metrics",
-    wef: "Inclusive growth"
-  },
 ];
 
-const companyColors: Record<string, string> = {
-  mckinsey: "text-blue-400",
-  pwc: "text-orange-400",
-  accenture: "text-purple-400",
-  aws: "text-yellow-400",
-  bcg: "text-red-400",
-  bain: "text-pink-400",
-  deloitte: "text-green-400",
-  ibm: "text-cyan-400",
-  wef: "text-teal-400",
-};
-
 export function ComparisonTable() {
+  const { isRuthless } = useRuthlessMode();
   const [category, setCategory] = useState<ComparisonCategory>("strategy");
+  const [showInsights, setShowInsights] = useState(false);
 
   const getComparisonData = () => {
     switch (category) {
@@ -197,65 +129,60 @@ export function ComparisonTable() {
   };
 
   const renderCell = (value: string | null) => {
-    if (!value || value === "N/A") {
-      return <span className="text-muted-foreground">—</span>;
+    if (!value || value === "—") {
+      return <span className="text-muted-foreground/30">—</span>;
     }
-    return <span className="text-sm">{value}</span>;
+    return <span className="text-sm text-muted-foreground">{value}</span>;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-6xl mx-auto">
       {/* Header */}
-      <Card className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border-green-500/20">
-        <CardContent className="py-6">
-          <div className="flex items-center gap-4">
-            <GitCompare className="h-10 w-10 text-primary" />
-            <div>
-              <h2 className="text-xl font-bold">Playbook Comparison Matrix</h2>
-              <p className="text-muted-foreground">
-                Compare perspectives across McKinsey, PwC, Accenture, AWS, BCG, Bain, Deloitte, IBM & WEF
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {!isRuthless && (
+        <div className="text-center space-y-2 py-4">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Position Comparison</h2>
+          <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+            Side-by-side perspectives across 9 firms.
+          </p>
+        </div>
+      )}
 
       {/* Category Tabs */}
       <Tabs value={category} onValueChange={(v) => setCategory(v as ComparisonCategory)}>
-        <TabsList className="grid grid-cols-3 w-full max-w-md">
-          <TabsTrigger value="strategy" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+        <TabsList className="grid grid-cols-3 w-full max-w-sm mx-auto bg-muted/30 p-1">
+          <TabsTrigger value="strategy" className="text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm">
             Strategy
           </TabsTrigger>
-          <TabsTrigger value="build" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
+          <TabsTrigger value="build" className="text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm">
             Build
           </TabsTrigger>
-          <TabsTrigger value="leadership" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+          <TabsTrigger value="leadership" className="text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm">
             Leadership
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value={category} className="mt-6">
-          <Card>
+          <Card className="border-0 shadow-sm bg-background overflow-hidden">
             <CardContent className="p-0 overflow-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="w-40 font-bold">Dimension</TableHead>
-                    <TableHead className={companyColors.mckinsey}>McKinsey</TableHead>
-                    <TableHead className={companyColors.pwc}>PwC</TableHead>
-                    <TableHead className={companyColors.accenture}>Accenture</TableHead>
-                    <TableHead className={companyColors.aws}>AWS</TableHead>
-                    <TableHead className={companyColors.bcg}>BCG</TableHead>
-                    <TableHead className={companyColors.bain}>Bain</TableHead>
-                    <TableHead className={companyColors.deloitte}>Deloitte</TableHead>
-                    <TableHead className={companyColors.ibm}>IBM</TableHead>
-                    <TableHead className={companyColors.wef}>WEF</TableHead>
+                  <TableRow className="bg-muted/30 border-b border-border/50">
+                    <TableHead className="w-32 font-medium text-foreground/70 text-xs">Dimension</TableHead>
+                    <TableHead className="text-xs text-muted-foreground">McKinsey</TableHead>
+                    <TableHead className="text-xs text-muted-foreground">PwC</TableHead>
+                    <TableHead className="text-xs text-muted-foreground">Accenture</TableHead>
+                    <TableHead className="text-xs text-muted-foreground">AWS</TableHead>
+                    <TableHead className="text-xs text-muted-foreground">BCG</TableHead>
+                    <TableHead className="text-xs text-muted-foreground">Bain</TableHead>
+                    <TableHead className="text-xs text-muted-foreground">Deloitte</TableHead>
+                    <TableHead className="text-xs text-muted-foreground">IBM</TableHead>
+                    <TableHead className="text-xs text-muted-foreground">WEF</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {getComparisonData().map((row, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="font-medium">{row.dimension}</TableCell>
+                    <TableRow key={idx} className="border-b border-border/30">
+                      <TableCell className="font-medium text-sm text-foreground/80">{row.dimension}</TableCell>
                       <TableCell>{renderCell(row.mckinsey)}</TableCell>
                       <TableCell>{renderCell(row.pwc)}</TableCell>
                       <TableCell>{renderCell(row.accenture)}</TableCell>
@@ -274,74 +201,55 @@ export function ComparisonTable() {
         </TabsContent>
       </Tabs>
 
-      {/* Legend */}
-      <Card className="bg-muted/30">
-        <CardContent className="py-4">
-          <div className="flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Badge className="bg-blue-500/20 text-blue-400">Strategy</Badge>
-              <span className="text-muted-foreground">Market positioning, ROI, timing</span>
+      {/* Key Insights - Collapsed by Default */}
+      {!isRuthless && (
+        <Collapsible open={showInsights} onOpenChange={setShowInsights}>
+          <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full justify-center py-4">
+            <ChevronDown className={`h-4 w-4 transition-transform ${showInsights ? 'rotate-180' : ''}`} />
+            Key divergences & agreements
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="grid md:grid-cols-3 gap-4 mt-4">
+              <Card className="border-0 shadow-sm bg-background">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-foreground/80">Universal Agreement</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    <li>• RAG is essential for enterprise AI</li>
+                    <li>• Governance must be board-level</li>
+                    <li>• 2026 is critical action window</li>
+                  </ul>
+                </CardContent>
+              </Card>
+              <Card className="border-0 shadow-sm bg-background">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-foreground/80">Key Divergences</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    <li>• Build vs Buy priorities vary widely</li>
+                    <li>• Timeline expectations: 6-36 months</li>
+                    <li>• Investment levels: 1% to 6% revenue</li>
+                  </ul>
+                </CardContent>
+              </Card>
+              <Card className="border-0 shadow-sm bg-background">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-foreground/80">Notable Gaps</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    <li>• WEF focuses on policy, not tactics</li>
+                    <li>• AWS emphasizes tech over strategy</li>
+                    <li>• Bain most conservative on risk</li>
+                  </ul>
+                </CardContent>
+              </Card>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className="bg-green-500/20 text-green-400">Build</Badge>
-              <span className="text-muted-foreground">Tech architecture, implementation</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge className="bg-purple-500/20 text-purple-400">Leadership</Badge>
-              <span className="text-muted-foreground">Governance, talent, change</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Key Insights */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              Universal Agreement
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• RAG is essential for enterprise AI</li>
-              <li>• Governance must be board-level</li>
-              <li>• 2026 is critical action window</li>
-            </ul>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-red-500" />
-              Key Divergences
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Build vs Buy priorities vary widely</li>
-              <li>• Timeline expectations differ 6-36 mo</li>
-              <li>• Investment levels: 1% to 6% revenue</li>
-            </ul>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Minus className="h-4 w-4 text-yellow-500" />
-              Notable Gaps
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• WEF focuses on policy, not tactics</li>
-              <li>• AWS emphasizes tech over strategy</li>
-              <li>• Bain most conservative on risk</li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
     </div>
   );
 }
