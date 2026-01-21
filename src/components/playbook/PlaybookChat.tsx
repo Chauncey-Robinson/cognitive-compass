@@ -8,10 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { 
-  Send, MessageSquare, Bot, User, Loader2, 
-  Sparkles, HelpCircle, History, Trash2, Clock
+  Send, Bot, User, Loader2, History, Trash2, Clock, ChevronDown
 } from "lucide-react";
 import { format } from "date-fns";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Message {
   id: string;
@@ -22,12 +22,8 @@ interface Message {
 
 const EXAMPLE_QUESTIONS = [
   "What do all firms agree on about agentic AI?",
-  "How is consulting firms' approach different from tech companies?",
-  "What are the biggest risks mentioned across all playbooks?",
-  "Which industries should prioritize agentic AI according to these reports?",
-  "What implementation patterns do McKinsey, BCG, and Bain recommend?",
-  "What ROI timelines are suggested for agentic AI implementations?",
-  "How do the playbooks define 'agentic AI'?",
+  "What are the biggest risks mentioned?",
+  "What ROI timelines are suggested?",
   "What governance frameworks are recommended?",
 ];
 
@@ -36,6 +32,7 @@ export function PlaybookChat() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -54,7 +51,7 @@ export function PlaybookChat() {
     },
   });
 
-  // Group history by conversation sessions (messages within 30 mins of each other)
+  // Group history by conversation sessions
   const groupedHistory = historyData ? groupBySession(historyData) : [];
 
   function groupBySession(messages: any[]) {
@@ -70,7 +67,7 @@ export function PlaybookChat() {
       if (lastTime && (msgTime.getTime() - lastTime.getTime()) > 30 * 60 * 1000) {
         if (currentSession.length) {
           sessions.push({
-            date: format(new Date(currentSession[0].created_at), "MMM d, yyyy h:mm a"),
+            date: format(new Date(currentSession[0].created_at), "MMM d, h:mm a"),
             messages: currentSession,
           });
         }
@@ -83,12 +80,12 @@ export function PlaybookChat() {
     
     if (currentSession.length) {
       sessions.push({
-        date: format(new Date(currentSession[0].created_at), "MMM d, yyyy h:mm a"),
+        date: format(new Date(currentSession[0].created_at), "MMM d, h:mm a"),
         messages: currentSession,
       });
     }
     
-    return sessions.reverse(); // Most recent first
+    return sessions.reverse();
   }
 
   useEffect(() => {
@@ -109,12 +106,8 @@ export function PlaybookChat() {
   };
 
   const clearHistory = async () => {
-    // Just clear local messages, don't delete from DB
     setMessages([]);
-    toast({
-      title: "Chat Cleared",
-      description: "Started a new conversation.",
-    });
+    toast({ title: "Chat Cleared", description: "Started a new conversation." });
   };
 
   const sendMessage = async (messageText?: string) => {
@@ -134,21 +127,15 @@ export function PlaybookChat() {
 
     try {
       const response = await supabase.functions.invoke("playbook-chat", {
-        body: { 
-          message: text,
-          role: "general",
-          history: messages.slice(-10),
-        },
+        body: { message: text, role: "general", history: messages.slice(-10) },
       });
 
-      if (response.error) {
-        throw response.error;
-      }
+      if (response.error) throw response.error;
 
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: response.data?.response || "I couldn't generate a response. Please try again.",
+        content: response.data?.response || "I couldn't generate a response.",
         created_at: new Date().toISOString(),
       };
 
@@ -162,20 +149,13 @@ export function PlaybookChat() {
       refetchHistory();
     } catch (error: any) {
       console.error("Chat error:", error);
-      
-      if (error.message?.includes("429") || error.status === 429) {
-        toast({
-          title: "Rate Limit Reached",
-          description: "Please wait a moment before sending another message.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to get a response. Please try again.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: error.message?.includes("429") ? "Rate Limit" : "Error",
+        description: error.message?.includes("429") 
+          ? "Please wait before sending another message."
+          : "Failed to get a response.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -189,23 +169,28 @@ export function PlaybookChat() {
   };
 
   return (
-    <div className="grid lg:grid-cols-4 gap-6 h-[calc(100vh-220px)]">
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-2 py-4">
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground">Ask AI</h2>
+        <p className="text-sm text-muted-foreground">
+          Query insights across all 12 Expert Positions.
+        </p>
+      </div>
+
       {/* Chat Area */}
-      <Card className="lg:col-span-3 flex flex-col">
-        <CardHeader className="pb-3 border-b">
+      <Card className="border-0 shadow-sm bg-background">
+        <CardHeader className="pb-3 border-b border-border/50">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-primary" />
-              Ask Questions About the Playbooks
-            </CardTitle>
+            <CardTitle className="text-base font-medium text-foreground/80">Conversation</CardTitle>
             <div className="flex items-center gap-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => setShowHistory(!showHistory)}
-                className="flex items-center gap-2"
+                className="text-xs text-muted-foreground"
               >
-                <History className="h-4 w-4" />
+                <History className="h-3.5 w-3.5 mr-1" />
                 History
               </Button>
               {messages.length > 0 && (
@@ -213,9 +198,9 @@ export function PlaybookChat() {
                   variant="ghost"
                   size="sm"
                   onClick={clearHistory}
-                  className="flex items-center gap-2 text-muted-foreground"
+                  className="text-xs text-muted-foreground"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3.5 w-3.5 mr-1" />
                   Clear
                 </Button>
               )}
@@ -223,38 +208,37 @@ export function PlaybookChat() {
           </div>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+        <CardContent className="p-0">
           {showHistory ? (
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-4">
+            <ScrollArea className="h-[400px] p-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium">Conversation History</h3>
-                  <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}>
-                    Back to Chat
+                  <h3 className="text-sm font-medium text-foreground/80">History</h3>
+                  <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)} className="text-xs">
+                    Back
                   </Button>
                 </div>
                 {groupedHistory.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <History className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                    <p>No conversation history yet.</p>
-                    <p className="text-sm">Start asking questions to build your history.</p>
+                    <History className="h-8 w-8 mx-auto mb-3 opacity-20" />
+                    <p className="text-sm">No history yet</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {groupedHistory.map((session, idx) => (
                       <div
                         key={idx}
-                        className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                        className="p-3 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors border border-transparent hover:border-border/50"
                         onClick={() => loadSession(session.messages)}
                       >
-                        <div className="flex items-center gap-2 mb-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">{session.date}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {session.messages.length} messages
+                        <div className="flex items-center gap-2 mb-1">
+                          <Clock className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">{session.date}</span>
+                          <Badge variant="outline" className="text-[10px] border-border/50">
+                            {session.messages.length} msgs
                           </Badge>
                         </div>
-                        <p className="text-sm line-clamp-2">
+                        <p className="text-sm text-foreground/80 line-clamp-1">
                           {session.messages.find(m => m.role === "user")?.content || "No messages"}
                         </p>
                       </div>
@@ -265,16 +249,12 @@ export function PlaybookChat() {
             </ScrollArea>
           ) : (
             <>
-              <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+              <ScrollArea className="h-[400px] p-4" ref={scrollRef}>
                 {messages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                    <Bot className="h-16 w-16 text-muted-foreground/30 mb-4" />
-                    <h3 className="text-lg font-medium text-muted-foreground">
-                      Start a Conversation
-                    </h3>
-                    <p className="text-sm text-muted-foreground/70 max-w-md mt-2">
-                      Ask questions about the 12 strategy playbooks. The AI will synthesize 
-                      insights from all documents to provide comprehensive answers.
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <Bot className="h-10 w-10 text-muted-foreground/20 mb-4" />
+                    <p className="text-sm text-muted-foreground">
+                      Ask a question to get started
                     </p>
                   </div>
                 ) : (
@@ -282,44 +262,35 @@ export function PlaybookChat() {
                     {messages.map((message) => (
                       <div
                         key={message.id}
-                        className={`flex gap-3 ${
-                          message.role === "user" ? "justify-end" : "justify-start"
-                        }`}
+                        className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                       >
                         {message.role === "assistant" && (
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                            <Bot className="h-4 w-4 text-primary" />
+                          <div className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center shrink-0">
+                            <Bot className="h-3.5 w-3.5 text-muted-foreground" />
                           </div>
                         )}
                         <div
-                          className={`max-w-[80%] rounded-xl px-4 py-3 ${
+                          className={`max-w-[80%] rounded-lg px-4 py-3 ${
                             message.role === "user"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted"
+                              ? "bg-foreground text-background"
+                              : "bg-muted/30 border border-border/50"
                           }`}
                         >
                           <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                          {message.created_at && (
-                            <p className={`text-[10px] mt-1 ${
-                              message.role === "user" ? "text-primary-foreground/70" : "text-muted-foreground"
-                            }`}>
-                              {format(new Date(message.created_at), "h:mm a")}
-                            </p>
-                          )}
                         </div>
                         {message.role === "user" && (
-                          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
-                            <User className="h-4 w-4 text-primary-foreground" />
+                          <div className="w-7 h-7 rounded-full bg-foreground flex items-center justify-center shrink-0">
+                            <User className="h-3.5 w-3.5 text-background" />
                           </div>
                         )}
                       </div>
                     ))}
                     {isLoading && (
                       <div className="flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                          <Bot className="h-4 w-4 text-primary" />
+                        <div className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center shrink-0">
+                          <Bot className="h-3.5 w-3.5 text-muted-foreground" />
                         </div>
-                        <div className="bg-muted rounded-xl px-4 py-3">
+                        <div className="bg-muted/30 border border-border/50 rounded-lg px-4 py-3">
                           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                         </div>
                       </div>
@@ -328,22 +299,18 @@ export function PlaybookChat() {
                 )}
               </ScrollArea>
 
-              <div className="p-4 border-t">
+              <div className="p-4 border-t border-border/50">
                 <div className="flex gap-2">
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyPress}
-                    placeholder="Ask about agentic AI strategies across all playbooks..."
-                    className="flex-1"
+                    placeholder="Ask about agentic AI strategies..."
+                    className="flex-1 bg-muted/20 border-border/50"
                     disabled={isLoading}
                   />
-                  <Button onClick={() => sendMessage()} disabled={isLoading || !input.trim()}>
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
+                  <Button onClick={() => sendMessage()} disabled={isLoading || !input.trim()} size="icon">
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
@@ -352,32 +319,29 @@ export function PlaybookChat() {
         </CardContent>
       </Card>
 
-      {/* Example Questions */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <HelpCircle className="h-4 w-4" />
-            Example Questions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
+      {/* Example Questions - Collapsed */}
+      <Collapsible open={showExamples} onOpenChange={setShowExamples}>
+        <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full justify-center">
+          <ChevronDown className={`h-4 w-4 transition-transform ${showExamples ? 'rotate-180' : ''}`} />
+          Example questions
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-4">
+          <div className="grid grid-cols-2 gap-2">
             {EXAMPLE_QUESTIONS.map((question, idx) => (
               <Button
                 key={idx}
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className="w-full justify-start text-left h-auto py-2 px-3 text-xs hover:bg-primary/5"
+                className="justify-start text-left h-auto py-2 px-3 text-xs text-muted-foreground hover:text-foreground border-border/50"
                 onClick={() => sendMessage(question)}
                 disabled={isLoading}
               >
-                <Sparkles className="h-3 w-3 mr-2 shrink-0 text-primary" />
-                <span className="line-clamp-2">{question}</span>
+                {question}
               </Button>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }
