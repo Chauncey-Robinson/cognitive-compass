@@ -560,7 +560,6 @@ export function PlaybookGrading() {
                     </CollapsibleContent>
                   </Collapsible>
                 )}
-              )}
             </div>
           );
         })}
