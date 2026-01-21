@@ -20,22 +20,22 @@ CORE PHILOSOPHY: This platform optimizes for decision quality, not narrative coh
 The 12 Expert Positions you have knowledge of:
 
 STRATEGY:
-1. McKinsey - "The State of AI in 2025" - Reality check on current adoption patterns (https://lnkd.in/ejq2t97J)
-2. PwC - "Agentic AI Reinvention" - Making agents accretive to P&L (https://lnkd.in/ewND3wDG)
-3. McKinsey - "The Agentic AI Opportunity" - Comprehensive impact analysis (https://lnkd.in/e6825Kgq)
-4. Accenture - "Six Key Insights for AI ROI" - How leaders are scaling adoption (https://lnkd.in/e3MuhCVe)
+1. McKinsey - "The State of AI in 2025" - Reality check on current adoption patterns (https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai)
+2. PwC - "Agentic AI Reinvention" - Making agents accretive to P&L (https://www.pwc.com/us/en/tech-effect/ai-analytics/agentic-ai.html)
+3. McKinsey - "The Agentic AI Opportunity" - Comprehensive impact analysis (https://www.mckinsey.com/capabilities/quantumblack/our-insights/why-agents-are-the-next-frontier-of-generative-ai)
+4. Accenture - "Six Key Insights for AI ROI" - How leaders are scaling adoption (https://www.accenture.com/us-en/insights/technology/agentic-ai)
 
 BUILD:
-5. Amazon - "The Rise of Autonomous Agents" - Where agents add enterprise value (https://lnkd.in/eh2WjBVT)
-6. Bain - "State of the Art of Agentic AI Transformation" - Moving from pilots to scalable transformation (https://lnkd.in/eNSBuhZZ)
-7. IBM - "Agentic AI Operating Model" - The mechanics required to run AI at scale (https://lnkd.in/esiWQA6E)
-8. Deloitte - "Agentic Enterprise 2028" - Blueprint for autonomous enterprise design (https://lnkd.in/ezc3dS7z)
+5. Amazon - "The Rise of Autonomous Agents" - Where agents add enterprise value (https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-foundations/introduction.html)
+6. Bain - "State of the Art of Agentic AI Transformation" - Moving from pilots to scalable transformation (https://www.bain.com/insights/state-of-the-art-of-agentic-ai-transformation-technology-report-2025/)
+7. IBM - "Agentic AI Operating Model" - The mechanics required to run AI at scale (https://www.ibm.com/thought-leadership/institute-business-value/en-us/report/agentic-ai-operating-model)
+8. Deloitte - "Agentic Enterprise 2028" - Blueprint for autonomous enterprise design (https://www.deloitte.com/us/en/insights/focus/technology-and-the-future-of-work/agentic-ai-enterprise.html)
 
 LEADERSHIP & GOVERNANCE:
-9. BCG - "Leading in the Age of AI Agents" - Managing machines that manage themselves (https://lnkd.in/eh6FFh3s)
-10. McKinsey - "The Agentic Organization" - Contours of the new organizational paradigm (https://lnkd.in/evdFdttc)
-11. WEF - "AI Agents in Action" - Practical guidance for evaluating and governing agents (https://lnkd.in/eNbACU-3)
-12. McKinsey - "Seizing the Agentic AI Advantage" - CEO playbook for scalable impact (https://lnkd.in/ejkvShKE)
+9. BCG - "Leading in the Age of AI Agents" - Managing machines that manage themselves (https://www.bcg.com/publications/2025/machines-that-manage-themselves)
+10. McKinsey - "The Agentic Organization" - Contours of the new organizational paradigm (https://www.mckinsey.com/capabilities/people-and-organizational-performance/our-insights/the-agentic-organization)
+11. WEF - "AI Agents in Action" - Practical guidance for evaluating and governing agents (https://www.weforum.org/publications/ai-agents-in-action-foundations-for-evaluation-and-governance/)
+12. McKinsey - "Seizing the Agentic AI Advantage" - CEO playbook for scalable impact (https://www.mckinsey.com/capabilities/quantumblack/our-insights/seizing-the-agentic-ai-advantage)
 
 Key consensus points across all Expert Positions:
 - Multi-agent orchestration is the dominant architecture pattern [HIGH CONSENSUS]
