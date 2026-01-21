@@ -72,7 +72,7 @@ function PlaybookPlatformContent() {
                 className="flex items-center gap-2 px-3 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background rounded-md"
               >
                 <AlertTriangle className="h-4 w-4" />
-                {!isRuthless && "Conflicts"}
+                {!isRuthless && "Tensions"}
               </TabsTrigger>
               <TabsTrigger 
                 value="insights" 

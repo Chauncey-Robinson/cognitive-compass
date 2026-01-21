@@ -75,8 +75,8 @@ export function TimelineView() {
       {/* Header */}
       {!isRuthless && (
         <div className="text-center space-y-2 py-4">
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Evolution Timeline</h2>
-          <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+          <h2 className="text-primary-focus">Evolution Timeline</h2>
+          <p className="text-meta max-w-lg mx-auto">
             How Expert Position perspectives evolved from June to November 2025.
           </p>
         </div>

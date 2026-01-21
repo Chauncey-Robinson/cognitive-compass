@@ -172,8 +172,8 @@ export function PlaybookChat() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="text-center space-y-2 py-4">
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground">Ask AI</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-primary-focus">Ask AI</h2>
+        <p className="text-meta">
           Query insights across all 12 Expert Positions.
         </p>
       </div>
