@@ -32,15 +32,25 @@ interface CaseStudy {
   keyTakeaway: string;
 }
 
+// Philosophy: This platform optimizes for decision quality, not narrative coherence.
+// Treat each consulting firm as an opinionated actor ("Expert Position"), not a neutral authority.
+
+type ConsensusLevel = "high" | "moderate" | "contested";
+
 // CEO Data
 const ceoData = {
   realQuestion: "How do I not look stupid about AI at the next board meeting?",
   keyInsights: [
-    "Agentic AI = autonomous decision-making, not just chatbots",
-    "First-mover advantage critical in 2025-2026 window",
-    "Investment benchmark: 2-4% of revenue for serious plays",
-    "ROI timeline: 18-24 months for enterprise implementations",
-    "Governance is becoming a board-level priority"
+    { text: "Agentic AI = autonomous decision-making, not just chatbots", consensus: "high" as ConsensusLevel },
+    { text: "First-mover advantage critical in 2025-2026 window", consensus: "moderate" as ConsensusLevel },
+    { text: "Investment benchmark: 2-4% of revenue for serious plays", consensus: "contested" as ConsensusLevel },
+    { text: "ROI timeline: 18-24 months for enterprise implementations", consensus: "contested" as ConsensusLevel },
+    { text: "Governance is becoming a board-level priority", consensus: "high" as ConsensusLevel }
+  ],
+  decisionImplications: [
+    "If you're not discussing AI governance at board level, you're behind peers",
+    "Allocate budget for Q1 pilot now—waiting costs more than experimenting",
+    "Question any vendor promising ROI in under 12 months"
   ],
   actionItems: [
     "Ask CTO: 'What are we actually doing about agentic AI?'",
@@ -65,11 +75,16 @@ const ceoData = {
 const ctoData = {
   realQuestion: "Is this technically real or consultant BS I'll have to build?",
   keyInsights: [
-    "Multi-agent orchestration is the dominant architecture pattern",
-    "RAG (Retrieval Augmented Generation) is essential for enterprise context",
-    "Build the orchestration layer (moat), buy foundation models",
-    "LangChain/LangGraph vs custom: depends on scale and complexity",
-    "Observability is critical—agents are hard to debug"
+    { text: "Multi-agent orchestration is the dominant architecture pattern", consensus: "high" as ConsensusLevel },
+    { text: "RAG (Retrieval Augmented Generation) is essential for enterprise context", consensus: "high" as ConsensusLevel },
+    { text: "Build the orchestration layer (moat), buy foundation models", consensus: "moderate" as ConsensusLevel },
+    { text: "LangChain/LangGraph vs custom: depends on scale and complexity", consensus: "contested" as ConsensusLevel },
+    { text: "Observability is critical—agents are hard to debug", consensus: "high" as ConsensusLevel }
+  ],
+  decisionImplications: [
+    "If you're building orchestration, hire before you start—talent gap is real",
+    "Budget 3x model costs for observability and debugging infrastructure",
+    "Audit data infrastructure for RAG readiness before committing to timeline"
   ],
   techDecisions: [
     { area: "Foundation Models", recommendation: "Buy (OpenAI, Anthropic, Google)", complexity: 2, timeframe: "1-2 weeks", teamSize: "1-2 engineers" },
@@ -116,19 +131,24 @@ const ctoData = {
 const mbaData = {
   realQuestion: "What do I need to know for interviews and exams?",
   keyInsights: [
-    "Agentic AI = AI that takes actions autonomously (vs just generating text)",
-    "Key distinction: autonomy and goal-directed behavior",
-    "McKinsey sees 40% productivity gains; Bain is more conservative (25%)",
-    "Build vs buy depends on whether AI is core competency",
-    "Governance is emerging as the key differentiator"
+    { text: "Agentic AI = AI that takes actions autonomously (vs just generating text)", consensus: "high" as ConsensusLevel },
+    { text: "Key distinction: autonomy and goal-directed behavior", consensus: "high" as ConsensusLevel },
+    { text: "McKinsey sees 40% productivity gains; Bain is more conservative (25%)", consensus: "contested" as ConsensusLevel },
+    { text: "Build vs buy depends on whether AI is core competency", consensus: "moderate" as ConsensusLevel },
+    { text: "Governance is emerging as the key differentiator", consensus: "high" as ConsensusLevel }
+  ],
+  decisionImplications: [
+    "When discussing AI strategy, always acknowledge the contested ROI estimates",
+    "Build vs Buy is never binary—the sophisticated answer is hybrid",
+    "Governance maturity will separate winners from losers in 2026"
   ],
   frameworks: [
     { name: "AAAI Framework", description: "Awareness, Autonomy, Adaptability, Interaction - for evaluating agent maturity", source: "McKinsey", examRelevance: "high" },
     { name: "Build vs Buy Matrix", description: "Decision framework based on core competency + competitive advantage", source: "BCG", examRelevance: "high" },
-    { name: "AI Governance Pyramid", description: "Ethics → Compliance → Risk → Operations → Strategy", source: "Deloitte", examRelevance: "medium" },
-    { name: "Agent Orchestration Model", description: "Planner → Executor → Validator → Optimizer loop", source: "Google DeepMind", examRelevance: "medium" },
+    { name: "AI Governance Pyramid", description: "Ethics - Compliance - Risk - Operations - Strategy", source: "Deloitte", examRelevance: "medium" },
+    { name: "Agent Orchestration Model", description: "Planner - Executor - Validator - Optimizer loop", source: "Google DeepMind", examRelevance: "medium" },
     { name: "ROI Calculation Framework", description: "Cost savings + Revenue gains - Implementation costs - Ongoing maintenance", source: "Accenture", examRelevance: "high" },
-    { name: "Human-in-the-Loop Spectrum", description: "Full automation → Assisted → Augmented → Human-led", source: "PwC", examRelevance: "low" },
+    { name: "Human-in-the-Loop Spectrum", description: "Full automation - Assisted - Augmented - Human-led", source: "PwC", examRelevance: "low" },
   ] as Framework[],
   caseStudies: [
     { company: "JPMorgan", industry: "Financial Services", outcome: "40% reduction in legal document review time", keyTakeaway: "Start with high-volume, repetitive tasks" },
@@ -151,7 +171,7 @@ const mbaData = {
   discussionQuestions: [
     { question: "Should enterprises build or buy their AI orchestration layer?", modelAnswer: "The consensus is 'build for differentiation, buy for infrastructure.' If AI is core to your competitive advantage (e.g., product companies), build the orchestration layer. If AI supports operations, leverage platforms like Salesforce Einstein or Microsoft Copilot. The key factor is whether your AI creates customer-facing value or internal efficiency." },
     { question: "What governance structures are needed for agentic AI?", modelAnswer: "Three-tier governance is emerging as best practice: (1) Board-level AI ethics committee for strategic decisions, (2) Cross-functional AI council for operational oversight, (3) Technical review boards for model deployment. McKinsey emphasizes 'responsible AI by design' while BCG focuses on 'risk-based governance scaling with agent autonomy.'" },
-    { question: "How do you calculate ROI for agentic AI investments?", modelAnswer: "Use the Accenture framework: Direct savings (labor reduction, error reduction) + Revenue impact (faster cycles, new capabilities) - Implementation costs (tech + talent + change management) - Ongoing costs (compute, maintenance, governance). Key insight: Include 'option value' for future capabilities. Most playbooks suggest 18-24 month payback for enterprise implementations." },
+    { question: "How do you calculate ROI for agentic AI investments?", modelAnswer: "Use the Accenture framework: Direct savings (labor reduction, error reduction) + Revenue impact (faster cycles, new capabilities) - Implementation costs (tech + talent + change management) - Ongoing costs (compute, maintenance, governance). Key insight: Include 'option value' for future capabilities. Most Expert Positions suggest 18-24 month payback for enterprise implementations." },
   ],
   actionItems: [
     "Create flashcards for key agentic AI terms",
@@ -167,6 +187,24 @@ const mbaData = {
   ],
 };
 
+const getConsensusColor = (level: ConsensusLevel) => {
+  switch (level) {
+    case "high": return "bg-green-500/20 text-green-400";
+    case "moderate": return "bg-yellow-500/20 text-yellow-400";
+    case "contested": return "bg-orange-500/20 text-orange-400";
+    default: return "";
+  }
+};
+
+const getConsensusLabel = (level: ConsensusLevel) => {
+  switch (level) {
+    case "high": return "High";
+    case "moderate": return "Mod";
+    case "contested": return "Contested";
+    default: return "";
+  }
+};
+
 export function UnifiedInsights() {
   return (
     <div className="space-y-6">
@@ -178,7 +216,10 @@ export function UnifiedInsights() {
             <div>
               <h2 className="text-xl font-bold">What Each Role Needs to Know</h2>
               <p className="text-muted-foreground mt-1">
-                Deep-dive into CEO, CTO, and MBA Student perspectives from 12 playbooks.
+                Deep-dive into CEO, CTO, and MBA Student perspectives from 12 Expert Positions.
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 italic">
+                This platform optimizes for decision quality, not narrative coherence.
               </p>
             </div>
           </div>
@@ -221,7 +262,7 @@ export function UnifiedInsights() {
             
             <CardContent className="space-y-6">
               <div className="grid md:grid-cols-2 gap-4">
-                {/* Key Insights */}
+                {/* Key Insights with Consensus Labels */}
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm flex items-center gap-2">
                     <Lightbulb className="h-4 w-4 text-yellow-400" />
@@ -230,8 +271,25 @@ export function UnifiedInsights() {
                   <ul className="space-y-1.5">
                     {ceoData.keyInsights.map((insight, idx) => (
                       <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="text-blue-400">•</span>
-                        {insight}
+                        <Badge variant="outline" className={`text-[9px] px-1 shrink-0 ${getConsensusColor(insight.consensus)}`}>
+                          {getConsensusLabel(insight.consensus)}
+                        </Badge>
+                        <span>{insight.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Decision Implications */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4 text-primary" />
+                    Decision Implications
+                  </h4>
+                  <ul className="space-y-1.5">
+                    {ceoData.decisionImplications.map((impl, idx) => (
+                      <li key={idx} className="text-sm p-2 bg-primary/5 border border-primary/20 rounded text-muted-foreground">
+                        {impl}
                       </li>
                     ))}
                   </ul>
@@ -307,7 +365,7 @@ export function UnifiedInsights() {
             </CardHeader>
             
             <CardContent className="space-y-6">
-              {/* Key Insights */}
+              {/* Key Insights with Consensus Labels */}
               <div className="space-y-2">
                 <h4 className="font-semibold text-sm flex items-center gap-2">
                   <Lightbulb className="h-4 w-4 text-yellow-400" />
@@ -316,8 +374,25 @@ export function UnifiedInsights() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {ctoData.keyInsights.map((insight, idx) => (
                     <div key={idx} className="text-sm text-muted-foreground p-2 bg-muted/30 rounded-lg flex items-start gap-2">
-                      <span className="text-green-400">•</span>
-                      {insight}
+                      <Badge variant="outline" className={`text-[9px] px-1 shrink-0 ${getConsensusColor(insight.consensus)}`}>
+                        {getConsensusLabel(insight.consensus)}
+                      </Badge>
+                      <span>{insight.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Decision Implications */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  <ArrowRight className="h-4 w-4 text-primary" />
+                  Decision Implications
+                </h4>
+                <div className="grid md:grid-cols-3 gap-2">
+                  {ctoData.decisionImplications.map((impl, idx) => (
+                    <div key={idx} className="text-sm p-2 bg-primary/5 border border-primary/20 rounded text-muted-foreground">
+                      {impl}
                     </div>
                   ))}
                 </div>
