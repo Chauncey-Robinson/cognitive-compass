@@ -2,21 +2,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { 
   Star, AlertTriangle, TrendingUp, BookOpen, 
   DollarSign, Lightbulb, Target, Shield,
-  ThumbsUp, ThumbsDown, Meh
+  ThumbsUp, ThumbsDown, Meh, ExternalLink
 } from "lucide-react";
 
 // Philosophy: This platform optimizes for decision quality, not narrative coherence.
 // Treat each consulting firm as an opinionated actor ("Expert Position"), not a neutral authority.
 
 type ConsensusLevel = "high" | "moderate" | "contested";
+type PlaybookCategory = "Strategy" | "Build" | "Leadership & Governance";
 
 interface PlaybookGrade {
   title: string;
   company: string;
   date: string;
+  category: PlaybookCategory;
+  url: string;
   scores: {
     actionability: number;
     depth: number;
@@ -36,15 +40,18 @@ interface PlaybookGrade {
 }
 
 const playbookGrades: PlaybookGrade[] = [
+  // STRATEGY
   {
     title: "The State of AI in 2025",
     company: "McKinsey",
-    date: "June 2025",
+    date: "2025",
+    category: "Strategy",
+    url: "https://lnkd.in/ejq2t97J",
     scores: { actionability: 6, depth: 8, bias: 4, novelty: 7, dataBacked: 9 },
     overallGrade: "B+",
     verdict: "essential",
     consensusLevel: "high",
-    tldr: "Solid foundation-setting report. Heavy on data, light on 'how to actually do it.'",
+    tldr: "Reality check on current adoption patterns. Heavy on data, light on 'how to actually do it.'",
     decisionImplication: "Use this as your baseline for board-level AI strategy discussions. The data points are defensible in executive settings.",
     fluffAlert: [
       "Repeated 'transform your organization' language",
@@ -59,12 +66,14 @@ const playbookGrades: PlaybookGrade[] = [
   {
     title: "Agentic AI Reinvention",
     company: "PwC",
-    date: "July 2025",
+    date: "2025",
+    category: "Strategy",
+    url: "https://lnkd.in/ewND3wDG",
     scores: { actionability: 5, depth: 6, bias: 7, novelty: 4, dataBacked: 5 },
     overallGrade: "C+",
     verdict: "skip",
     consensusLevel: "moderate",
-    tldr: "Reads as a sales pitch for PwC's transformation services. 'Reinvention' used 47 times.",
+    tldr: "Making agents accretive to P&L. Reads as a sales pitch for PwC's transformation services.",
     decisionImplication: "Skip unless you need regulatory landscape context. The core recommendations are derivative of other Expert Positions.",
     fluffAlert: [
       "'Reinvention' is just rebranded digital transformation",
@@ -81,12 +90,14 @@ const playbookGrades: PlaybookGrade[] = [
   {
     title: "The Agentic AI Opportunity",
     company: "McKinsey",
-    date: "July 2025",
+    date: "2025",
+    category: "Strategy",
+    url: "https://lnkd.in/e6825Kgq",
     scores: { actionability: 7, depth: 8, bias: 3, novelty: 6, dataBacked: 8 },
     overallGrade: "A-",
     verdict: "essential",
     consensusLevel: "high",
-    tldr: "McKinsey's strongest piece. Actual use cases with ROI projections you can take to the board.",
+    tldr: "Comprehensive impact analysis. Actual use cases with ROI projections you can take to the board.",
     decisionImplication: "Use the ROI calculator methodology to build your internal business case. The prioritization matrix should inform your pilot selection.",
     fluffAlert: [
       "Some industry examples feel cherry-picked"
@@ -100,12 +111,14 @@ const playbookGrades: PlaybookGrade[] = [
   {
     title: "Six Key Insights for AI ROI",
     company: "Accenture",
-    date: "August 2025",
+    date: "2025",
+    category: "Strategy",
+    url: "https://lnkd.in/e3MuhCVe",
     scores: { actionability: 8, depth: 7, bias: 5, novelty: 6, dataBacked: 7 },
     overallGrade: "B+",
     verdict: "useful",
     consensusLevel: "moderate",
-    tldr: "Surprisingly practical. The '6 insights' framework is actually useful for building a business case.",
+    tldr: "How leaders are scaling adoption. The '6 insights' framework is actually useful for building a business case.",
     decisionImplication: "Adopt the cost modeling framework for your budget planning. The build vs buy decision tree should guide your architecture discussions.",
     fluffAlert: [
       "Case studies are all Accenture clients",
@@ -118,15 +131,18 @@ const playbookGrades: PlaybookGrade[] = [
     ],
     biasFlags: ["Cherry-picked client case studies"]
   },
+  // BUILD
   {
     title: "The Rise of Autonomous Agents",
-    company: "AWS",
-    date: "August 2025",
+    company: "Amazon",
+    date: "2025",
+    category: "Build",
+    url: "https://lnkd.in/eh2WjBVT",
     scores: { actionability: 9, depth: 9, bias: 6, novelty: 8, dataBacked: 7 },
     overallGrade: "A",
     verdict: "essential",
     consensusLevel: "moderate",
-    tldr: "Technical deep-dive that's actually useful. Yes, it pushes AWS services, but the architecture patterns are solid.",
+    tldr: "Where agents add enterprise value. Technical deep-dive that's actually useful. Yes, it pushes AWS services, but architecture patterns are solid.",
     decisionImplication: "Extract the multi-agent architecture patterns for your technical team. Discount the AWS-specific recommendations by 50% for vendor neutrality.",
     fluffAlert: [
       "Every solution somehow involves AWS Bedrock",
@@ -142,14 +158,16 @@ const playbookGrades: PlaybookGrade[] = [
     biasFlags: ["Vendor self-positioning", "Competitor comparison bias"]
   },
   {
-    title: "From Hype to Reality",
-    company: "Bain & Company",
-    date: "August 2025",
+    title: "State of the Art of Agentic AI Transformation",
+    company: "Bain",
+    date: "2025",
+    category: "Build",
+    url: "https://lnkd.in/eNSBuhZZ",
     scores: { actionability: 7, depth: 7, bias: 3, novelty: 8, dataBacked: 6 },
     overallGrade: "B+",
     verdict: "essential",
     consensusLevel: "contested",
-    tldr: "Refreshingly skeptical. Bain calls out overhyped claims. Good reality check before you overspend.",
+    tldr: "Moving from pilots to scalable transformation. Refreshingly skeptical. Bain calls out overhyped claims.",
     decisionImplication: "Use the 'Red flags' checklist to vet your vendors. The budget reality check should inform your CFO conversations.",
     fluffAlert: [
       "Some contrarian takes feel forced"
@@ -164,12 +182,14 @@ const playbookGrades: PlaybookGrade[] = [
   {
     title: "Agentic AI Operating Model",
     company: "IBM",
-    date: "September 2025",
+    date: "2025",
+    category: "Build",
+    url: "https://lnkd.in/esiWQA6E",
     scores: { actionability: 6, depth: 8, bias: 6, novelty: 5, dataBacked: 6 },
     overallGrade: "B",
     verdict: "useful",
     consensusLevel: "moderate",
-    tldr: "Solid on org design, weak on technology unless you're buying IBM. Operating model framework is legit.",
+    tldr: "The mechanics required to run AI at scale. Solid on org design, weak on technology unless you're buying IBM.",
     decisionImplication: "Adopt the RACI matrix for AI governance. Use the CoE blueprint if you're establishing a new AI function.",
     fluffAlert: [
       "watsonx mentioned on every other page",
@@ -186,12 +206,14 @@ const playbookGrades: PlaybookGrade[] = [
   {
     title: "Agentic Enterprise 2028",
     company: "Deloitte",
-    date: "September 2025",
+    date: "2025",
+    category: "Build",
+    url: "https://lnkd.in/ezc3dS7z",
     scores: { actionability: 4, depth: 7, bias: 4, novelty: 6, dataBacked: 5 },
     overallGrade: "C+",
     verdict: "skip",
     consensusLevel: "contested",
-    tldr: "Interesting thought experiment, but 2028 predictions are speculative. Hard to action today.",
+    tldr: "Blueprint for autonomous enterprise design. Interesting thought experiment, but 2028 predictions are speculative.",
     decisionImplication: "Reference only for long-term workforce planning discussions. Do not use for near-term budget decisions.",
     fluffAlert: [
       "Scenario planning without probabilities",
@@ -203,15 +225,18 @@ const playbookGrades: PlaybookGrade[] = [
       "Long-term workforce planning framework"
     ]
   },
+  // LEADERSHIP & GOVERNANCE
   {
     title: "Leading in the Age of AI Agents",
     company: "BCG",
-    date: "October 2025",
+    date: "2025",
+    category: "Leadership & Governance",
+    url: "https://lnkd.in/eh6FFh3s",
     scores: { actionability: 6, depth: 7, bias: 4, novelty: 7, dataBacked: 6 },
     overallGrade: "B",
     verdict: "useful",
     consensusLevel: "moderate",
-    tldr: "Good for CEOs worried about leadership in AI era. Less useful for anyone who needs to build something.",
+    tldr: "Managing machines that manage themselves. Good for CEOs worried about leadership in AI era.",
     decisionImplication: "Use the CEO AI literacy checklist for your own development. The board governance framework should inform your next board presentation.",
     fluffAlert: [
       "'Leadership transformation' is vague",
@@ -226,12 +251,14 @@ const playbookGrades: PlaybookGrade[] = [
   {
     title: "The Agentic Organization",
     company: "McKinsey",
-    date: "October 2025",
+    date: "2025",
+    category: "Leadership & Governance",
+    url: "https://lnkd.in/evdFdttc",
     scores: { actionability: 7, depth: 8, bias: 3, novelty: 7, dataBacked: 7 },
     overallGrade: "B+",
     verdict: "essential",
     consensusLevel: "high",
-    tldr: "McKinsey's org design guidance. If you're restructuring for AI, start here.",
+    tldr: "Contours of the new organizational paradigm. McKinsey's org design guidance. If you're restructuring for AI, start here.",
     decisionImplication: "Use the CoE templates when establishing your AI function. The talent redeployment framework should guide your CHRO conversations.",
     fluffAlert: [
       "Some org charts feel theoretical"
@@ -245,13 +272,15 @@ const playbookGrades: PlaybookGrade[] = [
   },
   {
     title: "AI Agents in Action",
-    company: "World Economic Forum",
-    date: "November 2025",
+    company: "WEF",
+    date: "2025",
+    category: "Leadership & Governance",
+    url: "https://lnkd.in/eNbACU-3",
     scores: { actionability: 3, depth: 6, bias: 2, novelty: 5, dataBacked: 7 },
     overallGrade: "C",
     verdict: "skip",
     consensusLevel: "high",
-    tldr: "Policy perspective, not business guidance. Good for understanding regulatory direction, not useful for implementation.",
+    tldr: "Practical guidance for evaluating and governing agents. Policy perspective, not business guidance.",
     decisionImplication: "Reference only when preparing for regulatory discussions or international expansion. Not actionable for product or operations decisions.",
     fluffAlert: [
       "Very high-level, policy-focused",
@@ -266,12 +295,14 @@ const playbookGrades: PlaybookGrade[] = [
   {
     title: "Seizing the Agentic AI Advantage",
     company: "McKinsey",
-    date: "November 2025",
+    date: "2025",
+    category: "Leadership & Governance",
+    url: "https://lnkd.in/ejkvShKE",
     scores: { actionability: 8, depth: 7, bias: 4, novelty: 6, dataBacked: 7 },
     overallGrade: "A-",
     verdict: "essential",
     consensusLevel: "high",
-    tldr: "McKinsey's action-oriented summary. If you only read one, make it this one. Synthesizes their other reports.",
+    tldr: "CEO playbook for scalable impact. McKinsey's action-oriented summary. If you only read one, make it this one.",
     decisionImplication: "Use the 90-day action plan template to structure your immediate next steps. The investment sizing framework should inform your budget request.",
     fluffAlert: [
       "Some urgency feels manufactured"
@@ -402,13 +433,21 @@ export function PlaybookGrading() {
                       {playbook.overallGrade}
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{playbook.title}</CardTitle>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        {playbook.title}
+                        <a href={playbook.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </CardTitle>
                       <p className="text-sm text-muted-foreground">
-                        {playbook.company} · {playbook.date}
+                        {playbook.company} · {playbook.category}
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap justify-end">
+                    <Badge variant="outline" className="text-xs">
+                      {playbook.category}
+                    </Badge>
                     <Badge variant="outline" className={getConsensusColor(playbook.consensusLevel)}>
                       {getConsensusLabel(playbook.consensusLevel)}
                     </Badge>
