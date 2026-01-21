@@ -96,9 +96,9 @@ export function UnifiedDashboard() {
       {/* Minimal Header */}
       {!isRuthless && (
         <div className="text-center space-y-2 py-4">
-          <h2 className="text-primary-focus">Intelligence Dashboard</h2>
+          <h2 className="text-primary-focus">The Full Picture</h2>
           <p className="text-meta max-w-lg mx-auto">
-            Synthesized findings from 12 Expert Positions on Agentic AI.
+            Key findings distilled from 12 reports.
           </p>
         </div>
       )}
@@ -110,7 +110,7 @@ export function UnifiedDashboard() {
             <div className="p-2 rounded-lg bg-accent/10">
               <AlertTriangle className="h-5 w-5 text-accent-foreground" />
             </div>
-            <CardTitle className="text-lg font-semibold">Critical Risks</CardTitle>
+            <CardTitle className="text-lg font-semibold">Watch Out For</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -144,7 +144,7 @@ export function UnifiedDashboard() {
             <div className="p-2 rounded-lg bg-muted/50">
               <Target className="h-5 w-5 text-foreground/60" />
             </div>
-            <CardTitle className="text-base font-medium text-foreground/80">Priority Actions</CardTitle>
+            <CardTitle className="text-base font-medium text-foreground/80">What To Do First</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -172,7 +172,7 @@ export function UnifiedDashboard() {
         <Collapsible open={expandedSections['surprise']} onOpenChange={() => toggleSection('surprise')}>
           <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground">Surprise Findings</span>
+              <span className="text-sm font-medium text-muted-foreground">Hidden Gems</span>
               <Badge variant="secondary" className="text-xs">Rare</Badge>
             </div>
             <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections['surprise'] ? 'rotate-180' : ''}`} />
@@ -200,7 +200,7 @@ export function UnifiedDashboard() {
       {!isRuthless && (
         <Collapsible open={expandedSections['consensus']} onOpenChange={() => toggleSection('consensus')}>
           <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
-            <span className="text-sm font-medium text-muted-foreground">Consensus Analysis</span>
+            <span className="text-sm font-medium text-muted-foreground">Agreement Levels</span>
             <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections['consensus'] ? 'rotate-180' : ''}`} />
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-4">
@@ -238,7 +238,7 @@ export function UnifiedDashboard() {
           <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
             <div className="flex items-center gap-2">
               <Calculator className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">AI Budget Calculator</span>
+              <span className="text-sm font-medium text-muted-foreground">Budget Estimator</span>
             </div>
             <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections['budget'] ? 'rotate-180' : ''}`} />
           </CollapsibleTrigger>

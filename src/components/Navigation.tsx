@@ -17,11 +17,11 @@ const Navigation = () => {
   }, []);
 
   const navLinks = [
-    { label: "How It Works", path: "/how-it-works" },
-    { label: "Intelligence Scan", path: "/intelligence-scan" },
-    { label: "Atoms", path: "/atoms" },
-    { label: "Sprints", path: "/sprints" },
-    { label: "Executive", path: "/executive" },
+    { label: "The Method", path: "/how-it-works" },
+    { label: "Your Readiness", path: "/intelligence-scan" },
+    { label: "Concepts", path: "/atoms" },
+    { label: "Practice", path: "/sprints" },
+    { label: "Leadership", path: "/executive" },
     { label: "Pricing", path: "/pricing" },
     { label: "About", path: "/about" },
   ];

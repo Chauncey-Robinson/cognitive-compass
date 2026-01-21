@@ -381,9 +381,9 @@ export function PlaybookGrading() {
       {/* Summary Header - Primary Focus Element */}
       <div className="primary-focus">
         <div className="flex items-baseline justify-between mb-2">
-          <h2 className="text-primary-focus">Expert Position Quality</h2>
+          <h2 className="text-primary-focus">What's Worth Your Time</h2>
           <div className="flex gap-3 text-meta">
-            <span>{essentialCount} Essential</span>
+            <span>{essentialCount} Must-Read</span>
             <span className="text-muted-foreground/50">·</span>
             <span>{12 - essentialCount - skipCount} Useful</span>
             <span className="text-muted-foreground/50">·</span>
@@ -392,7 +392,7 @@ export function PlaybookGrading() {
         </div>
         {!isRuthless && (
           <p className="text-meta">
-            Decision implications first. Supporting analysis on demand.
+            What matters first. Details when you need them.
           </p>
         )}
       </div>
@@ -402,7 +402,7 @@ export function PlaybookGrading() {
         <Collapsible>
           <CollapsibleTrigger className="flex items-center gap-2 text-meta hover:text-foreground transition-colors">
             <ChevronDown className="h-4 w-4" />
-            Grading methodology
+            How we scored this
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-4">
             <div className="executive-card-muted">
