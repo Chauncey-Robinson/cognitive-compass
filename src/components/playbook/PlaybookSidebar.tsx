@@ -1,219 +1,80 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { ExternalLink } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
-interface Playbook {
-  id: string;
+interface ExpertPosition {
   title: string;
   company: string;
-  publication_date: string | null;
-  category: string;
-  is_preloaded: boolean;
-  content_extracted: string | null;
+  category: "Strategy" | "Build" | "Leadership";
+  url: string;
 }
 
-const PRELOADED_PLAYBOOKS = [
-  { title: "The State of AI in 2025", company: "McKinsey", date: "2025-06-15", category: "Strategy" },
-  { title: "Agentic AI Reinvention", company: "PwC", date: "2025-07-01", category: "Strategy" },
-  { title: "The Agentic AI Opportunity", company: "McKinsey", date: "2025-07-20", category: "Strategy" },
-  { title: "Six Key Insights for AI ROI", company: "Accenture", date: "2025-08-05", category: "Build" },
-  { title: "The Rise of Autonomous Agents", company: "Amazon", date: "2025-08-15", category: "Build" },
-  { title: "From Hype to Reality", company: "Bain", date: "2025-08-28", category: "Strategy" },
-  { title: "Agentic AI Operating Model", company: "IBM", date: "2025-09-10", category: "Leadership" },
-  { title: "Agentic Enterprise 2028", company: "Deloitte", date: "2025-09-25", category: "Strategy" },
-  { title: "Leading in the Age of AI Agents", company: "BCG", date: "2025-10-05", category: "Leadership" },
-  { title: "The Agentic Organization", company: "McKinsey", date: "2025-10-20", category: "Leadership" },
-  { title: "AI Agents in Action", company: "WEF", date: "2025-11-01", category: "Strategy" },
-  { title: "Seizing the Agentic AI Advantage", company: "McKinsey", date: "2025-11-15", category: "Strategy" },
+const EXPERT_POSITIONS: ExpertPosition[] = [
+  // Strategy
+  { title: "The State of AI in 2025", company: "McKinsey", category: "Strategy", url: "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai" },
+  { title: "Agentic AI Reinvention", company: "PwC", category: "Strategy", url: "https://www.pwc.com/us/en/tech-effect/ai-analytics/agentic-ai.html" },
+  { title: "The Agentic AI Opportunity", company: "McKinsey", category: "Strategy", url: "https://www.mckinsey.com/capabilities/quantumblack/our-insights/why-agents-are-the-next-frontier-of-generative-ai" },
+  { title: "Six Key Insights for AI ROI", company: "Accenture", category: "Strategy", url: "https://www.accenture.com/us-en/insights/technology/agentic-ai" },
+  // Build
+  { title: "The Rise of Autonomous Agents", company: "Amazon", category: "Build", url: "https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-foundations/introduction.html" },
+  { title: "Agentic AI Transformation", company: "Bain", category: "Build", url: "https://www.bain.com/insights/state-of-the-art-of-agentic-ai-transformation-technology-report-2025/" },
+  { title: "Agentic AI Operating Model", company: "IBM", category: "Build", url: "https://www.ibm.com/thought-leadership/institute-business-value/en-us/report/agentic-ai-operating-model" },
+  { title: "Agentic Enterprise 2028", company: "Deloitte", category: "Build", url: "https://www.deloitte.com/us/en/insights/focus/technology-and-the-future-of-work/agentic-ai-enterprise.html" },
+  // Leadership
+  { title: "Leading in the Age of AI Agents", company: "BCG", category: "Leadership", url: "https://www.bcg.com/publications/2025/machines-that-manage-themselves" },
+  { title: "The Agentic Organization", company: "McKinsey", category: "Leadership", url: "https://www.mckinsey.com/capabilities/people-and-organizational-performance/our-insights/the-agentic-organization" },
+  { title: "AI Agents in Action", company: "WEF", category: "Leadership", url: "https://www.weforum.org/publications/ai-agents-in-action-foundations-for-evaluation-and-governance/" },
+  { title: "Seizing the Agentic AI Advantage", company: "McKinsey", category: "Leadership", url: "https://www.mckinsey.com/capabilities/quantumblack/our-insights/seizing-the-agentic-ai-advantage" },
 ];
 
+const categories = ["Strategy", "Build", "Leadership"] as const;
+
 export function PlaybookSidebar() {
-  const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [analyzing, setAnalyzing] = useState(false);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    fetchPlaybooks();
-  }, []);
-
-  const fetchPlaybooks = async () => {
-    const { data, error } = await supabase
-      .from("playbooks")
-      .select("*")
-      .order("publication_date", { ascending: true });
-
-    if (error) {
-      console.error("Error fetching playbooks:", error);
-    } else {
-      setPlaybooks(data || []);
-    }
-    setLoading(false);
-  };
-
-  const initializePreloadedPlaybooks = async () => {
-    setLoading(true);
-    
-    for (const pb of PRELOADED_PLAYBOOKS) {
-      const { error } = await supabase.from("playbooks").insert({
-        title: pb.title,
-        company: pb.company,
-        publication_date: pb.date,
-        category: pb.category,
-        is_preloaded: true,
-      });
-      
-      if (error && !error.message.includes("duplicate")) {
-        console.error("Error inserting playbook:", error);
-      }
-    }
-    
-    await fetchPlaybooks();
-    toast({
-      title: "Playbooks Loaded",
-      description: "12 strategy playbooks have been added to your library.",
-    });
-  };
-
-  const analyzeAllPlaybooks = async () => {
-    setAnalyzing(true);
-    toast({
-      title: "Analysis Started",
-      description: "Analyzing all 12 playbooks with AI. This may take a moment...",
-    });
-
-    try {
-      const response = await supabase.functions.invoke("analyze-playbooks", {
-        body: { playbook_ids: playbooks.map(p => p.id) },
-      });
-
-      if (response.error) throw response.error;
-
-      toast({
-        title: "Analysis Complete",
-        description: "AI has finished analyzing all playbooks. Check the insights tabs!",
-      });
-    } catch (error) {
-      console.error("Analysis error:", error);
-      toast({
-        title: "Analysis Error",
-        description: "There was an error analyzing the playbooks. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setAnalyzing(false);
-    }
-  };
-
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return "";
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      month: "short",
-      year: "numeric",
-    });
-  };
+  const groupedPositions = categories.map(category => ({
+    category,
+    positions: EXPERT_POSITIONS.filter(p => p.category === category)
+  }));
 
   return (
-    <aside className="w-72 border-r border-border/50 bg-background flex flex-col">
+    <aside className="w-64 border-r border-border/40 bg-background flex flex-col">
       {/* Header */}
-      <div className="p-5 border-b border-border/50">
-        <h2 className="text-sm font-medium text-foreground flex items-center gap-2">
-          <FileText className="h-4 w-4 text-muted-foreground" />
-          Sources
-        </h2>
-        <p className="text-xs text-muted-foreground mt-1">
-          {playbooks.length} reports
-        </p>
+      <div className="p-5 border-b border-border/40">
+        <h2 className="text-sm font-medium text-foreground">Sources</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">12 Expert Positions</p>
       </div>
 
-      {/* Actions */}
-      <div className="p-4 border-b border-border/30">
-        {playbooks.length === 0 && (
-          <Button 
-            onClick={initializePreloadedPlaybooks} 
-            variant="outline"
-            className="w-full text-sm"
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : null}
-            Load Reports
-          </Button>
-        )}
-        
-        {playbooks.length > 0 && (
-          <Button 
-            onClick={analyzeAllPlaybooks}
-            variant="outline"
-            className="w-full text-sm"
-            disabled={analyzing}
-          >
-            {analyzing ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : null}
-            {analyzing ? "Analyzing..." : "Analyze All"}
-          </Button>
-        )}
-      </div>
-
-      {/* Playbook List */}
+      {/* Source List */}
       <ScrollArea className="flex-1">
-        <div className="p-3 space-y-1">
-          {loading && playbooks.length === 0 ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : playbooks.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <FileText className="h-8 w-8 mx-auto mb-3 opacity-20" />
-              <p className="text-xs">No positions loaded</p>
-            </div>
-          ) : (
-            playbooks.map((playbook) => (
-              <div 
-                key={playbook.id} 
-                className="p-3 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer border border-transparent hover:border-border/50"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground/80 leading-tight truncate">
-                      {playbook.title}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-xs text-muted-foreground">{playbook.company}</span>
-                      <span className="text-muted-foreground/30">·</span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDate(playbook.publication_date)}
-                      </span>
+        <div className="p-4 space-y-6">
+          {groupedPositions.map(({ category, positions }) => (
+            <div key={category}>
+              <h3 className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                {category}
+              </h3>
+              <div className="space-y-1">
+                {positions.map((position) => (
+                  <a
+                    key={position.url}
+                    href={position.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-start gap-2 p-2 -mx-2 rounded-md hover:bg-muted/40 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-foreground/80 leading-snug truncate group-hover:text-foreground transition-colors">
+                        {position.company}
+                      </p>
+                      <p className="text-xs text-muted-foreground leading-snug truncate">
+                        {position.title}
+                      </p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {playbook.content_extracted ? (
-                      <CheckCircle2 className="h-3.5 w-3.5 text-foreground/40" />
-                    ) : (
-                      <AlertCircle className="h-3.5 w-3.5 text-muted-foreground/50" />
-                    )}
-                  </div>
-                </div>
+                    <ExternalLink className="h-3 w-3 text-muted-foreground/50 group-hover:text-muted-foreground shrink-0 mt-0.5 transition-colors" />
+                  </a>
+                ))}
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
       </ScrollArea>
-
-      {/* Footer */}
-      <div className="p-4 border-t border-border/30">
-        <div className="flex gap-2 text-xs text-muted-foreground">
-          <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-muted/30 border-border/50">Strategy</Badge>
-          <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-muted/30 border-border/50">Build</Badge>
-          <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-muted/30 border-border/50">Leadership</Badge>
-        </div>
-      </div>
     </aside>
   );
 }
