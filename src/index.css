@@ -2,47 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* 
+  EXECUTIVE DESIGN SYSTEM
+  ========================
+  Philosophy: This product optimizes for speed to judgment, not information density.
+  
+  AESTHETIC GOVERNOR: Minimalist, executive-grade visual design
+  - Calm, whitespace-dominant layouts
+  - One primary focus element per screen; all others visually defer
+  - Decision clarity over visual completeness
+  - Anti-dashboard: executive briefing, not analytics software
 */
 
 @layer base {
   :root {
+    /* Core neutrals - grayscale palette */
     --background: 0 0% 100%;
-    --foreground: 0 0% 6.7%;
+    --foreground: 0 0% 8%;
     
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 6.7%;
+    --card-foreground: 0 0% 8%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 6.7%;
+    --popover-foreground: 0 0% 8%;
     
-    --primary: 211 100% 45%;
+    /* Single accent color - reserved for decisions, risks, contradictions */
+    --primary: 0 0% 8%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 6.7%;
+    /* Muted grayscale hierarchy */
+    --secondary: 0 0% 97%;
+    --secondary-foreground: 0 0% 35%;
     
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 42%;
+    --muted: 0 0% 97%;
+    --muted-foreground: 0 0% 50%;
     
-    --accent: 211 100% 45%;
+    /* Accent for critical elements only */
+    --accent: 0 0% 8%;
     --accent-foreground: 0 0% 100%;
     
-    --destructive: 0 84% 60%;
+    /* Destructive/risk - the ONE accent color */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 0 0% 0% / 0.06;
-    --input: 0 0% 90%;
-    --ring: 211 100% 45%;
+    /* Subtle borders */
+    --border: 0 0% 0% / 0.08;
+    --input: 0 0% 92%;
+    --ring: 0 0% 8%;
     
-    --radius: 1.5rem;
+    /* Generous radius for calm aesthetic */
+    --radius: 0.75rem;
     
-    --glass-bg: 255 255 255 / 0.75;
-    --glass-border: 0 0 0 / 0.06;
-    
-    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.06);
-    --shadow-button: 0 4px 12px 0 rgba(0, 0, 0, 0.08);
+    /* Minimal shadows */
+    --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
   }
 }
 
@@ -55,122 +68,121 @@ All colors MUST be HSL.
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "cv11", "ss01";
     font-variation-settings: "opsz" auto;
+    letter-spacing: -0.01em;
   }
 }
 
 @layer utilities {
+  /* Executive typography - restrained hierarchy */
+  .text-primary-focus {
+    @apply text-2xl font-semibold tracking-tight text-foreground;
+  }
+  
+  .text-secondary-element {
+    @apply text-base font-medium text-foreground/80;
+  }
+  
+  .text-meta {
+    @apply text-xs font-normal text-muted-foreground tracking-wide;
+  }
+  
+  /* Decision-first card styling */
+  .executive-card {
+    @apply bg-card border border-border/50 rounded-lg p-6;
+    box-shadow: var(--shadow-card);
+  }
+  
+  .executive-card-muted {
+    @apply bg-muted/30 border-0 rounded-lg p-4;
+  }
+  
+  /* Primary focus element - one per screen */
+  .primary-focus {
+    @apply relative;
+  }
+  
+  .primary-focus::before {
+    content: '';
+    @apply absolute -left-4 top-0 bottom-0 w-1 bg-foreground rounded-full;
+  }
+  
+  /* Collapsed section styling */
+  .collapsed-section {
+    @apply border-l-2 border-muted pl-4 opacity-60 hover:opacity-100 transition-opacity cursor-pointer;
+  }
+  
+  /* Ruthless mode - terse, factual, non-explanatory */
+  .ruthless-hide {
+    @apply hidden;
+  }
+  
+  /* Minimal button styles */
+  .button-executive {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors;
+    @apply bg-foreground text-background hover:bg-foreground/90;
+  }
+  
+  .button-executive-secondary {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors;
+    @apply border border-border bg-transparent hover:bg-muted;
+  }
+  
+  /* Legacy support */
   .glass-card {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.06);
+    @apply executive-card;
   }
   
   .button-pill {
-    @apply inline-flex items-center justify-center rounded-full px-8 h-[60px] text-[19px] font-semibold transition-all duration-200;
+    @apply inline-flex items-center justify-center rounded-md px-6 h-12 text-base font-medium transition-all duration-200;
   }
   
   .button-primary {
-    @apply button-pill bg-foreground text-background hover:scale-[1.02] hover:shadow-[0_4px_12px_0_rgba(0,0,0,0.08)] hover:bg-foreground/95 transition-all duration-200;
+    @apply button-pill bg-foreground text-background hover:bg-foreground/90;
   }
   
   .button-secondary {
-    @apply button-pill border-2 border-border hover:border-foreground;
+    @apply button-pill border border-border hover:bg-muted;
   }
   
   .text-hero {
-    @apply text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight leading-[1.1];
+    @apply text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1];
   }
   
   .text-display {
-    @apply text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight;
+    @apply text-3xl md:text-4xl font-semibold tracking-tight;
   }
   
   .text-headline {
-    @apply text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight;
+    @apply text-2xl md:text-3xl font-semibold tracking-tight;
   }
   
+  /* Subtle animations */
   .fade-in {
-    animation: fadeIn 0.8s ease-out forwards;
+    animation: fadeIn 0.3s ease-out forwards;
   }
   
   .fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
+    animation: fadeInUp 0.3s ease-out forwards;
   }
   
-  /* Hero animations */
-  .hero-fade-in {
-    animation: heroFadeIn 0.35s ease-out forwards;
-  }
-  
-  .hero-fade-in-delayed {
-    animation: heroFadeIn 0.35s ease-out 0.1s forwards;
-    opacity: 0;
-  }
-  
-  .button-scale-in {
-    animation: buttonScaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
-    opacity: 0;
-  }
-  
-  /* Card animations with stagger */
+  /* Card animations - subtle */
   .card-fade-up {
-    animation: cardFadeUp 0.5s ease-out forwards;
-    opacity: 0;
-  }
-  
-  .card-fade-up-1 {
-    animation: cardFadeUp 0.5s ease-out 0.15s forwards;
-    opacity: 0;
-  }
-  
-  .card-fade-up-2 {
-    animation: cardFadeUp 0.5s ease-out 0.3s forwards;
+    animation: cardFadeUp 0.3s ease-out forwards;
     opacity: 0;
   }
   
   /* Page transition */
   .animate-fade-in {
-    animation: pageFadeIn 0.2s ease-out forwards;
+    animation: pageFadeIn 0.15s ease-out forwards;
   }
   
-  /* Hover effects */
+  /* Minimal hover */
   .card-hover {
-    @apply transition-all duration-300 ease-out;
+    @apply transition-all duration-200 ease-out;
   }
   
   .card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.12);
-  }
-  
-  /* Icon animations */
-  .icon-bounce:hover {
-    animation: iconBounce 0.5s ease-in-out;
-  }
-  
-  .icon-rotate:hover {
-    animation: iconRotate 0.3s ease-in-out;
-  }
-  
-  .icon-shimmer:hover {
-    animation: iconShimmer 0.5s ease-in-out;
-  }
-  
-  /* Button arrow animation */
-  .button-primary:hover .arrow-slide {
-    transform: translateX(3px);
-  }
-  
-  .arrow-slide {
-    display: inline-block;
-    transition: transform 0.2s ease-out;
-  }
-  
-  /* Navbar scroll effect */
-  .nav-scrolled {
-    @apply h-16 shadow-sm;
+    @apply bg-muted/50;
   }
 }
 

@@ -1,13 +1,14 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { 
-  Star, AlertTriangle, TrendingUp, BookOpen, 
+  Star, AlertTriangle, BookOpen, 
   DollarSign, Lightbulb, Target, Shield,
-  ThumbsUp, ThumbsDown, Meh, ExternalLink
+  ThumbsUp, ThumbsDown, Meh, ExternalLink, ChevronDown
 } from "lucide-react";
+import { useRuthlessMode } from "@/contexts/RuthlessMode";
 
 // Philosophy: This platform optimizes for decision quality, not narrative coherence.
 // Treat each consulting firm as an opinionated actor ("Expert Position"), not a neutral authority.
@@ -316,11 +317,12 @@ const playbookGrades: PlaybookGrade[] = [
   }
 ];
 
+// Executive-grade grayscale with single accent
 const getVerdictColor = (verdict: string) => {
   switch (verdict) {
-    case "essential": return "bg-green-500/20 text-green-400 border-green-500/30";
-    case "useful": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-    case "skip": return "bg-red-500/20 text-red-400 border-red-500/30";
+    case "essential": return "bg-foreground text-background";
+    case "useful": return "bg-muted text-foreground border-border";
+    case "skip": return "bg-destructive/10 text-destructive border-destructive/20";
     default: return "";
   }
 };
@@ -335,206 +337,231 @@ const getVerdictIcon = (verdict: string) => {
 };
 
 const getGradeColor = (grade: string) => {
-  if (grade.startsWith("A")) return "text-green-400";
-  if (grade.startsWith("B")) return "text-yellow-400";
-  return "text-red-400";
+  if (grade.startsWith("A")) return "text-foreground";
+  if (grade.startsWith("B")) return "text-foreground/70";
+  return "text-destructive";
 };
 
 const getConsensusColor = (level: ConsensusLevel) => {
   switch (level) {
-    case "high": return "bg-green-500/20 text-green-400 border-green-500/30";
-    case "moderate": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-    case "contested": return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+    case "high": return "bg-muted text-foreground";
+    case "moderate": return "bg-muted text-muted-foreground";
+    case "contested": return "bg-destructive/10 text-destructive";
     default: return "";
   }
 };
 
 const getConsensusLabel = (level: ConsensusLevel) => {
   switch (level) {
-    case "high": return "High Consensus";
-    case "moderate": return "Moderate Consensus";
+    case "high": return "High";
+    case "moderate": return "Mod";
     case "contested": return "Contested";
     default: return "";
   }
 };
 
 export function PlaybookGrading() {
+  const { isRuthless } = useRuthlessMode();
+  const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
+  
   const essentialCount = playbookGrades.filter(p => p.verdict === "essential").length;
   const skipCount = playbookGrades.filter(p => p.verdict === "skip").length;
+  
+  // In ruthless mode, only show essential playbooks
+  const displayedPlaybooks = isRuthless 
+    ? playbookGrades.filter(p => p.verdict === "essential")
+    : playbookGrades;
+
+  const toggleCard = (idx: number) => {
+    setExpandedCards(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Summary Header */}
-      <Card className="bg-gradient-to-r from-amber-500/10 to-red-500/10 border-amber-500/20">
-        <CardContent className="py-6">
-          <div className="flex items-start gap-4">
-            <AlertTriangle className="h-10 w-10 text-amber-400" />
-            <div>
-              <h2 className="text-xl font-bold">Expert Position Quality Report</h2>
-              <p className="text-muted-foreground mt-1">
-                Honest grades for each Expert Position. We call out the fluff so you don't waste time.
-              </p>
-              <p className="text-xs text-muted-foreground mt-1 italic">
-                Outputs are board-ready: concise, defensible, and free of hype.
-              </p>
-              <div className="flex gap-4 mt-3">
-                <Badge className="bg-green-500/20 text-green-400">{essentialCount} Essential</Badge>
-                <Badge className="bg-yellow-500/20 text-yellow-400">{12 - essentialCount - skipCount} Useful</Badge>
-                <Badge className="bg-red-500/20 text-red-400">{skipCount} Skip</Badge>
+    <div className="space-y-8">
+      {/* Summary Header - Primary Focus Element */}
+      <div className="primary-focus">
+        <div className="flex items-baseline justify-between mb-2">
+          <h2 className="text-primary-focus">Expert Position Quality</h2>
+          <div className="flex gap-3 text-meta">
+            <span>{essentialCount} Essential</span>
+            <span className="text-muted-foreground/50">·</span>
+            <span>{12 - essentialCount - skipCount} Useful</span>
+            <span className="text-muted-foreground/50">·</span>
+            <span className="text-destructive">{skipCount} Skip</span>
+          </div>
+        </div>
+        {!isRuthless && (
+          <p className="text-meta">
+            Decision implications first. Supporting analysis on demand.
+          </p>
+        )}
+      </div>
+
+      {/* Grading Criteria - Collapsed by Default */}
+      {!isRuthless && (
+        <Collapsible>
+          <CollapsibleTrigger className="flex items-center gap-2 text-meta hover:text-foreground transition-colors">
+            <ChevronDown className="h-4 w-4" />
+            Grading methodology
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            <div className="executive-card-muted">
+              <div className="grid grid-cols-5 gap-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <Target className="h-4 w-4 text-foreground/50" />
+                  <span><strong>Actionability</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-foreground/50" />
+                  <span><strong>Depth</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-foreground/50" />
+                  <span><strong>Bias</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-foreground/50" />
+                  <span><strong>Novelty</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-foreground/50" />
+                  <span><strong>Evidence</strong></span>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
 
-      {/* Grading Criteria */}
-      <Card className="bg-muted/30">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">How We Grade</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-5 gap-4 text-xs">
-            <div className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-blue-400" />
-              <span><strong>Actionability:</strong> Can you do something with this?</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-purple-400" />
-              <span><strong>Depth:</strong> Superficial or substantive?</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-red-400" />
-              <span><strong>Bias:</strong> Genuine insight or sales pitch?</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Lightbulb className="h-4 w-4 text-yellow-400" />
-              <span><strong>Novelty:</strong> New ideas or rehashed?</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-green-400" />
-              <span><strong>Data-Backed:</strong> Evidence vs opinions?</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Playbook Cards */}
-      <div className="space-y-4">
-        {playbookGrades.map((playbook, idx) => {
+      {/* Playbook Cards - Decision-first layout */}
+      <div className="space-y-6">
+        {displayedPlaybooks.map((playbook, idx) => {
           const VerdictIcon = getVerdictIcon(playbook.verdict);
-          const avgScore = Object.values(playbook.scores).reduce((a, b) => a + b, 0) / 5;
           
           return (
-            <Card key={idx} className="overflow-hidden">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className={`text-4xl font-bold ${getGradeColor(playbook.overallGrade)}`}>
-                      {playbook.overallGrade}
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        {playbook.title}
-                        <a href={playbook.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        {playbook.company} · {playbook.category}
-                      </p>
-                    </div>
+            <div key={idx} className="executive-card">
+              {/* Header Row */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start gap-4">
+                  <div className={`text-3xl font-semibold ${getGradeColor(playbook.overallGrade)}`}>
+                    {playbook.overallGrade}
                   </div>
-                  <div className="flex gap-2 flex-wrap justify-end">
-                    <Badge variant="outline" className="text-xs">
-                      {playbook.category}
-                    </Badge>
-                    <Badge variant="outline" className={getConsensusColor(playbook.consensusLevel)}>
-                      {getConsensusLabel(playbook.consensusLevel)}
-                    </Badge>
-                    <Badge variant="outline" className={getVerdictColor(playbook.verdict)}>
-                      <VerdictIcon className="h-3 w-3 mr-1" />
-                      {playbook.verdict.toUpperCase()}
-                    </Badge>
+                  <div>
+                    <h3 className="text-secondary-element flex items-center gap-2">
+                      {playbook.title}
+                      <a href={playbook.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </h3>
+                    <p className="text-meta">
+                      {playbook.company} · {playbook.category}
+                    </p>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* TL;DR */}
-                <p className="text-sm font-medium">{playbook.tldr}</p>
-                
-                {/* Decision Implication */}
-                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                  <p className="text-xs font-semibold text-primary mb-1">Decision Implication</p>
-                  <p className="text-sm text-muted-foreground">{playbook.decisionImplication}</p>
+                <div className="flex gap-2">
+                  <Badge variant="outline" className={`text-xs ${getConsensusColor(playbook.consensusLevel)}`}>
+                    {getConsensusLabel(playbook.consensusLevel)}
+                  </Badge>
+                  <Badge className={`text-xs ${getVerdictColor(playbook.verdict)}`}>
+                    {playbook.verdict.toUpperCase()}
+                  </Badge>
                 </div>
+              </div>
+              
+              {/* DECISION IMPLICATION FIRST - Primary focus */}
+              <div className="primary-focus mb-4">
+                <p className="text-sm text-foreground">{playbook.decisionImplication}</p>
+              </div>
+              
+              {/* TL;DR - Secondary */}
+              {!isRuthless && (
+                <p className="text-sm text-muted-foreground mb-4">{playbook.tldr}</p>
+              )}
 
-                {/* Score Bars */}
-                <div className="grid grid-cols-5 gap-3">
+              {/* Score Bars - Muted, collapsed by default in ruthless mode */}
+              {!isRuthless && (
+                <div className="grid grid-cols-5 gap-3 mb-4">
                   {Object.entries(playbook.scores).map(([key, value]) => (
                     <div key={key} className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground capitalize">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span className="capitalize">
                           {key.replace(/([A-Z])/g, ' $1').trim()}
                         </span>
                         <span>{value}/10</span>
                       </div>
                       <Progress 
                         value={key === 'bias' ? (10 - value) * 10 : value * 10} 
-                        className="h-1.5" 
+                        className="h-1" 
                       />
                     </div>
                   ))}
                 </div>
+              )}
 
-                <Tabs defaultValue="gold" className="w-full">
-                  <TabsList className="grid grid-cols-2 w-64">
-                    <TabsTrigger value="gold" className="text-xs">
-                      <Star className="h-3 w-3 mr-1" /> Gold Nuggets
-                    </TabsTrigger>
-                    <TabsTrigger value="fluff" className="text-xs">
-                      <AlertTriangle className="h-3 w-3 mr-1" /> Fluff Alert
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="gold" className="mt-3">
-                    <ul className="space-y-1">
-                      {playbook.goldNuggets.map((nugget, nIdx) => (
-                        <li key={nIdx} className="text-sm text-green-400 flex items-start gap-2">
-                          <Star className="h-3 w-3 mt-1 shrink-0" />
-                          {nugget}
-                        </li>
-                      ))}
-                    </ul>
-                  </TabsContent>
-                  <TabsContent value="fluff" className="mt-3 space-y-3">
-                    <ul className="space-y-1">
-                      {playbook.fluffAlert.map((fluff, fIdx) => (
-                        <li key={fIdx} className="text-sm text-red-400 flex items-start gap-2">
-                          <AlertTriangle className="h-3 w-3 mt-1 shrink-0" />
-                          {fluff}
-                        </li>
-                      ))}
-                    </ul>
-                    {playbook.biasFlags && playbook.biasFlags.length > 0 && (
-                      <div className="p-2 bg-orange-500/10 border border-orange-500/20 rounded">
-                        <p className="text-xs font-semibold text-orange-400 mb-1">Bias Flags</p>
+              {/* Gold Nuggets & Fluff - Collapsed by default */}
+              {!isRuthless && (
+                  <Collapsible open={expandedCards[idx]} onOpenChange={() => toggleCard(idx)}>
+                    <CollapsibleTrigger className="flex items-center gap-2 text-meta hover:text-foreground transition-colors w-full justify-between">
+                      <span className="flex items-center gap-2">
+                        <ChevronDown className={`h-4 w-4 transition-transform ${expandedCards[idx] ? 'rotate-180' : ''}`} />
+                        View details
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {playbook.goldNuggets.length} insights · {playbook.fluffAlert.length} warnings
+                      </span>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-4 space-y-4">
+                      {/* Gold Nuggets */}
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-medium text-foreground/70">Key Insights</h4>
                         <ul className="space-y-1">
-                          {playbook.biasFlags.map((flag, bIdx) => (
-                            <li key={bIdx} className="text-xs text-orange-300 flex items-start gap-1">
-                              <span>•</span> {flag}
+                          {playbook.goldNuggets.map((nugget, nIdx) => (
+                            <li key={nIdx} className="text-sm text-muted-foreground flex items-start gap-2">
+                              <Star className="h-3 w-3 mt-1 shrink-0 text-foreground/40" />
+                              {nugget}
                             </li>
                           ))}
                         </ul>
                       </div>
-                    )}
-                    {playbook.hiddenAgenda && (
-                      <p className="text-xs text-amber-400 bg-amber-500/10 p-2 rounded">
-                        <strong>Hidden Agenda:</strong> {playbook.hiddenAgenda}
-                      </p>
-                    )}
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+                      
+                      {/* Fluff Alerts */}
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-medium text-destructive/70">Warnings</h4>
+                        <ul className="space-y-1">
+                          {playbook.fluffAlert.map((fluff, fIdx) => (
+                            <li key={fIdx} className="text-sm text-muted-foreground flex items-start gap-2">
+                              <AlertTriangle className="h-3 w-3 mt-1 shrink-0 text-destructive/50" />
+                              {fluff}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      {/* Bias Flags */}
+                      {playbook.biasFlags && playbook.biasFlags.length > 0 && (
+                        <div className="p-3 bg-muted/50 rounded">
+                          <p className="text-xs font-medium text-foreground/70 mb-2">Bias Detected</p>
+                          <ul className="space-y-1">
+                            {playbook.biasFlags.map((flag, bIdx) => (
+                              <li key={bIdx} className="text-xs text-muted-foreground flex items-start gap-1">
+                                <span>•</span> {flag}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {/* Hidden Agenda */}
+                      {playbook.hiddenAgenda && (
+                        <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded">
+                          <strong className="text-foreground/70">Hidden Agenda:</strong> {playbook.hiddenAgenda}
+                        </p>
+                      )}
+                    </CollapsibleContent>
+                  </Collapsible>
+                )}
+              )}
+            </div>
           );
         })}
       </div>
