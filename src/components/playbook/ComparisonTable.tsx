@@ -140,8 +140,8 @@ export function ComparisonTable() {
       {/* Header */}
       {!isRuthless && (
         <div className="text-center space-y-2 py-4">
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Position Comparison</h2>
-          <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+          <h2 className="text-primary-focus">Position Comparison</h2>
+          <p className="text-meta max-w-lg mx-auto">
             Side-by-side perspectives across 9 firms.
           </p>
         </div>

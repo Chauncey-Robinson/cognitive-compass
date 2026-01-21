@@ -90,7 +90,7 @@ export function ContradictionFinder() {
     ? contradictions 
     : contradictions.filter(c => c.category === selectedCategory);
 
-  const highSeverityCount = contradictions.filter(c => c.severity === "high").length;
+  const highPriorityCount = contradictions.filter(c => c.severity === "high").length;
 
   const toggleCard = (id: string) => {
     setExpandedCards(prev => ({ ...prev, [id]: !prev[id] }));
@@ -105,13 +105,10 @@ export function ContradictionFinder() {
     <div className="space-y-8 max-w-3xl mx-auto">
       {/* Header */}
       <div className="text-center space-y-2 py-4">
-        <div className="flex items-center justify-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-foreground/60" />
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Position Conflicts</h2>
-        </div>
+        <h2 className="text-primary-focus">Decision Tensions</h2>
         {!isRuthless && (
-          <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-            {highSeverityCount} high-impact conflicts requiring executive attention.
+          <p className="text-meta max-w-lg mx-auto">
+            {highPriorityCount} areas where expert positions diverge—requiring your judgment.
           </p>
         )}
       </div>
@@ -141,60 +138,52 @@ export function ContradictionFinder() {
         </div>
       )}
 
-      {/* Contradictions List */}
+      {/* Decision Tensions List */}
       <div className="space-y-4">
-        {displayedContradictions.map((contradiction) => (
-          <Card key={contradiction.id} className="border-0 shadow-sm bg-background">
-            <CardHeader className="pb-3 pt-5 px-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <CardTitle className="text-base font-medium text-foreground">{contradiction.topic}</CardTitle>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/50 capitalize">
-                      {contradiction.category}
-                    </Badge>
-                    {contradiction.severity === "high" && (
-                      <Badge variant="outline" className="text-[10px] bg-accent/10 text-accent-foreground border-accent/20">
-                        High Impact
-                      </Badge>
-                    )}
-                  </div>
+        {displayedContradictions.map((tension) => (
+          <div key={tension.id} className="executive-card">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <h3 className="text-secondary-element">{tension.topic}</h3>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className="text-meta capitalize">{tension.category}</span>
+                  {tension.severity === "high" && (
+                    <span className="text-meta">· Priority</span>
+                  )}
                 </div>
-                <ArrowLeftRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
               </div>
-            </CardHeader>
+              <ArrowLeftRight className="h-4 w-4 text-muted-foreground/40 shrink-0" />
+            </div>
 
-            <CardContent className="px-5 pb-5 space-y-4">
-              {/* Decision Implication - Primary Focus */}
-              <div className="p-4 bg-muted/30 rounded-lg border border-border/50">
-                <p className="text-sm text-foreground leading-relaxed">
-                  {contradiction.decisionImplication}
-                </p>
-              </div>
+            {/* Decision Implication - Primary Focus */}
+            <div className="primary-focus mb-4">
+              <p className="decision-statement text-sm leading-relaxed">
+                {tension.decisionImplication}
+              </p>
+            </div>
 
-              {/* Positions - Collapsible */}
-              {!isRuthless && (
-                <Collapsible open={expandedCards[contradiction.id]} onOpenChange={() => toggleCard(contradiction.id)}>
-                  <CollapsibleTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    <ChevronDown className={`h-3 w-3 transition-transform ${expandedCards[contradiction.id] ? 'rotate-180' : ''}`} />
-                    View conflicting positions
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 rounded-lg bg-muted/20 border border-border/30">
-                        <p className="text-xs text-muted-foreground mb-1">{contradiction.sideA.firm}</p>
-                        <p className="text-sm text-foreground/80">{contradiction.sideA.position}</p>
-                      </div>
-                      <div className="p-3 rounded-lg bg-muted/20 border border-border/30">
-                        <p className="text-xs text-muted-foreground mb-1">{contradiction.sideB.firm}</p>
-                        <p className="text-sm text-foreground/80">{contradiction.sideB.position}</p>
-                      </div>
+            {/* Positions - Collapsible */}
+            {!isRuthless && (
+              <Collapsible open={expandedCards[tension.id]} onOpenChange={() => toggleCard(tension.id)}>
+                <CollapsibleTrigger className="flex items-center gap-1 text-meta hover:text-foreground transition-colors">
+                  <ChevronDown className={`h-3 w-3 transition-transform ${expandedCards[tension.id] ? 'rotate-180' : ''}`} />
+                  View positions
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="executive-card-muted">
+                      <p className="text-meta mb-1">{tension.sideA.firm}</p>
+                      <p className="text-sm text-body">{tension.sideA.position}</p>
                     </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              )}
-            </CardContent>
-          </Card>
+                    <div className="executive-card-muted">
+                      <p className="text-meta mb-1">{tension.sideB.firm}</p>
+                      <p className="text-sm text-body">{tension.sideB.position}</p>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+          </div>
         ))}
       </div>
     </div>

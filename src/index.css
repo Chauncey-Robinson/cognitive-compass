@@ -3,59 +3,96 @@
 @tailwind utilities;
 
 /* 
-  EXECUTIVE DESIGN SYSTEM
-  ========================
+  EXECUTIVE DESIGN SYSTEM — LIGHT MODE
+  =====================================
+  
   Philosophy: This product optimizes for speed to judgment, not information density.
   
-  AESTHETIC GOVERNOR: Minimalist, executive-grade visual design
-  - Calm, whitespace-dominant layouts
-  - One primary focus element per screen; all others visually defer
-  - Decision clarity over visual completeness
-  - Anti-dashboard: executive briefing, not analytics software
+  AESTHETIC TARGET: White paper meets instrument panel
+  
+  RULES:
+  - Light mode by default
+  - Warm gray, not black
+  - Black (#000) ONLY for: primary page titles, active tab indicator, key decision statements
+  - Conflicts = intellectual tension, not warnings
+  - Editorial, not operational
 */
 
 @layer base {
   :root {
-    /* Core neutrals - grayscale palette */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 8%;
+    /* LIGHT MODE — Warm neutral palette */
     
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 8%;
+    /* Primary surfaces: warm white to light gray */
+    --background: 40 20% 99%;         /* #FDFCFB - warm white */
+    --foreground: 30 8% 15%;          /* #2A2725 - warm charcoal, NOT black */
     
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
+    --card: 40 15% 98%;               /* #FBFAF9 - slightly warm */
+    --card-foreground: 30 8% 15%;
     
-    /* Single accent color - reserved for decisions, risks, contradictions */
-    --primary: 0 0% 8%;
+    --popover: 40 15% 98%;
+    --popover-foreground: 30 8% 15%;
+    
+    /* BLACK RESTRICTION: Primary = true black, reserved for titles & decisions */
+    --primary: 0 0% 0%;               /* Pure black - ONLY for key elements */
     --primary-foreground: 0 0% 100%;
     
-    /* Muted grayscale hierarchy */
-    --secondary: 0 0% 97%;
-    --secondary-foreground: 0 0% 35%;
+    /* Soft neutral hierarchy */
+    --secondary: 35 10% 96%;          /* Warm light gray */
+    --secondary-foreground: 30 6% 40%;
     
-    --muted: 0 0% 97%;
-    --muted-foreground: 0 0% 50%;
+    --muted: 35 8% 95%;               /* Subtle warm gray */
+    --muted-foreground: 30 5% 50%;    /* Dark gray for body text, NOT black */
     
-    /* Accent for critical elements only */
-    --accent: 0 0% 8%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent: warm charcoal, not black */
+    --accent: 30 6% 25%;              /* Warm dark gray */
+    --accent-foreground: 40 20% 99%;
     
-    /* Destructive/risk - the ONE accent color */
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    /* Decision tensions: muted, not alarming */
+    --destructive: 25 30% 50%;        /* Warm muted brown, NOT red */
+    --destructive-foreground: 40 20% 99%;
     
-    /* Subtle borders */
-    --border: 0 0% 0% / 0.08;
-    --input: 0 0% 92%;
-    --ring: 0 0% 8%;
+    /* Subtle borders - very low contrast */
+    --border: 30 6% 90%;              /* Warm light gray line */
+    --input: 35 8% 94%;
+    --ring: 30 8% 15%;
     
     /* Generous radius for calm aesthetic */
-    --radius: 0.75rem;
+    --radius: 0.625rem;
     
-    /* Minimal shadows */
-    --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+    /* Barely-there shadows */
+    --shadow-subtle: 0 1px 2px 0 rgba(42, 39, 37, 0.02);
+    --shadow-card: 0 1px 3px 0 rgba(42, 39, 37, 0.03);
+  }
+  
+  /* Dark mode: Only if explicitly toggled */
+  .dark {
+    --background: 30 6% 8%;
+    --foreground: 35 10% 90%;
+    
+    --card: 30 6% 10%;
+    --card-foreground: 35 10% 90%;
+    
+    --popover: 30 6% 10%;
+    --popover-foreground: 35 10% 90%;
+    
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    
+    --secondary: 30 6% 15%;
+    --secondary-foreground: 35 8% 70%;
+    
+    --muted: 30 6% 15%;
+    --muted-foreground: 35 8% 60%;
+    
+    --accent: 35 10% 80%;
+    --accent-foreground: 30 6% 8%;
+    
+    --destructive: 25 25% 45%;
+    --destructive-foreground: 40 20% 95%;
+    
+    --border: 30 6% 18%;
+    --input: 30 6% 18%;
+    --ring: 35 10% 80%;
   }
 }
 
@@ -70,61 +107,115 @@
     font-variation-settings: "opsz" auto;
     letter-spacing: -0.01em;
   }
+  
+  /* Force light mode by default */
+  html {
+    color-scheme: light;
+  }
 }
 
 @layer utilities {
-  /* Executive typography - restrained hierarchy */
+  /* 
+    TYPOGRAPHY COLOR TUNING
+    - Dark gray (#2A2725) for body text, NOT pure black
+    - Pure black (#000) reserved for section headers only
+  */
+  
+  /* Primary page title - ONE OF FEW BLACK ELEMENTS */
   .text-primary-focus {
-    @apply text-2xl font-semibold tracking-tight text-foreground;
+    @apply text-2xl font-semibold tracking-tight;
+    color: hsl(0 0% 0%); /* Pure black - intentional */
   }
   
+  /* Secondary elements - warm charcoal */
   .text-secondary-element {
-    @apply text-base font-medium text-foreground/80;
+    @apply text-base font-medium;
+    color: hsl(30 8% 20%); /* Warm dark gray */
   }
   
+  /* Meta text - muted warm gray */
   .text-meta {
-    @apply text-xs font-normal text-muted-foreground tracking-wide;
+    @apply text-xs font-normal tracking-wide;
+    color: hsl(30 5% 50%); /* Warm medium gray */
   }
   
-  /* Decision-first card styling */
+  /* Body text - warm charcoal, NOT black */
+  .text-body {
+    color: hsl(30 6% 25%); /* #3D3936 warm gray */
+  }
+  
+  /* CARD WEIGHT REDUCTION - No heavy borders, no dark fills */
   .executive-card {
-    @apply bg-card border border-border/50 rounded-lg p-6;
+    @apply bg-card rounded-lg p-6;
+    border: 1px solid hsl(30 6% 92%);
     box-shadow: var(--shadow-card);
   }
   
   .executive-card-muted {
-    @apply bg-muted/30 border-0 rounded-lg p-4;
+    @apply rounded-lg p-4;
+    background: hsl(35 10% 97%);
+    border: none;
   }
   
-  /* Primary focus element - one per screen */
+  /* Primary focus - subtle left accent */
   .primary-focus {
-    @apply relative;
+    @apply relative pl-4;
   }
   
   .primary-focus::before {
     content: '';
-    @apply absolute -left-4 top-0 bottom-0 w-1 bg-foreground rounded-full;
+    @apply absolute left-0 top-0 bottom-0 w-0.5 rounded-full;
+    background: hsl(30 6% 25%); /* Warm charcoal, not black */
+  }
+  
+  /* Decision statement - ONE OF FEW BLACK ELEMENTS */
+  .decision-statement {
+    color: hsl(0 0% 0%); /* Pure black - reserved for key decisions */
+    @apply font-medium;
+  }
+  
+  /* Tension styling - intellectual, not alarming */
+  .tension-card {
+    @apply rounded-lg p-4;
+    background: hsl(35 15% 97%);
+    border: 1px solid hsl(30 8% 90%);
+  }
+  
+  .tension-indicator {
+    color: hsl(30 15% 45%); /* Warm brown, NOT red */
   }
   
   /* Collapsed section styling */
   .collapsed-section {
-    @apply border-l-2 border-muted pl-4 opacity-60 hover:opacity-100 transition-opacity cursor-pointer;
+    @apply pl-4 transition-opacity cursor-pointer;
+    border-left: 2px solid hsl(35 8% 90%);
+    opacity: 0.7;
   }
   
-  /* Ruthless mode - terse, factual, non-explanatory */
-  .ruthless-hide {
-    @apply hidden;
+  .collapsed-section:hover {
+    opacity: 1;
   }
   
   /* Minimal button styles */
   .button-executive {
     @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors;
-    @apply bg-foreground text-background hover:bg-foreground/90;
+    background: hsl(0 0% 0%); /* Black - for primary actions */
+    color: white;
+  }
+  
+  .button-executive:hover {
+    background: hsl(30 6% 15%);
   }
   
   .button-executive-secondary {
     @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors;
-    @apply border border-border bg-transparent hover:bg-muted;
+    border: 1px solid hsl(30 6% 88%);
+    background: transparent;
+    color: hsl(30 6% 25%);
+  }
+  
+  .button-executive-secondary:hover {
+    background: hsl(35 10% 96%);
   }
   
   /* Legacy support */
@@ -137,23 +228,38 @@
   }
   
   .button-primary {
-    @apply button-pill bg-foreground text-background hover:bg-foreground/90;
+    @apply button-pill;
+    background: hsl(0 0% 0%);
+    color: white;
+  }
+  
+  .button-primary:hover {
+    background: hsl(30 6% 15%);
   }
   
   .button-secondary {
-    @apply button-pill border border-border hover:bg-muted;
+    @apply button-pill;
+    border: 1px solid hsl(30 6% 88%);
+    color: hsl(30 6% 25%);
+  }
+  
+  .button-secondary:hover {
+    background: hsl(35 10% 96%);
   }
   
   .text-hero {
     @apply text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1];
+    color: hsl(0 0% 0%); /* Pure black for hero text */
   }
   
   .text-display {
     @apply text-3xl md:text-4xl font-semibold tracking-tight;
+    color: hsl(0 0% 0%); /* Pure black */
   }
   
   .text-headline {
     @apply text-2xl md:text-3xl font-semibold tracking-tight;
+    color: hsl(0 0% 0%); /* Pure black */
   }
   
   /* Subtle animations */
@@ -182,17 +288,13 @@
   }
   
   .card-hover:hover {
-    @apply bg-muted/50;
+    background: hsl(35 10% 97%);
   }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fadeInUp {
@@ -206,7 +308,7 @@
   }
 }
 
-@keyframes heroFadeIn {
+@keyframes cardFadeUp {
   from {
     opacity: 0;
     transform: translateY(12px);
@@ -217,66 +319,7 @@
   }
 }
 
-@keyframes buttonScaleIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  70% {
-    transform: scale(1.01);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes cardFadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes pageFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes iconBounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
-}
-
-@keyframes iconRotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(5deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
-}
-
-@keyframes iconShimmer {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(2px);
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

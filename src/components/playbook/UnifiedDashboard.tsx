@@ -96,8 +96,8 @@ export function UnifiedDashboard() {
       {/* Minimal Header */}
       {!isRuthless && (
         <div className="text-center space-y-2 py-4">
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Intelligence Dashboard</h2>
-          <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+          <h2 className="text-primary-focus">Intelligence Dashboard</h2>
+          <p className="text-meta max-w-lg mx-auto">
             Synthesized findings from 12 Expert Positions on Agentic AI.
           </p>
         </div>

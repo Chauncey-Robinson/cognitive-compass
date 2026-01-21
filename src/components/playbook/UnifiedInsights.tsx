@@ -184,8 +184,8 @@ export function UnifiedInsights() {
       {/* Minimal Header */}
       {!isRuthless && (
         <div className="text-center space-y-2 py-4">
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Role-Based Intelligence</h2>
-          <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+          <h2 className="text-primary-focus">Role-Based Intelligence</h2>
+          <p className="text-meta max-w-lg mx-auto">
             Decision implications from 12 Expert Positions, optimized for your role.
           </p>
         </div>
