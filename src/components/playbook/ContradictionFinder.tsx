@@ -105,10 +105,10 @@ export function ContradictionFinder() {
     <div className="space-y-8 max-w-3xl mx-auto">
       {/* Header */}
       <div className="text-center space-y-2 py-4">
-        <h2 className="text-primary-focus">Decision Tensions</h2>
+        <h2 className="text-primary-focus">Where They Disagree</h2>
         {!isRuthless && (
           <p className="text-meta max-w-lg mx-auto">
-            {highPriorityCount} areas where expert positions diverge—requiring your judgment.
+            {highPriorityCount} areas where the experts see it differently—your call.
           </p>
         )}
       </div>

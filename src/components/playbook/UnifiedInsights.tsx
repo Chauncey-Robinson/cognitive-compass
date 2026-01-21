@@ -184,9 +184,9 @@ export function UnifiedInsights() {
       {/* Minimal Header */}
       {!isRuthless && (
         <div className="text-center space-y-2 py-4">
-          <h2 className="text-primary-focus">Role-Based Intelligence</h2>
+          <h2 className="text-primary-focus">What Matters to You</h2>
           <p className="text-meta max-w-lg mx-auto">
-            Decision implications from 12 Expert Positions, optimized for your role.
+            The takeaways that matter most, based on your role.
           </p>
         </div>
       )}
@@ -216,7 +216,7 @@ export function UnifiedInsights() {
                 <div className="p-2 rounded-lg bg-accent/10">
                   <ArrowRight className="h-5 w-5 text-accent-foreground" />
                 </div>
-                <CardTitle className="text-lg font-semibold">Decision Implications</CardTitle>
+                <CardTitle className="text-lg font-semibold">What This Means for You</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -234,7 +234,7 @@ export function UnifiedInsights() {
           {!isRuthless && (
             <Card className="border-0 shadow-sm bg-background">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base font-medium text-foreground/80">Key Insights</CardTitle>
+                <CardTitle className="text-base font-medium text-foreground/80">What the Experts Agree On</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -256,7 +256,7 @@ export function UnifiedInsights() {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-accent-foreground" />
-                <CardTitle className="text-base font-medium text-foreground/80">Red Flags</CardTitle>
+                <CardTitle className="text-base font-medium text-foreground/80">Warning Signs</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -277,7 +277,7 @@ export function UnifiedInsights() {
               <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">Actions & Talking Points</span>
+                  <span className="text-sm font-medium text-muted-foreground">Next Steps & Talking Points</span>
                 </div>
                 <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections['ceo-actions'] ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>
@@ -325,7 +325,7 @@ export function UnifiedInsights() {
                 <div className="p-2 rounded-lg bg-accent/10">
                   <ArrowRight className="h-5 w-5 text-accent-foreground" />
                 </div>
-                <CardTitle className="text-lg font-semibold">Decision Implications</CardTitle>
+                <CardTitle className="text-lg font-semibold">What This Means for You</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -342,7 +342,7 @@ export function UnifiedInsights() {
           {/* Secondary: Build vs Buy - Critical Decisions */}
           <Card className="border-0 shadow-sm bg-background">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-medium text-foreground/80">Build vs Buy</CardTitle>
+              <CardTitle className="text-base font-medium text-foreground/80">Build It or Buy It?</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -369,7 +369,7 @@ export function UnifiedInsights() {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-accent-foreground" />
-                <CardTitle className="text-base font-medium text-foreground/80">Red Flags</CardTitle>
+                <CardTitle className="text-base font-medium text-foreground/80">Warning Signs</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -390,7 +390,7 @@ export function UnifiedInsights() {
               <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-2">
                   <Cpu className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">Technical Architecture Details</span>
+                  <span className="text-sm font-medium text-muted-foreground">Under the Hood</span>
                 </div>
                 <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections['cto-tech'] ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>
@@ -420,7 +420,7 @@ export function UnifiedInsights() {
               <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">Key Insights & Consensus</span>
+                  <span className="text-sm font-medium text-muted-foreground">What the Experts Agree On</span>
                 </div>
                 <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections['cto-insights'] ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>
@@ -453,7 +453,7 @@ export function UnifiedInsights() {
                 <div className="p-2 rounded-lg bg-accent/10">
                   <ArrowRight className="h-5 w-5 text-accent-foreground" />
                 </div>
-                <CardTitle className="text-lg font-semibold">Decision Implications</CardTitle>
+                <CardTitle className="text-lg font-semibold">What This Means for You</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -471,7 +471,7 @@ export function UnifiedInsights() {
           {!isRuthless && (
             <Card className="border-0 shadow-sm bg-background">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base font-medium text-foreground/80">Key Frameworks</CardTitle>
+                <CardTitle className="text-base font-medium text-foreground/80">Useful Models</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -494,7 +494,7 @@ export function UnifiedInsights() {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-accent-foreground" />
-                <CardTitle className="text-base font-medium text-foreground/80">Red Flags</CardTitle>
+                <CardTitle className="text-base font-medium text-foreground/80">Warning Signs</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -515,7 +515,7 @@ export function UnifiedInsights() {
               <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-2">
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">Case Studies</span>
+                  <span className="text-sm font-medium text-muted-foreground">Real Examples</span>
                 </div>
                 <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections['mba-cases'] ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>
@@ -544,7 +544,7 @@ export function UnifiedInsights() {
               <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">Key Insights & Consensus</span>
+                  <span className="text-sm font-medium text-muted-foreground">What the Experts Agree On</span>
                 </div>
                 <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections['mba-insights'] ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>

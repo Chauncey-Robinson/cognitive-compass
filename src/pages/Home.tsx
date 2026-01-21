@@ -13,28 +13,28 @@ const Home = () => {
   const modules = [
     {
       icon: Brain,
-      title: "AI Basics",
+      title: "The Basics",
       description: "A fast checkup that shows your AI level and what to do next.",
       link: "/ai-basics",
       audio: "A fast checkup that shows your AI level and what to do next."
     },
     {
       icon: Zap,
-      title: "Micro-Concepts",
+      title: "Core Concepts",
       description: "15-second lessons that explain how AI thinks and works.",
       link: "/concepts",
       audio: "15-second lessons that explain how AI thinks and works."
     },
     {
       icon: Target,
-      title: "Applied AI Sprints",
+      title: "Practice",
       description: "Step-by-step guides to automate reports and redesign workflows.",
       link: "/sprints",
       audio: "Step-by-step guides to automate reports and redesign workflows."
     },
     {
       icon: Users,
-      title: "Executive Fluency",
+      title: "For Leaders",
       description: "Clear explanations of strategy, risk, and planning.",
       link: "/executive",
       audio: "Clear explanations of strategy, risk, and planning."
@@ -61,7 +61,7 @@ const Home = () => {
               className="button-primary animate-fade-in text-lg px-10 py-7 h-auto rounded-full mb-6"
               style={{ animationDelay: '200ms' }}
             >
-              Start Your Intelligence Scan
+              See Where You Stand
             </Button>
             <p className="text-sm text-muted-foreground animate-fade-in font-light" style={{ animationDelay: '300ms' }}>
               For busy people who want AI to feel easy—not confusing.

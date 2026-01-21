@@ -123,10 +123,10 @@ export function PlaybookSidebar() {
       <div className="p-5 border-b border-border/50">
         <h2 className="text-sm font-medium text-foreground flex items-center gap-2">
           <FileText className="h-4 w-4 text-muted-foreground" />
-          Expert Positions
+          Sources
         </h2>
         <p className="text-xs text-muted-foreground mt-1">
-          {playbooks.length} documents
+          {playbooks.length} reports
         </p>
       </div>
 
@@ -142,7 +142,7 @@ export function PlaybookSidebar() {
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : null}
-            Load 12 Expert Positions
+            Load Reports
           </Button>
         )}
         

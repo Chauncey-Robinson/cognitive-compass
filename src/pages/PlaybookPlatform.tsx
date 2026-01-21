@@ -32,11 +32,11 @@ function PlaybookPlatformContent() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-primary-focus">
-                AI Expert Position Analysis
+                What the Experts Say
               </h1>
               {!isRuthless && (
                 <p className="text-meta mt-1">
-                  12 strategy positions from leading firms · Decision-optimized
+                  12 perspectives from leading firms
                 </p>
               )}
             </div>
@@ -65,21 +65,21 @@ function PlaybookPlatformContent() {
                 className="flex items-center gap-2 px-3 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background rounded-md"
               >
                 <Star className="h-4 w-4" />
-                {!isRuthless && "Grades"}
+                {!isRuthless && "Quality"}
               </TabsTrigger>
               <TabsTrigger 
                 value="contradictions" 
                 className="flex items-center gap-2 px-3 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background rounded-md"
               >
                 <AlertTriangle className="h-4 w-4" />
-                {!isRuthless && "Tensions"}
+                {!isRuthless && "Disagreements"}
               </TabsTrigger>
               <TabsTrigger 
                 value="insights" 
                 className="flex items-center gap-2 px-3 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background rounded-md"
               >
                 <Lightbulb className="h-4 w-4" />
-                {!isRuthless && "Insights"}
+                {!isRuthless && "Takeaways"}
               </TabsTrigger>
               {!isRuthless && (
                 <>
@@ -88,28 +88,28 @@ function PlaybookPlatformContent() {
                     className="flex items-center gap-2 px-3 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background rounded-md"
                   >
                     <BarChart3 className="h-4 w-4" />
-                    Dashboard
+                    Overview
                   </TabsTrigger>
                   <TabsTrigger 
                     value="timeline" 
                     className="flex items-center gap-2 px-3 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background rounded-md"
                   >
                     <Clock className="h-4 w-4" />
-                    Timeline
+                    History
                   </TabsTrigger>
                   <TabsTrigger 
                     value="compare" 
                     className="flex items-center gap-2 px-3 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background rounded-md"
                   >
                     <GitCompare className="h-4 w-4" />
-                    Compare
+                    Side by Side
                   </TabsTrigger>
                   <TabsTrigger 
                     value="chat" 
                     className="flex items-center gap-2 px-3 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background rounded-md"
                   >
                     <MessageSquare className="h-4 w-4" />
-                    Ask AI
+                    Ask
                   </TabsTrigger>
                 </>
               )}
